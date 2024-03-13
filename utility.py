@@ -35,10 +35,18 @@ class Utility:
         json.dump(topo, fh)
         return arr
 
+    @staticmethod
+    def gen_traffic_matrix(node_num, rng):
+        # generator of traffic matrix 
+        mtx = rng.random((node_num, node_num))
+        for i in range(node_num):
+            mtx[i, i] = 0  # no self-to-self traffic
+        return mtx
+
 
 def ring():
     filename = 'tmp/ring'
-    size = 10
+    size = 20
     net_type = 'ring'
     graph_arr = Utility.gen_network_json(filename, size, net_type)
     G = nx.Graph(graph_arr)
@@ -50,7 +58,7 @@ def ring():
 
 def grid():
     filename = 'tmp/grid'
-    size = 10
+    size = 20
     net_type = 'grid'
     graph_arr = Utility.gen_network_json(filename, size, net_type)
     G = nx.Graph(graph_arr)
@@ -62,7 +70,7 @@ def grid():
 
 def as_net():
     filename = 'tmp/as_net'
-    size = 10
+    size = 20
     net_type = 'as_net'
     graph_arr = Utility.gen_network_json(filename, size, net_type)
     G = nx.Graph(graph_arr)
@@ -72,8 +80,21 @@ def as_net():
     plt.show()
 
 
-if __name__ == '__main__':
-    ring()
-    grid()
-    as_net()
+def gen_traffic():
+    from numpy.random import default_rng
+    seed = 0
+    size = 20
+    rng = default_rng(seed)
+    traffic_matrix = Utility.gen_traffic_matrix(20, rng)
+    filename = 'tmp/traffix_matrix'
+    fh = open(filename, 'w')
+    traffic = {"traffic": traffic_matrix.tolist()}
+    json.dump(traffic, fh)
 
+
+
+if __name__ == '__main__':
+    # ring()
+    # grid()
+    # as_net()
+    gen_traffic()
