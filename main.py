@@ -9,6 +9,8 @@ import numpy as np
 from sequence.topology.router_net_topo import RouterNetTopo
 import sequence.utils.log as log
 
+from router_net_topo_adaptive import RouterNetTopoAdaptive
+
 
 # linear network topology + entanglement generation
 # efficiency = 1:   avg latency = 0.0298s, rate = 33.59/s
@@ -118,8 +120,29 @@ def linear_swapping(verbose=False):
     print(f'average latency = {latency:.4f}s; rate = {1/latency:.3f}/s')
 
 
+def linear_adaptive_only(verbose=False):
+    print('\nLinear, adaptive:')
+
+    log_filename = 'log/linear_adaptive'
+    # level = logging.DEBUG
+    # logging.basicConfig(level=level, filename='', filemode='w')
+    
+    network_config = 'config/line_5.json'
+    # network_config = 'config/random_5.json'
+    network_topo = RouterNetTopoAdaptive(network_config)
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('DEBUG')
+    modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 'purification', 'swapping', 'bsm']
+    for module in modules:
+        log.track_module(module)
+
+
 
 if __name__ == '__main__':
     verbose = True
     # linear_entanglement_generation(verbose)
-    linear_swapping(verbose)
+    # linear_swapping(verbose)
+    linear_adaptive_only(verbose)
+

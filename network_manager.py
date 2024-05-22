@@ -8,6 +8,7 @@ from sequence.network_management.network_manager import NetworkManager
 from adaptive_continuous import AdaptiveContinuousProtocol
 from typing import List
 
+
 class NetworkManagerAdaptive(NetworkManager):
     '''Network manager for the Adaptive, Continuous Protocol
     
@@ -25,4 +26,6 @@ class NetworkManagerAdaptive(NetworkManager):
         """
         super().__init__(owner, protocol_stack)
         self.path_cache = [] # each item is (timestamp: int, path: list)
-        self.adaptive_continuous = AdaptiveContinuousProtocol()
+        self.adaptive_continuous = AdaptiveContinuousProtocol(owner, f'{owner.name}.adaptive_continuous')
+
+
