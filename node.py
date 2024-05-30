@@ -5,32 +5,35 @@ from sequence.topology.node import QuantumRouter
 from sequence.resource_management.resource_manager import ResourceManager
 from sequence.network_management.routing import StaticRoutingProtocol
 from sequence.kernel.timeline import Timeline
-from network_manager import NetworkManagerAdaptive
+from sequence.network_management.network_manager import NetworkManager
 from reservation import ResourceReservationProtocolAdaptive
+from adaptive_continuous import AdaptiveContinuousProtocol
 
 
 class QuantumRouterAdaptive(QuantumRouter):
-    '''The adaptive 
+    '''The quantum router customized for the adaptive continuous protocol
+    Newly added attributes:
+        1) cache (list): storing the routing path
+        2) Adaptive Protocol
     '''
     def __init__(self, name: str, tl: Timeline, memo_size: int = 50, seed: int = None, component_templates: dict = None):
         super().__init__(name, tl, memo_size, seed, component_templates)
-        memo_arr_name = name + ".MemoryArray"
-        self.init_managers(memo_arr_name)
+        self.cache = [] # each item is (timestamp: int, path: list)
+        self.adaptive_continuous = AdaptiveContinuousProtocol(self, f'{self.name}.adaptive_continuous')
 
     def init_managers(self, memo_arr_name: str):
-        '''init the resource mansger and network manager
+        '''override QuantumRouter.init_manager()
+           init the resource mansger and network manager
         Args:
             memo_arr_name: the name of the memory array
         '''
         # setup resource manager
-        self.resource_manager = None
         resource_manager = ResourceManager(self, memo_arr_name)
         self.set_resource_manager(resource_manager)
 
         # setup network manager
         swapping_success_rate = 0.5
-        network_manager = NetworkManagerAdaptive(self, [])
-        self.network_manager = None
+        network_manager = NetworkManager(self, [])
         routing_protocol = StaticRoutingProtocol(self, f'{self.name}.StaticRoutingProtocol', {})
         rsvp_protocol = ResourceReservationProtocolAdaptive(self, f'{self.name}.RSVP', memo_arr_name)
         rsvp_protocol.set_swapping_success_rate(swapping_success_rate)
