@@ -18,8 +18,12 @@ class QuantumRouterAdaptive(QuantumRouter):
     '''
     def __init__(self, name: str, tl: Timeline, memo_size: int = 50, seed: int = None, component_templates: dict = None):
         super().__init__(name, tl, memo_size, seed, component_templates)
-        self.cache = [] # each item is (timestamp: int, path: list)
-        self.adaptive_continuous = AdaptiveContinuousProtocol(self, f'{self.name}.adaptive_continuous')
+        self.cache = []  # each item is (timestamp: int, path: list)
+        adaptive_name = f'{self.name}.adaptive_continuous'
+        adaptive_max_memory = component_templates['adaptive_max_memory']
+        memory_manager = self.resource_manager.memory_manager
+        self.adaptive_continuous = AdaptiveContinuousProtocol(self, adaptive_name, adaptive_max_memory, memory_manager)
+
 
     def init_managers(self, memo_arr_name: str):
         '''override QuantumRouter.init_manager()
@@ -41,3 +45,9 @@ class QuantumRouterAdaptive(QuantumRouter):
         rsvp_protocol.lower_protocols.append(routing_protocol)
         network_manager.load_stack([routing_protocol, rsvp_protocol])
         self.set_network_manager(network_manager)
+
+    def init(self):
+        '''start the Adaptive-continuous protocol
+        '''
+        self.adaptive_continuous.init()
+        self.adaptive_continuous.loop_event(delay=0)
