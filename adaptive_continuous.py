@@ -3,6 +3,9 @@ Implement paper "Adaptive, Continuous Entanglement Generation for Quantum Networ
 Paper link: https://ieeexplore.ieee.org/document/9798130
 '''
 
+from itertools import accumulate
+from bisect import bisect_left
+
 from sequence.message import Message
 from sequence.protocol import Protocol
 from sequence.topology.node import Node
@@ -10,7 +13,7 @@ from sequence.kernel.process import Process
 from sequence.kernel.event import Event
 from sequence.utils import log
 from sequence.resource_management.memory_manager import MemoryManager, MemoryInfo
-from sequence.constants import MILLISECOND, MICROSECOND
+from sequence.constants import MILLISECOND, MICROSECOND, EPSILON
 
 
 class AdaptiveContinuousProtocol(Protocol):
@@ -27,7 +30,7 @@ class AdaptiveContinuousProtocol(Protocol):
         self.adaptive_max_memory = adaptive_max_memory
         self.adaptive_memory_used = 0
         self.memory_manager = memory_manager
-        self.probability_table = []
+        self.probability_table = {}
 
     def init(self):
         self.init_probability_table()
@@ -74,22 +77,35 @@ class AdaptiveContinuousProtocol(Protocol):
                 return memory_info
         return None
 
-    def init_probability_table(self) -> dict:
-        '''return the probability table computed from the static routing protocols' forwarding table
+    def init_probability_table(self):
+        '''initialize the probability table computed from the static routing protocols' forwarding table
         '''
-        forwarding_table = self.owner.network_manager.protocol_stack[0].get_forwarding_table()
         probability_table = {}
+        forwarding_table = self.owner.network_manager.protocol_stack[0].get_forwarding_table()
         neighbors = []
         for dst, next_hop in forwarding_table.items():
             if dst == next_hop:  # it is a neighbor when the destination equals the next hop in the forwarding table
                 neighbors.append(dst)
         for neighbor in neighbors:
             probability_table[neighbor] = 1 / len(neighbors)
-        return probability_table
+        assert abs(sum(probability_table.values()) - 1) < EPSILON
+        self.probability_table = probability_table
 
 
-    def select_neighbor(self):
-        return None
+    def select_neighbor(self) -> str:
+        '''return the name of the selected neighbor
+           The selection algorithm is roulette wheel
+        '''
+        neighbors = []
+        probs = []
+        for neighbor, prob in sorted(self.probability_table.items()):
+            neighbors.append(neighbor)
+            probs.append(prob)
+        probs_accumulate = list(accumulate(probs))
+        random_number = self.owner.get_generator().random()
+        index = bisect_left(probs_accumulate, random_number)
+        return neighbors[index]
+
 
     def received_message(self, src: str, msg: Message):
         '''override Protocol.received_message
