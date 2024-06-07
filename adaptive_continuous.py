@@ -3,6 +3,7 @@ Implement paper "Adaptive, Continuous Entanglement Generation for Quantum Networ
 Paper link: https://ieeexplore.ieee.org/document/9798130
 '''
 
+from enum import Enum, auto
 from itertools import accumulate
 from bisect import bisect_left
 
@@ -14,6 +15,36 @@ from sequence.kernel.event import Event
 from sequence.utils import log
 from sequence.resource_management.memory_manager import MemoryManager, MemoryInfo
 from sequence.constants import MILLISECOND, MICROSECOND, EPSILON
+
+
+class ACMsgType(Enum):
+    '''Defines possible message types for the adaptive continuous (AC) protocol
+    '''
+    REQUEST = auto()  # ask if the neighbor has available memory
+    RESPOND = auto()      # responding no available memory
+
+
+class AdaptiveContinuousMessage(Message):
+    '''Message used by the adaptive continuous protocol
+
+    Attributes:
+        msg_type (ACMsgType): the message type
+        receiver (str): name of the destination protocol instance
+    '''
+    def __init__(self, msg_type: ACMsgType, **kwargs):
+        super().__init__(msg_type, receiver='adaptive_continuous')
+        self.initiate_memory_name = kwargs['initiate_memory_name']
+        self.string = f'type={msg_type.name}, initiate_memory_name={self.initiate_memory_name}'
+
+        if self.msg_type == ACMsgType.RESPOND:
+            self.answer = kwargs['answer']
+            self.string += ', answer={}'.format(self.answer)
+            if self.answer == True:
+                self.paired_memory_name = kwargs['paired_memory_name']
+                self.string += ', paired_memory_name={}'.format(self.paired_memory_name)
+    
+    def __str__(self):
+        return f'|{self.string}|'
 
 
 class AdaptiveContinuousProtocol(Protocol):
@@ -35,28 +66,31 @@ class AdaptiveContinuousProtocol(Protocol):
     def init(self):
         self.init_probability_table()
 
-    def loop(self) -> None:
-        '''a single loop of the adaptive-continuous protocol
+    def start(self) -> None:
+        '''start a new "cycle" of the adaptive-continuous protocol
         '''
         # 1. check whether the adaptive protocol has used up its memory quota
         if self.adaptive_memory_used >= self.adaptive_max_memory:
-            self.loop_event(delay=MILLISECOND)  # schedule a loop event in the future
+            self.start_delay(delay=MILLISECOND)  # schedule a start event in the future
             return
 
         # 2. get RAW memory
         raw_memory_info = self.get_raw_memory_info()
         if raw_memory_info is not None:
-            # 3. select neighbor & check neighbor's memory
+            # 3.1 update status to occupied
+            self.memory_manager.update(raw_memory_info.memory, MemoryInfo.OCCUPIED)
+            # 3.2 select neighbor & check neighbor's memory
             neighbor = self.select_neighbor()
-
-            # 4. create rules
+            msg = AdaptiveContinuousMessage(ACMsgType.REQUEST, initiate_memory_name=raw_memory_info.memory.name)
+            self.owner.send_message(neighbor, msg)
+            # 4. create rules is in the received_message
         else:
-            # no RAW memory, schedule another loop event after 1 ms
-            self.loop_event(delay=MILLISECOND)
+            # no RAW memory, schedule another start event after 1 ms
+            self.start_delay(delay=MILLISECOND)
 
 
-    def loop_event(self, delay: float) -> None:
-        '''create a loop event after a random delay
+    def start_delay(self, delay: float) -> None:
+        '''create a "start" event after a random delay
         Args:
             delay: schedule the event after some amount of delay (pico seconds)
         '''
@@ -64,7 +98,7 @@ class AdaptiveContinuousProtocol(Protocol):
         random_delay = int(self.owner.get_generator().normal(delay, delay / 100))
         if random_delay < 0:
             random_delay = -random_delay
-        process = Process(self, 'loop', [])
+        process = Process(self, 'start', [])
         event = Event(self.owner.timeline.now() + random_delay, process)
         self.owner.timeline.schedule(event)
 
@@ -76,6 +110,7 @@ class AdaptiveContinuousProtocol(Protocol):
             if memory_info.state == MemoryInfo.RAW:
                 return memory_info
         return None
+
 
     def init_probability_table(self):
         '''initialize the probability table computed from the static routing protocols' forwarding table
@@ -107,7 +142,35 @@ class AdaptiveContinuousProtocol(Protocol):
         return neighbors[index]
 
 
-    def received_message(self, src: str, msg: Message):
-        '''override Protocol.received_message
+    def received_message(self, src: str, msg: ACMsgType):
+        '''override Protocol.received_message, method to receive AC Messages.
+
+        Message come in 3 types, as detailed in the `ACMsgType` class
+
+        Args:
+            scr (str): name of the node that sent the message
+            msg (ACMsgType): message received
         '''
-        pass
+        log.logger.info('{} receive message from {}: {}'.format(self.name, src, msg))
+
+        if msg.msg_type is ACMsgType.REQUEST:
+            if self.adaptive_memory_used >= self.adaptive_max_memory:  # AC Protocol cannot exceed adaptive_max_memory
+                new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=False, initiate_memory_name=msg.initiate_memory_name)
+            else:
+                raw_memory_info = self.get_raw_memory_info()
+                if raw_memory_info is None:                            # no available quantum memory
+                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=False, initiate_memory_name=msg.initiate_memory_name)
+                else:                                                  # has available quantum memory
+                    self.memory_manager.update(raw_memory_info.memory, MemoryInfo.OCCUPIED)
+                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=True, initiate_memory_name=msg.initiate_memory_name, 
+                                                                                        paired_memory_name=raw_memory_info.memory.name)
+            self.owner.send_message(src, new_msg)
+        
+        elif msg.msg_type is ACMsgType.RESPOND:
+            if msg.answer is False:           # no paired memory
+                self.memory_manager.update(raw_memory_info.memory, MemoryInfo.RAW)
+                self.start_delay(MILLISECOND)
+            else:                             # has paired memory
+                pass
+
+

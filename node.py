@@ -9,6 +9,9 @@ from sequence.network_management.network_manager import NetworkManager
 from reservation import ResourceReservationProtocolAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
 
+from sequence.utils import log
+from sequence.message import Message
+
 
 class QuantumRouterAdaptive(QuantumRouter):
     '''The quantum router customized for the adaptive continuous protocol
@@ -50,4 +53,28 @@ class QuantumRouterAdaptive(QuantumRouter):
         '''start the Adaptive-continuous protocol
         '''
         self.adaptive_continuous.init()
-        self.adaptive_continuous.loop_event(delay=0)
+        self.adaptive_continuous.start_delay(delay=0)
+
+    def receive_message(self, src: str, msg: "Message") -> None:
+        """Determine what to do when a message is received, based on the msg.receiver
+        Args:
+            src (str): name of node that sends the message
+            msg (Message): the message
+        """
+        log.logger.info("{} receive message {} from {}".format(self.name, msg, src))
+        if msg.receiver == "network_manager":
+            self.network_manager.received_message(src, msg)
+        elif msg.receiver == "resource_manager":
+            self.resource_manager.received_message(src, msg)
+        elif msg.receiver == "adaptive_continuous":
+            self.adaptive_continuous.received_message(src, msg)
+        else:
+            if msg.receiver is None:  # NOTE caitao: the msg sent by EntanglementGenerationB doesn't have a receiver (A-B not paired)
+                matching = [p for p in self.protocols if type(p) == msg.protocol_type]
+                for p in matching:
+                    p.received_message(src, msg)
+            else:
+                for protocol in self.protocols:
+                    if protocol.name == msg.receiver:
+                        protocol.received_message(src, msg)
+                        break
