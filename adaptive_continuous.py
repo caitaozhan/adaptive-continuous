@@ -14,14 +14,16 @@ from sequence.kernel.process import Process
 from sequence.kernel.event import Event
 from sequence.utils import log
 from sequence.resource_management.memory_manager import MemoryManager, MemoryInfo
-from sequence.constants import MILLISECOND, MICROSECOND, EPSILON
+from sequence.network_management.reservation import Reservation
+from reservation import ResourceReservationProtocolAdaptive
+from sequence.constants import MILLISECOND, MICROSECOND, SECOND, EPSILON
 
 
 class ACMsgType(Enum):
     '''Defines possible message types for the adaptive continuous (AC) protocol
     '''
     REQUEST = auto()  # ask if the neighbor has available memory
-    RESPOND = auto()      # responding no available memory
+    RESPOND = auto()  # responding NO/YES
 
 
 class AdaptiveContinuousMessage(Message):
@@ -30,18 +32,19 @@ class AdaptiveContinuousMessage(Message):
     Attributes:
         msg_type (ACMsgType): the message type
         receiver (str): name of the destination protocol instance
+        reservation (Reservation): the reservation created by the Adaptive Continuous Protocol
     '''
-    def __init__(self, msg_type: ACMsgType, **kwargs):
+    def __init__(self, msg_type: ACMsgType, reservation: Reservation, **kwargs):
         super().__init__(msg_type, receiver='adaptive_continuous')
-        self.initiate_memory_name = kwargs['initiate_memory_name']
-        self.string = f'type={msg_type.name}, initiate_memory_name={self.initiate_memory_name}'
+        self.reservation = reservation
+        self.string = f'type={msg_type.name}, reservation={reservation}'
 
         if self.msg_type == ACMsgType.RESPOND:
             self.answer = kwargs['answer']
             self.string += ', answer={}'.format(self.answer)
             if self.answer == True:
-                self.paired_memory_name = kwargs['paired_memory_name']
-                self.string += ', paired_memory_name={}'.format(self.paired_memory_name)
+                self.path = kwargs['path']
+                self.string += f', path={self.path}'
     
     def __str__(self):
         return f'|{self.string}|'
@@ -51,16 +54,18 @@ class AdaptiveContinuousProtocol(Protocol):
     '''This protocol continuously generates entanglement with its neighbor nodes. 
        The probability to which neighbor to entangle is computed adaptively regarding the user requests.
 
+       This version uses the resource reservation protocol from the network manager, to use the reservation system
+
     New attributes:
         adaptive_max_memory (int): maximum number of memory used for Adaptive-continuous protocol
         memory_array (MemoryArray): memory array to track
     '''
 
-    def __init__(self, owner: "Node", name: str, adaptive_max_memory: int, memory_manager: MemoryManager):
+    def __init__(self, owner: "Node", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive):
         super().__init__(owner, name)
         self.adaptive_max_memory = adaptive_max_memory
         self.adaptive_memory_used = 0
-        self.memory_manager = memory_manager
+        self.resource_reservation = resource_reservation
         self.probability_table = {}
 
     def init(self):
@@ -69,23 +74,25 @@ class AdaptiveContinuousProtocol(Protocol):
     def start(self) -> None:
         '''start a new "cycle" of the adaptive-continuous protocol
         '''
-        # 1. check whether the adaptive protocol has used up its memory quota
+        # check whether the adaptive protocol has used up its memory quota
         if self.adaptive_memory_used >= self.adaptive_max_memory:
             self.start_delay(delay=MILLISECOND)  # schedule a start event in the future
             return
 
-        # 2. get RAW memory
-        raw_memory_info = self.get_raw_memory_info()
-        if raw_memory_info is not None:
-            # 3.1 update status to occupied
-            self.memory_manager.update(raw_memory_info.memory, MemoryInfo.OCCUPIED)
-            # 3.2 select neighbor & check neighbor's memory
-            neighbor = self.select_neighbor()
-            msg = AdaptiveContinuousMessage(ACMsgType.REQUEST, initiate_memory_name=raw_memory_info.memory.name)
+        # select neighbor
+        neighbor = self.select_neighbor()
+        self.adaptive_memory_used += 1
+        round_trip_time = self.owner.cchannels[neighbor].delay * 2
+        start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
+        end_time = start_time + SECOND
+        # set up reservation
+        reservation = Reservation(self.owner.name, neighbor, start_time, end_time, memory_size=1, fidelity=0.9)
+        if self.resource_reservation.schedule(reservation):
+            # able to schedule on current node, i.e., has memory
+            msg = AdaptiveContinuousMessage(ACMsgType.REQUEST, reservation)
             self.owner.send_message(neighbor, msg)
-            # 4. create rules is in the received_message
         else:
-            # no RAW memory, schedule another start event after 1 ms
+            # not able to schedule on current node, schedule another start event after 1 ms
             self.start_delay(delay=MILLISECOND)
 
 
@@ -145,7 +152,7 @@ class AdaptiveContinuousProtocol(Protocol):
     def received_message(self, src: str, msg: ACMsgType):
         '''override Protocol.received_message, method to receive AC Messages.
 
-        Message come in 3 types, as detailed in the `ACMsgType` class
+        Message come in 2 types, as detailed in the `ACMsgType` class
 
         Args:
             scr (str): name of the node that sent the message
@@ -155,22 +162,25 @@ class AdaptiveContinuousProtocol(Protocol):
 
         if msg.msg_type is ACMsgType.REQUEST:
             if self.adaptive_memory_used >= self.adaptive_max_memory:  # AC Protocol cannot exceed adaptive_max_memory
-                new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=False, initiate_memory_name=msg.initiate_memory_name)
+                new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
             else:
-                raw_memory_info = self.get_raw_memory_info()
-                if raw_memory_info is None:                            # no available quantum memory
-                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=False, initiate_memory_name=msg.initiate_memory_name)
-                else:                                                  # has available quantum memory
-                    self.memory_manager.update(raw_memory_info.memory, MemoryInfo.OCCUPIED)
-                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, answer=True, initiate_memory_name=msg.initiate_memory_name, 
-                                                                                        paired_memory_name=raw_memory_info.memory.name)
+                reservation = msg.reservation
+                if self.resource_reservation.schedule(reservation):    # has available quantum memory
+                    self.adaptive_memory_used += 1
+                    path = [src, self.owner.name]  # path only has two nodes
+                    rules = self.resource_reservation.create_rules(path, reservation)
+                    self.resource_reservation.load_rules(rules, reservation)
+                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=True, path=path)
+                else:                                                  # no available quantum memory
+                    new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
             self.owner.send_message(src, new_msg)
         
         elif msg.msg_type is ACMsgType.RESPOND:
-            if msg.answer is False:           # no paired memory
-                self.memory_manager.update(raw_memory_info.memory, MemoryInfo.RAW)
+            if msg.answer is False:           # neighbor doesn't has available memory
+                for card in self.resource_reservation.timecards:
+                    card.remove(msg.reservation) # clear up the timecards
+                self.adaptive_memory_used -= 1
                 self.start_delay(MILLISECOND)
-            else:                             # has paired memory
-                pass
-
-
+            else:                             # neighbor has available memory
+                rules = self.resource_reservation.create_rules(msg.path, msg.reservation)
+                self.resource_reservation.load_rules(rules, msg.reservation)

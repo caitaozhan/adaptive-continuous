@@ -44,6 +44,13 @@ output_dict[Topology.ALL_TEMPLATES] = \
             "MemoryArray": {
                 "fidelity": 1.0
             }
+        },
+        "adaptive_protocol": {
+            "MemoryArray": {
+                "fidelity": 0.98,
+                "efficiency": 0.5
+            },
+            "adaptive_max_memory": 2
         }
     }
 
@@ -56,7 +63,7 @@ else:
 # generate nodes
 router_names = list(node_procs.keys())
 # nodes = generate_nodes(node_procs, router_names, args.memo_size)
-template = 'perfect_memo'
+template = 'adaptive_protocol'
 nodes = generate_nodes(node_procs, router_names, args.memo_size, template=template)
 
 # generate bsm nodes
