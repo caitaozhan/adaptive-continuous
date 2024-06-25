@@ -23,7 +23,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
 
     def create_rules(self, path: list, reservation: Reservation) -> List["Rule"]:
-        """Method to create rules for a successful AC protocol's request.
+        """Method to create rules for entanglement generation for a successful AC protocol's request.
 
         Rules are used to direct the flow of information/entanglement in the resource manager.
 
@@ -81,13 +81,18 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         for card in self.timecards:
             if reservation in card.reservations:
                 process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"])
-                event = Event(reservation.end_time, process, 1)  # redundant? can 'expire' do the same job?
+                event = Event(reservation.end_time, process, 1)
+                self.owner.timeline.schedule(event)
+
+                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [])
+                event = Event(reservation.end_time, process, 2)
                 self.owner.timeline.schedule(event)
 
         for rule in rules:
             process = Process(self.owner.resource_manager, "load", [rule])
             event = Event(reservation.start_time, process)
             self.owner.timeline.schedule(event)
+
             process = Process(self.owner.resource_manager, "expire", [rule])
             event = Event(reservation.end_time, process, 0)
             self.owner.timeline.schedule(event)

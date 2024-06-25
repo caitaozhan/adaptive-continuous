@@ -149,7 +149,7 @@ class AdaptiveContinuousProtocol(Protocol):
         return neighbors[index]
 
 
-    def received_message(self, src: str, msg: ACMsgType):
+    def received_message(self, src: str, msg: ACMsgType) -> None:
         '''override Protocol.received_message, method to receive AC Messages.
 
         Message come in 2 types, as detailed in the `ACMsgType` class
@@ -180,7 +180,14 @@ class AdaptiveContinuousProtocol(Protocol):
                 for card in self.resource_reservation.timecards:
                     card.remove(msg.reservation) # clear up the timecards
                 self.adaptive_memory_used -= 1
-                self.start_delay(MILLISECOND)
             else:                             # neighbor has available memory
                 rules = self.resource_reservation.create_rules(msg.path, msg.reservation)
                 self.resource_reservation.load_rules(rules, msg.reservation)
+            self.start_delay(MILLISECOND)
+
+    def adaptive_memory_used_minus_one(self) -> None:
+        '''reduce the self.adaptive_memory_used by 1. Called when the entanglement generation protocol is expired
+        '''
+        log.logger.debug(f'{self.name}, adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
+        assert self.adaptive_memory_used > 0, f"{self.name}, adaptive_memory_used={self.adaptive_memory_used}"
+        self.adaptive_memory_used -= 1
