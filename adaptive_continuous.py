@@ -13,9 +13,8 @@ from sequence.topology.node import Node
 from sequence.kernel.process import Process
 from sequence.kernel.event import Event
 from sequence.utils import log
-from sequence.resource_management.memory_manager import MemoryManager, MemoryInfo
-from sequence.network_management.reservation import Reservation
-from reservation import ResourceReservationProtocolAdaptive
+from sequence.resource_management.memory_manager import MemoryInfo
+from reservation import ResourceReservationProtocolAdaptive, ReservationAdaptive
 from sequence.constants import MILLISECOND, MICROSECOND, SECOND, EPSILON
 
 
@@ -34,7 +33,7 @@ class AdaptiveContinuousMessage(Message):
         receiver (str): name of the destination protocol instance
         reservation (Reservation): the reservation created by the Adaptive Continuous Protocol
     '''
-    def __init__(self, msg_type: ACMsgType, reservation: Reservation, **kwargs):
+    def __init__(self, msg_type: ACMsgType, reservation: ReservationAdaptive, **kwargs):
         super().__init__(msg_type, receiver='adaptive_continuous')
         self.reservation = reservation
         self.string = f'type={msg_type.name}, reservation={reservation}'
@@ -86,7 +85,7 @@ class AdaptiveContinuousProtocol(Protocol):
         start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
         end_time = start_time + SECOND
         # set up reservation
-        reservation = Reservation(self.owner.name, neighbor, start_time, end_time, memory_size=1, fidelity=0.9)
+        reservation = ReservationAdaptive(self.owner.name, neighbor, start_time, end_time, memory_size=1, fidelity=0.9)
         if self.resource_reservation.schedule(reservation):
             # able to schedule on current node, i.e., has memory
             msg = AdaptiveContinuousMessage(ACMsgType.REQUEST, reservation)
@@ -168,8 +167,9 @@ class AdaptiveContinuousProtocol(Protocol):
                 if self.resource_reservation.schedule(reservation):    # has available quantum memory
                     self.adaptive_memory_used += 1
                     path = [src, self.owner.name]  # path only has two nodes
-                    rules = self.resource_reservation.create_rules(path, reservation)
-                    self.resource_reservation.load_rules(rules, reservation)
+                    rules = self.resource_reservation.create_rules_adaptive(path, reservation)
+                    self.resource_reservation.load_rules_adaptive(rules, reservation)
+                    reservation.set_path(path)
                     new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=True, path=path)
                 else:                                                  # no available quantum memory
                     new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
@@ -181,9 +181,10 @@ class AdaptiveContinuousProtocol(Protocol):
                     card.remove(msg.reservation) # clear up the timecards
                 self.adaptive_memory_used -= 1
             else:                             # neighbor has available memory
-                rules = self.resource_reservation.create_rules(msg.path, msg.reservation)
-                self.resource_reservation.load_rules(rules, msg.reservation)
+                rules = self.resource_reservation.create_rules_adaptive(msg.path, msg.reservation)
+                self.resource_reservation.load_rules_adaptive(rules, msg.reservation)
             self.start_delay(MILLISECOND)
+
 
     def adaptive_memory_used_minus_one(self) -> None:
         '''reduce the self.adaptive_memory_used by 1. Called when the entanglement generation protocol is expired

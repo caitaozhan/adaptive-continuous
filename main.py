@@ -150,23 +150,23 @@ def linear_adaptive_only(verbose=False):
     log.set_logger_level('DEBUG')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['adaptive_continuous']
+    modules = ['timeline', 'network_manager', 'rule_manager', 'adaptive_continuous', 'resource_manager']
     for module in modules:
         log.track_module(module)
 
     src_node_name  = 'router_0'
-    dest_node_name = 'router_2'
+    dest_node_name = 'router_1'
     src_node = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
         if router.name == src_node_name:
             src_node = router
             break
 
-    start_time = 1e12
-    end_time   = 6e12  # cannot be smaller than the end_time in the config
-    entanglement_number = 20
+    start_time = 0.5e12
+    end_time   = 1.5e12
+    entanglement_number = 1
     nm = src_node.network_manager
-    # nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
+    nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
 
     tl.init()
     tl.run()
