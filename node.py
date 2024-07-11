@@ -2,12 +2,12 @@
 '''
 
 from sequence.topology.node import QuantumRouter
-from sequence.resource_management.resource_manager import ResourceManager
 from sequence.network_management.routing import StaticRoutingProtocol
 from sequence.kernel.timeline import Timeline
 from sequence.network_management.network_manager import NetworkManager
+from resource_manager import ResourceManagerAdaptive
 from reservation import ResourceReservationProtocolAdaptive
-from adaptive_continuous import AdaptiveContinuousProtocol
+from adaptive_continuous_protocol import AdaptiveContinuousProtocol
 
 from sequence.utils import log
 from sequence.message import Message
@@ -35,7 +35,7 @@ class QuantumRouterAdaptive(QuantumRouter):
             memo_arr_name: the name of the memory array
         '''
         # setup resource manager
-        resource_manager = ResourceManager(self, memo_arr_name)
+        resource_manager = ResourceManagerAdaptive(self, memo_arr_name)
         self.set_resource_manager(resource_manager)
 
         # setup network manager
