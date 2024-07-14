@@ -59,6 +59,7 @@ class ResourceManagerAdaptive(ResourceManager):
         """
 
         self.memory_manager.update(memory, state)
+
         if protocol:
             memory.detach(protocol)
             memory.attach(memory.memory_array)
@@ -94,13 +95,57 @@ class ResourceManagerAdaptive(ResourceManager):
         self.owner.get_idle_memory(memo_info)
 
 
+    def update_swap_memory(self, protocol: "EntanglementProtocol", memory: "Memory", state: str) -> None:
+        """Method to update state of memory after completion of entanglement management protocol.
+
+        Compared with update(), the update_swap_memory() don't have the self.memory_manager.update() in the first line
+        Also, don't need to inform the AC protocol
+
+        Args:
+            protocol (EntanglementProtocol): concerned protocol. If not None, then remove it from everywhere
+            memory (Memory): memory to update.
+            state (str): new state for the memory.
+
+        Side Effects:
+            May modify memory state, and modify any attached protocols.
+            May add generated entanglement pair into the adaptive_continuous
+        """
+
+        if protocol:
+            memory.detach(protocol)
+            memory.attach(memory.memory_array)
+            if protocol in protocol.rule.protocols:
+                protocol.rule.protocols.remove(protocol)
+
+        if protocol in self.owner.protocols:
+            self.owner.protocols.remove(protocol)
+
+        if protocol in self.waiting_protocols:
+            self.waiting_protocols.remove(protocol)
+
+        if protocol in self.pending_protocols:
+            self.pending_protocols.remove(protocol)
+
+        # check if any rules have been met
+        memo_info = self.memory_manager.get_info_by_memory(memory)
+        for rule in self.rule_manager:
+            memories_info = rule.is_valid(memo_info)
+            if len(memories_info) > 0:
+                rule.do(memories_info)
+                for info in memories_info:
+                    info.to_occupied()
+                return
+
+        self.owner.get_idle_memory(memo_info)
+
+
     def get_adaptive_continuous_protocol(self) -> AdaptiveContinuousProtocol:
         '''return the adaptive continuous protocol
         '''
         return self.owner.adaptive_continuous
 
 
-    def swap_two_memory(self, memory1_name: str, memory2_name: str):
+    def swap_two_memory(self, occupied_memory_name: str, entangled_memory_name: str):
         '''swap two quantum memories
         '''
-        self.memory_manager.swap_two_memory(memory1_name, memory2_name)
+        self.memory_manager.swap_two_memory(occupied_memory_name, entangled_memory_name)

@@ -226,5 +226,11 @@ class AdaptiveContinuousProtocol(Protocol):
     def remove_entanglement_pair(self, entanglement_pair: tuple):
         '''remove an entanglement_pair because it is used
         '''
-        assert entanglement_pair in self.generated_entanglement_pairs, f'{entanglement_pair} not exist!'
-        self.generated_entanglement_pairs.remove(entanglement_pair)
+        entanglement_pair2 = (entanglement_pair[1], entanglement_pair[0])
+        if entanglement_pair in self.generated_entanglement_pairs:
+            self.generated_entanglement_pairs.remove(entanglement_pair)
+        elif entanglement_pair2 in self.generated_entanglement_pairs:
+            self.generated_entanglement_pairs.remove(entanglement_pair2)
+        else:
+            raise Exception(f'{entanglement_pair} not exist in {self.name}')
+            

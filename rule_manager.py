@@ -58,7 +58,7 @@ class RuleAdaptive(Rule):
                     protocol, req_dsts, req_condition_funcs, req_args = swapmem_rule_action1(memories_info, self.action_args)
                     log.logger.debug(f'{this_node_name}: matched entanglement pair {matched_entanglement_pair}; generates protocol {protocol.name}')
                 else:
-                    # this node send the request for pairing
+                    # this node send the request for pairing (resource manager)
                     protocol, req_dsts, req_condition_funcs, req_args = swapmem_rule_action2(memories_info, self.action_args)
                     log.logger.debug(f'{this_node_name}: let {remote_node_name} decide the matched entanglement pair; generates protocol {protocol.name}')
                    

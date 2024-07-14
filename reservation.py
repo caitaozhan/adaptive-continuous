@@ -76,7 +76,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         """
         rules = []
         memory_indices = []
-        for card in self.timecards:
+        for card in self.timecards:  # check which timecard includes the reservation
             if reservation in card.reservations:
                 memory_indices.append(card.memory_index)
 
