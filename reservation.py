@@ -63,7 +63,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
 
     def create_rules_adaptive(self, path: list, reservation: ReservationAdaptive) -> List["Rule"]:
-        """Method to create rules for entanglement generation for a successful AC protocol's request.
+        """Method to create rules for entanglement generation (only) for a successful AC protocol's request.
 
         Rules are used to direct the flow of information/entanglement in the resource manager.
 

@@ -87,10 +87,10 @@ class SwapMemoryProtocol(EntanglementProtocol):
 
         msg_type = msg.msg_type
         if msg_type is SwapMemoryMsgType.INFORM_EP:
-            entangled_memory_name = self.get_entanglement_memory_name(msg.entanglement_pair)
-            self.swap_two_memory(self.memory.name, entangled_memory_name)
             adaptive_continuous = self.get_adaptive_continuous_protocol()
             adaptive_continuous.remove_entanglement_pair(msg.entanglement_pair)
+            entangled_memory_name = self.get_entanglement_memory_name(msg.entanglement_pair)
+            self.swap_two_memory(self.memory.name, entangled_memory_name)
         else:
             raise Exception(f'msg_type {msg_type} unknown')
 

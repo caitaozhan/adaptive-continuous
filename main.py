@@ -5,6 +5,7 @@ in SeQUeNCe and conduct experiments with a large number of nodes.
 
 import logging
 import argparse
+from sequence.app.request_app import RequestApp
 import numpy as np
 from sequence.topology.router_net_topo import RouterNetTopo
 import sequence.utils.log as log
@@ -187,11 +188,55 @@ def linear_adaptive_only(verbose=False):
     # print(f'average latency = {latency:.4f}s; rate = {1/latency:.3f}/s')
 
 
+def app_linear_adaptive_only(verbose=False):
+    
+    print('\nLinear, adaptive:')
+
+    network_config = 'config/line_2.json'
+    # network_config = 'config/random_5.json'
+
+    log_filename = 'log/linear_adaptive'
+    # log_filename = 'log/linear'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
+    # network_topo = RouterNetTopo(network_config)
+    
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('DEBUG')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous_protocol', 'memory_manager']
+    modules = ['timeline', 'generation', 'adaptive_continuous_protocol', 'request_app', 'rule_manager']
+    for module in modules:
+        log.track_module(module)
+
+    apps = []
+    src_node_name  = 'router_0'
+    dest_node_name = 'router_1'
+    src_app = None
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestApp(router)
+        apps.append(app)
+        if router.name == src_node_name:
+            src_app = app
+
+    start_time = 0.5e12
+    end_time   = 1.5e12
+    entanglement_number = 1
+    fidelity = 0.6
+    src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
+
+    tl.init()
+    tl.run()
+    print(src_app.get_throughput())
+
 
 
 if __name__ == '__main__':
     verbose = True
     # linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
-    linear_adaptive_only(verbose)
+    # linear_adaptive_only(verbose)
+    app_linear_adaptive_only(verbose)
 

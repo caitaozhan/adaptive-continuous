@@ -84,6 +84,7 @@ class AdaptiveContinuousProtocol(Protocol):
 
         # select neighbor
         neighbor = self.select_neighbor()
+        log.logger.debug(f'{self.name}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
         self.adaptive_memory_used += 1
         round_trip_time = self.owner.cchannels[neighbor].delay * 2
         start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
@@ -169,6 +170,7 @@ class AdaptiveContinuousProtocol(Protocol):
             else:
                 reservation = msg.reservation
                 if self.resource_reservation.schedule(reservation):    # has available quantum memory
+                    log.logger.debug(f'{self.name}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
                     self.adaptive_memory_used += 1
                     path = [src, self.owner.name]  # path only has two nodes
                     rules = self.resource_reservation.create_rules_adaptive(path, reservation)

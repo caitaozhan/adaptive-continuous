@@ -44,7 +44,7 @@ class RuleAdaptive(Rule):
         protocol, req_dsts, req_condition_funcs, req_args = self.action(memories_info, self.action_args)
         log.logger.info('{} rule generates protocol {}'.format(self.rule_manager, protocol.name))
 
-        # check if adaptive_continuous's generated_entanglement_links can be used -- to reduce latency
+        # check if adaptive_continuous's generated_entanglement_links can be used -- to reduce time to service
         if isinstance(protocol, EntanglementGenerationA):
             this_node_name = self.get_this_node_name()
             remote_node_name = protocol.remote_node_name
