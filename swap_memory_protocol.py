@@ -115,7 +115,7 @@ class SwapMemoryProtocol(EntanglementProtocol):
         Side Effects:
             Will send message through attached node
         '''
-        log.logging.debug(f'{self.owner.name} protocol start with partner {self.remote_node_name}')
+        log.logger.debug(f'{self.owner.name} protocol start with partner {self.remote_node_name}')
 
         if self.primary:
             entangled_memory_name = self.get_entanglement_memory_name(self.entanglement_pair)
