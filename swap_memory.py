@@ -15,7 +15,7 @@ from sequence.kernel.event import Event
 
 
 if TYPE_CHECKING:
-    from adaptive_continuous_protocol import AdaptiveContinuousProtocol
+    from adaptive_continuous import AdaptiveContinuousProtocol
     from sequence.topology.node import Node
     from sequence.message import Message
 

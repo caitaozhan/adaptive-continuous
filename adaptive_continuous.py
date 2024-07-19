@@ -57,9 +57,9 @@ class AdaptiveContinuousProtocol(Protocol):
 
     New attributes:
         adaptive_max_memory (int): maximum number of memory used for Adaptive-continuous protocol
-        adaptive_memory_used (int):
-        resource_reservation:
-        probability_table (dict):
+        adaptive_memory_used (int): the number of memory that is currently used by the adaptive continuous protocol
+        resource_reservation (ResourceReservationProtocolAdaptive): the resource reservation protocol
+        probability_table (dict): str -> float, the probability that decides which neighbor is selected
         generated_entanglement_pairs (set): each element is a tuple of (str, str), where each str is the name of the memory
     '''
 
@@ -150,7 +150,10 @@ class AdaptiveContinuousProtocol(Protocol):
         probs_accumulate = list(accumulate(probs))
         random_number = self.owner.get_generator().random()
         index = bisect_left(probs_accumulate, random_number)
-        return neighbors[index]
+        neighbor = neighbors[index]
+        prob = probs[index]
+        log.logger.info(f'{self.owner.name} selected neighbor {neighbor}')
+        return neighbor
 
 
     def received_message(self, src: str, msg: ACMsgType) -> None:

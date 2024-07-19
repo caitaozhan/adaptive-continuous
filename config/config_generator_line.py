@@ -42,7 +42,8 @@ output_dict[Topology.ALL_TEMPLATES] = \
     {
         "perfect_memo": {
             "MemoryArray": {
-                "fidelity": 1.0
+                "fidelity": 1.0,
+                "efficiency": 1.0
             }
         },
         "adaptive_protocol": {
@@ -117,3 +118,5 @@ path = os.path.join(args.directory, args.output)
 output_file = open(path, 'w')
 json.dump(output_dict, output_file, indent=4)
 
+
+# python config/config_generator_line.py 5 10 1 0.002 1 -d config -o line_5-.json -s 10

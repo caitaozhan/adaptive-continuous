@@ -217,14 +217,16 @@ def app_2_node_linear_adaptive(verbose=False):
     tl.init()
     tl.run()
     print(src_app.get_throughput())
-    print(src_app.get_time_to_service())
+    for t in src_app.get_time_to_service():
+        print(round(t/1e9), end=' ')
+    print()
 
 
 
 # the request app, testing on a five node linear network
 def app_5_node_linear_adaptive(verbose=False):
 
-    print('\nLinear, adaptive:')
+    # print('\nLinear, adaptive:')
 
     network_config = 'config/line_5.json'
 
@@ -243,7 +245,7 @@ def app_5_node_linear_adaptive(verbose=False):
         log.track_module(module)
 
     apps = []
-    src_node_name  = 'router_1'
+    src_node_name  = 'router_2'
     dest_node_name = 'router_3'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
@@ -261,6 +263,9 @@ def app_5_node_linear_adaptive(verbose=False):
     tl.init()
     tl.run()
     print(src_app.get_throughput())
+    for t in src_app.get_time_to_service():
+        print(round(t/1e9), end=' ')
+    print()
 
 
 
