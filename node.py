@@ -7,7 +7,7 @@ from sequence.kernel.timeline import Timeline
 from sequence.network_management.network_manager import NetworkManager
 from resource_manager import ResourceManagerAdaptive
 from reservation import ResourceReservationProtocolAdaptive
-from adaptive_continuous_protocol import AdaptiveContinuousProtocol
+from adaptive_continuous import AdaptiveContinuousProtocol
 
 from sequence.utils import log
 from sequence.message import Message

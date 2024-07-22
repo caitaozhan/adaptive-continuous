@@ -16,6 +16,7 @@ from sequence.utils import log
 from sequence.resource_management.memory_manager import MemoryInfo
 from reservation import ResourceReservationProtocolAdaptive, ReservationAdaptive
 from sequence.constants import MILLISECOND, MICROSECOND, SECOND, EPSILON
+from sequence.components.memory import Memory
 
 
 class ACMsgType(Enum):
@@ -79,12 +80,12 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         # check whether the adaptive protocol has used up its memory quota
         if self.adaptive_memory_used >= self.adaptive_max_memory:
-            self.start_delay(delay=MILLISECOND)  # schedule a start event in the future
+            self.start_delay(delay = MILLISECOND)  # schedule a start event in the future
             return
 
         # select neighbor
         neighbor = self.select_neighbor()
-        log.logger.debug(f'{self.name}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
+        log.logger.debug(f'{self.owner.name} selected neighbor {neighbor}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
         self.adaptive_memory_used += 1
         round_trip_time = self.owner.cchannels[neighbor].delay * 2
         start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
@@ -96,19 +97,17 @@ class AdaptiveContinuousProtocol(Protocol):
             msg = AdaptiveContinuousMessage(ACMsgType.REQUEST, reservation)
             self.owner.send_message(neighbor, msg)
         else:
-            # not able to schedule on current node, schedule another start event after 1 ms
-            self.start_delay(delay=MILLISECOND)
+            # not able to schedule on current node (lack of memory), schedule another start event after 1 ms
+            self.start_delay(delay = MILLISECOND)
 
 
     def start_delay(self, delay: float) -> None:
         '''create a "start" event after a random delay
         Args:
-            delay: schedule the event after some amount of delay (pico seconds)
+            delay: schedule the event after some amount of delay (pico seconds) between 0 and delay
         '''
         assert delay >= 0, f'delay = {delay} is negative'
-        random_delay = int(self.owner.get_generator().normal(delay, delay / 100))
-        if random_delay < 0:
-            random_delay = -random_delay
+        random_delay = int(self.owner.get_generator().uniform(0, delay))
         process = Process(self, 'start', [])
         event = Event(self.owner.timeline.now() + random_delay, process)
         self.owner.timeline.schedule(event)
@@ -152,7 +151,6 @@ class AdaptiveContinuousProtocol(Protocol):
         index = bisect_left(probs_accumulate, random_number)
         neighbor = neighbors[index]
         prob = probs[index]
-        log.logger.info(f'{self.owner.name} selected neighbor {neighbor}')
         return neighbor
 
 
@@ -165,15 +163,16 @@ class AdaptiveContinuousProtocol(Protocol):
             scr (str): name of the node that sent the message
             msg (ACMsgType): message received
         '''
-        log.logger.info('{} receive message from {}: {}'.format(self.name, src, msg))
+        log.logger.debug('{} receive message from {}: {}'.format(self.owner.name, src, msg))
 
         if msg.msg_type is ACMsgType.REQUEST:
             if self.adaptive_memory_used >= self.adaptive_max_memory:  # AC Protocol cannot exceed adaptive_max_memory
                 new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
+                log.logger.debug(f'{self.owner.name}, adaptive_memory_used reached the maximum')
             else:
                 reservation = msg.reservation
                 if self.resource_reservation.schedule(reservation):    # has available quantum memory
-                    log.logger.debug(f'{self.name}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
+                    log.logger.debug(f'{self.owner.name} adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
                     self.adaptive_memory_used += 1
                     path = [src, self.owner.name]  # path only has two nodes
                     rules = self.resource_reservation.create_rules_adaptive(path, reservation)
@@ -183,23 +182,39 @@ class AdaptiveContinuousProtocol(Protocol):
                 else:                                                  # no available quantum memory
                     new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
             self.owner.send_message(src, new_msg)
-        
+
         elif msg.msg_type is ACMsgType.RESPOND:
             if msg.answer is False:           # neighbor doesn't has available memory
                 for card in self.resource_reservation.timecards:
                     card.remove(msg.reservation) # clear up the timecards
+                log.logger.debug(f'{self.owner.name} not going to establish entanglement link {self.owner.name}-{src}; adaptive_memory_used is decreased from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
                 self.adaptive_memory_used -= 1
             else:                             # neighbor has available memory
                 rules = self.resource_reservation.create_rules_adaptive(msg.path, msg.reservation)
                 self.resource_reservation.load_rules_adaptive(rules, msg.reservation)
-            self.start_delay(MILLISECOND)
+                log.logger.info(f'{self.owner.name} attempting to establish entanglement link {self.owner.name}-{src}')
+            self.start_delay(3 * MILLISECOND)
 
 
-    def adaptive_memory_used_minus_one(self) -> None:
+    def adaptive_memory_used_minus_one(self, memory: Memory) -> None:
         '''reduce the self.adaptive_memory_used by 1. Called when the entanglement generation protocol is expired
         '''
-        log.logger.debug(f'{self.name}, adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
-        assert self.adaptive_memory_used > 0, f"{self.name}, adaptive_memory_used={self.adaptive_memory_used}"
+        log.logger.debug(f'{self.owner.name} adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
+        assert self.adaptive_memory_used > 0, f"{self.owner.name} adaptive_memory_used={self.adaptive_memory_used}"
+        ep_to_delete = None
+        for entanglement_pair in self.generated_entanglement_pairs:
+            if entanglement_pair[0][1] == memory.name:
+                ep_to_delete = entanglement_pair
+                break
+            elif entanglement_pair[1][1] == memory.name:
+                ep_to_delete = entanglement_pair
+                break
+        if ep_to_delete is None:
+            log.logger.info(f'{self.owner.name} {memory.name} is not found in self.generated_entanglement_pairs!')
+        else:
+            self.generated_entanglement_pairs.remove(ep_to_delete)
+            log.logger.info(f'{self.owner.name} removed EP {ep_to_delete}')
+
         self.adaptive_memory_used -= 1
 
 
@@ -210,8 +225,9 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         if entanglement_pair not in self.generated_entanglement_pairs:
             self.generated_entanglement_pairs.add(entanglement_pair)
+            log.logger.info(f'{self.owner.name} added EP {entanglement_pair}')
         else:
-            log.logger.warning(f'entanglement_pair {entanglement_pair} already exist')
+            log.logger.warning(f'{self.owner.name} EP {entanglement_pair} already exist')
 
 
     def match_generated_entanglement_pair(self, this_node_name: str, remote_node_name: str) -> tuple:
@@ -234,8 +250,10 @@ class AdaptiveContinuousProtocol(Protocol):
         entanglement_pair2 = (entanglement_pair[1], entanglement_pair[0])
         if entanglement_pair in self.generated_entanglement_pairs:
             self.generated_entanglement_pairs.remove(entanglement_pair)
+            log.logger.info(f'{self.owner.name} removed EP {entanglement_pair}')
         elif entanglement_pair2 in self.generated_entanglement_pairs:
             self.generated_entanglement_pairs.remove(entanglement_pair2)
+            log.logger.info(f'{self.owner.name} removed EP {entanglement_pair2}')
         else:
             raise Exception(f'{entanglement_pair} not exist in {self.name}')
             

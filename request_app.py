@@ -50,9 +50,15 @@ class RequestAppAdaptive(RequestApp):
                 log.logger.info("Successfully generated entanglement. Counter is at {}.".format(self.memory_counter))
                 self.node.resource_manager.update(None, info.memory, "RAW")
 
+    def get_time_stamps(self) -> list:
+        '''get the entangled time stamps (for the "first" reservations)
+        '''
+        for reservation, entangled_timestamps in self.entangled_timestamps.items():
+            return entangled_timestamps   
+
 
     def get_time_to_service(self) -> list:
-        '''compute the time to service
+        '''compute the time to service (for the "first" reservations)
         '''
         time_to_sevice = []
         for reservation, entangled_timestamps in self.entangled_timestamps.items():
@@ -60,5 +66,6 @@ class RequestAppAdaptive(RequestApp):
             time_to_sevice.append(entangled_timestamps[0] - reservation.start_time)
             for i in range(1, len(entangled_timestamps)):
                 time_to_sevice.append(entangled_timestamps[i] - entangled_timestamps[i-1])
+            break
         return time_to_sevice
 

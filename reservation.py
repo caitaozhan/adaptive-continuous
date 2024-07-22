@@ -124,7 +124,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 event = Event(reservation.end_time, process, 1)
                 self.owner.timeline.schedule(event)
 
-                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [])
+                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [self.memo_arr[card.memory_index]])
                 event = Event(reservation.end_time, process, 2)
                 self.owner.timeline.schedule(event)
 

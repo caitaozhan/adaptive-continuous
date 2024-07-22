@@ -193,8 +193,8 @@ def app_2_node_linear_adaptive(verbose=False):
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
-    #            'purification', 'swapping', 'bsm', 'adaptive_continuous_protocol', 'memory_manager']
-    modules = ['timeline', 'generation', 'adaptive_continuous_protocol', 'request_app', 'rule_manager', 'swap_memory_protocol']
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager', 'swap_memory']
     for module in modules:
         log.track_module(module)
 
@@ -237,10 +237,11 @@ def app_5_node_linear_adaptive(verbose=False):
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('DEBUG')
+    log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
-    #            'purification', 'swapping', 'bsm', 'adaptive_continuous_protocol', 'memory_manager']
-    modules = ['timeline', 'generation', 'adaptive_continuous_protocol', 'request_app', 'rule_manager']
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    # modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager']
+    modules = ['adaptive_continuous', 'request_app']
     for module in modules:
         log.track_module(module)
 
@@ -255,7 +256,7 @@ def app_5_node_linear_adaptive(verbose=False):
             src_app = app
 
     start_time = 0.5e12
-    end_time   = 1.5e12
+    end_time   = 3.5e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
@@ -266,6 +267,10 @@ def app_5_node_linear_adaptive(verbose=False):
     for t in src_app.get_time_to_service():
         print(round(t/1e9), end=' ')
     print()
+
+    # for t in src_app.get_time_stamps():
+    #     print(f'{round(t):,}')
+    # print()
 
 
 

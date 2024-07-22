@@ -7,10 +7,10 @@ from sequence.resource_management.rule_manager import Rule, RuleManager, ActionF
 from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.entanglement_management.generation import EntanglementGenerationA
 
-from swap_memory_protocol import SwapMemoryProtocol, swapmem_rule_action1, swapmem_rule_action2
+from swap_memory import SwapMemoryProtocol, swapmem_rule_action1, swapmem_rule_action2
 
 if TYPE_CHECKING:
-    from adaptive_continuous_protocol import AdaptiveContinuousProtocol
+    from adaptive_continuous import AdaptiveContinuousProtocol
 
 
 class RuleAdaptive(Rule):

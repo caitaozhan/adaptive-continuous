@@ -14,7 +14,7 @@ from sequence.utils import log
 from memory_manager import MemoryManagerAdaptive
 from rule_manager import RuleManagerAdaptive, Arguments
 from reservation import ReservationAdaptive
-from adaptive_continuous_protocol import AdaptiveContinuousProtocol
+from adaptive_continuous import AdaptiveContinuousProtocol
 
 
 if TYPE_CHECKING:
