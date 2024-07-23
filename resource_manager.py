@@ -104,7 +104,7 @@ class ResourceManagerAdaptive(ResourceManager):
         Args:
             protocol (EntanglementProtocol): concerned protocol. If not None, then remove it from everywhere
             memory (Memory): memory to update.
-            state (str): new state for the memory.
+            state (str): new state for the memory. NOTE: not used
 
         Side Effects:
             May modify memory state, and modify any attached protocols.
@@ -149,3 +149,9 @@ class ResourceManagerAdaptive(ResourceManager):
         '''swap two quantum memories
         '''
         self.memory_manager.swap_two_memory(occupied_memory_name, entangled_memory_name)
+
+
+    def check_entangled_memory(self, entangled_memory_name: str) -> bool:
+        '''return True if the memory by parameter entangled_memory_name is indeed entangled, otherwise False
+        '''
+        return self.memory_manager.check_entangled_memory(entangled_memory_name)

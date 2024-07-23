@@ -66,3 +66,12 @@ class MemoryManagerAdaptive(MemoryManager):
         self.memory_map[i].expire_event, self.memory_map[j].expire_event   = self.memory_map[j].expire_event, self.memory_map[i].expire_event
         self.memory_map[i].entangle_time, self.memory_map[j].entangle_time = self.memory_map[j].entangle_time, self.memory_map[i].entangle_time
     
+
+    def check_entangled_memory(self, entangled_memory_name: str) -> bool:
+        '''return True if the memory by parameter entangled_memory_name is indeed entangled, otherwise False
+        '''
+        i = self.memory_array.memory_name_to_index[entangled_memory_name]
+        if self.memory_array[i].entangled_memory['node_id'] is None:
+            return False
+        else:
+            return True

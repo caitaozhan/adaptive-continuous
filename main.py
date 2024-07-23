@@ -241,7 +241,7 @@ def app_5_node_linear_adaptive(verbose=False):
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
     # modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager']
-    modules = ['adaptive_continuous', 'request_app']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory']
     for module in modules:
         log.track_module(module)
 
@@ -256,7 +256,7 @@ def app_5_node_linear_adaptive(verbose=False):
             src_app = app
 
     start_time = 0.5e12
-    end_time   = 3.5e12
+    end_time   = 10e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)

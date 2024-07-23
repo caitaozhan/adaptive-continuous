@@ -199,8 +199,10 @@ class AdaptiveContinuousProtocol(Protocol):
     def adaptive_memory_used_minus_one(self, memory: Memory) -> None:
         '''reduce the self.adaptive_memory_used by 1. Called when the entanglement generation protocol is expired
         '''
-        log.logger.debug(f'{self.owner.name} adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
         assert self.adaptive_memory_used > 0, f"{self.owner.name} adaptive_memory_used={self.adaptive_memory_used}"
+        self.adaptive_memory_used -= 1
+        log.logger.debug(f'{self.owner.name} adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
+        # remove the entanglement pair that memory is in
         ep_to_delete = None
         for entanglement_pair in self.generated_entanglement_pairs:
             if entanglement_pair[0][1] == memory.name:
@@ -209,13 +211,11 @@ class AdaptiveContinuousProtocol(Protocol):
             elif entanglement_pair[1][1] == memory.name:
                 ep_to_delete = entanglement_pair
                 break
-        if ep_to_delete is None:
+        if ep_to_delete is None:  # the entanglement pair that includes argument memory doesn't exist, because the EP generation is not successfull yet
             log.logger.info(f'{self.owner.name} {memory.name} is not found in self.generated_entanglement_pairs!')
         else:
             self.generated_entanglement_pairs.remove(ep_to_delete)
             log.logger.info(f'{self.owner.name} removed EP {ep_to_delete}')
-
-        self.adaptive_memory_used -= 1
 
 
     def add_generated_entanglement_pair(self, entanglement_pair: tuple):
@@ -232,6 +232,7 @@ class AdaptiveContinuousProtocol(Protocol):
 
     def match_generated_entanglement_pair(self, this_node_name: str, remote_node_name: str) -> tuple:
         '''match (this_node_name, remote_node_name) to an existing entanglement pair
+        
         Return:
             Tuple[(node_name, memory_name), (remote_node_name, remote_memory_name)] -- the first matched entanglement link
             None -- if no match exist
@@ -246,6 +247,10 @@ class AdaptiveContinuousProtocol(Protocol):
 
     def remove_entanglement_pair(self, entanglement_pair: tuple):
         '''remove an entanglement_pair because it is used
+        
+        Side Effect:
+            Will raise Exception when the entanglement_pair doesn't exist. 
+            It will happen when an expire event happend in the middle of a swap memory protocol, which takes 2 ms long
         '''
         entanglement_pair2 = (entanglement_pair[1], entanglement_pair[0])
         if entanglement_pair in self.generated_entanglement_pairs:
