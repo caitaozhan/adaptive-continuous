@@ -94,7 +94,7 @@ class SwapMemoryProtocol(EntanglementProtocol):
                 self.swap_two_memory(self.memory.name, entangled_memory_name)
             except Exception as e:
                 log.logger.warning(f'{self.owner.name} Swap memory failed between {self.memory.name} and {entangled_memory_name}! Error message: {e}. ' + 
-                                    'Likely due to expire event from AC protocol happened in the middle of a Swap Memory Protocol.')
+                                    'Likely due to expire event from AC protocol happened during the middle of a Swap Memory Protocol.')
                 self.update_resource_manager(self.memory, MemoryInfo.RAW)
         else:
             raise Exception(f'msg_type {msg_type} unknown')

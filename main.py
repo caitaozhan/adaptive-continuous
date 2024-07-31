@@ -98,7 +98,7 @@ def linear_swapping(verbose=False):
     
     start_time = 1e12
     end_time   = 10e12
-    entanglement_number = 1
+    entanglement_number = 5
     nm = src_node.network_manager
     nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
     
@@ -230,23 +230,24 @@ def app_5_node_linear_adaptive(verbose=False):
 
     network_config = 'config/line_5.json'
 
-    log_filename = 'log/linear_adaptive'
+    # log_filename = 'log/linear_adaptive'
+    log_filename = 'log/time_to_serve-vs-cycle/linear,hop=2,qmem=2'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('INFO')
+    log.set_logger_level('DEBUG')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
     # modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager']
-    modules = ['adaptive_continuous', 'request_app', 'swap_memory']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager']
     for module in modules:
         log.track_module(module)
 
     apps = []
-    src_node_name  = 'router_2'
+    src_node_name  = 'router_1'
     dest_node_name = 'router_3'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
@@ -255,7 +256,7 @@ def app_5_node_linear_adaptive(verbose=False):
         if router.name == src_node_name:
             src_app = app
 
-    start_time = 0.5e12
+    start_time = 0.1e12
     end_time   = 10e12
     entanglement_number = 1
     fidelity = 0.6

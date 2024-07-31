@@ -68,7 +68,7 @@ class ResourceManagerAdaptive(ResourceManager):
 
             # let the AC protocol track this entanglement link
             if isinstance(protocol, EntanglementGenerationA) and state == MemoryInfo.ENTANGLED: # entanglement succeed
-                if isinstance(protocol.rule.reservation, ReservationAdaptive): # Adaptive Continuous Protocol
+                if isinstance(protocol.rule.reservation, ReservationAdaptive): # Adaptive Continuous Protocol's reservation
                     adaptive_continuous = self.get_adaptive_continuous_protocol()
                     entanglment_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
                     adaptive_continuous.add_generated_entanglement_pair(entanglment_pair)

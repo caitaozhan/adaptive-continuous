@@ -24,6 +24,7 @@ class ACMsgType(Enum):
     '''
     REQUEST = auto()  # ask if the neighbor has available memory
     RESPOND = auto()  # responding NO/YES
+    CACHE   = auto()  # add entanlgement path to the cache
 
 
 class AdaptiveContinuousMessage(Message):
@@ -45,6 +46,10 @@ class AdaptiveContinuousMessage(Message):
             if self.answer == True:
                 self.path = kwargs['path']
                 self.string += f', path={self.path}'
+        
+        elif self.msg_type == ACMsgType.CACHE:
+            self.timestamp = kwargs['timestamp']
+            self.string += f', timestamp={self.timestamp}'
     
     def __str__(self):
         return f'|{self.string}|'
@@ -62,6 +67,7 @@ class AdaptiveContinuousProtocol(Protocol):
         resource_reservation (ResourceReservationProtocolAdaptive): the resource reservation protocol
         probability_table (dict): str -> float, the probability that decides which neighbor is selected
         generated_entanglement_pairs (set): each element is a tuple of (str, str), where each str is the name of the memory
+        cache (list): store the history of entanglement paths
     '''
 
     def __init__(self, owner: "Node", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive):
@@ -70,10 +76,22 @@ class AdaptiveContinuousProtocol(Protocol):
         self.adaptive_memory_used = 0
         self.resource_reservation = resource_reservation
         self.probability_table = {}
+        self.probability_table_update_count = 0
         self.generated_entanglement_pairs = set()
+        self.cache = []  # each item is (timestamp: int, path: list)
 
     def init(self):
+        '''deal with the probability table
+        '''
         self.init_probability_table()
+        elapse = SECOND
+        self.update_probability_table_event(elapse)
+
+    def update_probability_table_event(self, elapse):
+        self.update_probability_table(elapse)
+        process = Process(self.owner.adaptive_continuous, "update_probability_table_event", [elapse])
+        event = Event(self.owner.timeline.now() + elapse, process)
+        self.owner.timeline.schedule(event)
 
     def start(self) -> None:
         '''start a new "cycle" of the adaptive-continuous protocol
@@ -85,11 +103,17 @@ class AdaptiveContinuousProtocol(Protocol):
 
         # select neighbor
         neighbor = self.select_neighbor()
+        if neighbor == '':
+            log.logger.debug(f'{self.owner.name} selected neighbor None')
+            self.start_delay(delay = 10 * MILLISECOND)  # schedule a start event in the future
+            return
+
         log.logger.debug(f'{self.owner.name} selected neighbor {neighbor}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
         self.adaptive_memory_used += 1
         round_trip_time = self.owner.cchannels[neighbor].delay * 2
         start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
-        end_time = start_time + SECOND
+        end_time = self.round_to_second(start_time + SECOND)     # the 'period' is one second
+        # end_time = start_time + SECOND/3     # the 'period' is one second
         # set up reservation
         reservation = ReservationAdaptive(self.owner.name, neighbor, start_time, end_time, memory_size=1, fidelity=0.9)
         if self.resource_reservation.schedule(reservation):
@@ -102,7 +126,7 @@ class AdaptiveContinuousProtocol(Protocol):
 
 
     def start_delay(self, delay: float) -> None:
-        '''create a "start" event after a random delay
+        '''create a "start" event after a random delay between [0, delay]
         Args:
             delay: schedule the event after some amount of delay (pico seconds) between 0 and delay
         '''
@@ -131,6 +155,7 @@ class AdaptiveContinuousProtocol(Protocol):
         for dst, next_hop in forwarding_table.items():
             if dst == next_hop:  # it is a neighbor when the destination equals the next hop in the forwarding table
                 neighbors.append(dst)
+        neighbors.append('')  # add an empty string for chosing nothing
         for neighbor in neighbors:
             probability_table[neighbor] = 1 / len(neighbors)
         assert abs(sum(probability_table.values()) - 1) < EPSILON
@@ -150,7 +175,6 @@ class AdaptiveContinuousProtocol(Protocol):
         random_number = self.owner.get_generator().random()
         index = bisect_left(probs_accumulate, random_number)
         neighbor = neighbors[index]
-        prob = probs[index]
         return neighbor
 
 
@@ -168,7 +192,7 @@ class AdaptiveContinuousProtocol(Protocol):
         if msg.msg_type is ACMsgType.REQUEST:
             if self.adaptive_memory_used >= self.adaptive_max_memory:  # AC Protocol cannot exceed adaptive_max_memory
                 new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=False)
-                log.logger.debug(f'{self.owner.name}, adaptive_memory_used reached the maximum')
+                log.logger.debug(f'{self.owner.name} adaptive_memory_used reached the maximum')
             else:
                 reservation = msg.reservation
                 if self.resource_reservation.schedule(reservation):    # has available quantum memory
@@ -194,6 +218,12 @@ class AdaptiveContinuousProtocol(Protocol):
                 self.resource_reservation.load_rules_adaptive(rules, msg.reservation)
                 log.logger.info(f'{self.owner.name} attempting to establish entanglement link {self.owner.name}-{src}')
             self.start_delay(3 * MILLISECOND)
+        
+        elif msg.msg_type is ACMsgType.CACHE:
+            timestamp = msg.timestamp
+            path = msg.reservation.path
+            self.cache.append((timestamp, path))
+            log.logger.info(f'{self.owner.name} added {(timestamp, path)} to cache')
 
 
     def adaptive_memory_used_minus_one(self, memory: Memory) -> None:
@@ -201,7 +231,7 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         assert self.adaptive_memory_used > 0, f"{self.owner.name} adaptive_memory_used={self.adaptive_memory_used}"
         self.adaptive_memory_used -= 1
-        log.logger.debug(f'{self.owner.name} adaptive_memory_used is reduced from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
+        log.logger.debug(f'{self.owner.name} adaptive_memory_used is reduced from {self.adaptive_memory_used + 1} to {self.adaptive_memory_used}')
         # remove the entanglement pair that memory is in
         ep_to_delete = None
         for entanglement_pair in self.generated_entanglement_pairs:
@@ -216,6 +246,54 @@ class AdaptiveContinuousProtocol(Protocol):
         else:
             self.generated_entanglement_pairs.remove(ep_to_delete)
             log.logger.info(f'{self.owner.name} removed EP {ep_to_delete}')
+
+
+    def update_probability_table(self, elapse: int):
+        '''update the probability table
+        Args:
+            elapse: consider the paths whose timestamp is withini [current_time - elapse, current_time]
+        '''
+        if self.probability_table_update_count == 0:
+            self.probability_table_update_count += 1
+            return
+        # print(self.probability_table)
+        # 1. get all the entanglement paths
+        current_time = self.owner.timeline.now()
+        paths = []
+        for i in range(len(self.cache) - 1, -1, -1):
+            timestamp = self.cache[i][0]
+            if current_time - elapse <= timestamp:
+                paths.append(self.cache[i][1])
+        # print(f'{self.owner.name} {paths}')
+        # 2. get the all the neighbors that is in the entanglement path
+        neighbor_in_path = set()
+        this_node = self.owner.name
+        for path in paths:
+            this_index = None
+            for i in range(len(path)):
+                if path[i] == this_node:
+                    this_index = i
+                    break
+            if this_index is not None:
+                if this_index >= 1:
+                    neighbor_in_path.add(path[this_index - 1])
+                if this_index <= len(path) - 2:
+                    neighbor_in_path.add(path[this_index + 1])
+        # 3.1 if neighbor is in the set neighbor_in_path, then increase probability
+        delta = 1 / len(self.probability_table.keys())
+        exist = False
+        for neighbor in self.probability_table.keys():
+            if neighbor != '' and neighbor in neighbor_in_path:
+                self.probability_table[neighbor] += delta
+                exist = True
+        if exist is False:
+            self.probability_table[''] += delta
+        # 3.2 normalize the probability table
+        summ = sum(self.probability_table.values())
+        for neighbor in self.probability_table.keys():
+            self.probability_table[neighbor] /= summ
+        print(f'{self.owner.name}, {self.probability_table_update_count}, {self.probability_table}')
+        self.probability_table_update_count += 1
 
 
     def add_generated_entanglement_pair(self, entanglement_pair: tuple):
@@ -260,5 +338,20 @@ class AdaptiveContinuousProtocol(Protocol):
             self.generated_entanglement_pairs.remove(entanglement_pair2)
             log.logger.info(f'{self.owner.name} removed EP {entanglement_pair2}')
         else:
-            raise Exception(f'{entanglement_pair} not exist in {self.name}')
+            raise Exception(f"{entanglement_pair} doesn't exist in {self.name}")
             
+
+    def round_to_second(self, time: int) -> int:
+        '''turn 1.001 second into 1 second
+        
+        Args:
+            time: in picoseconds
+        '''
+        return (time // SECOND) * SECOND
+
+
+    def send_entanglement_path(self, node: str, timestamp: float, reservation: list):
+        '''send the entanlgment path to the node
+        '''
+        msg = AdaptiveContinuousMessage(ACMsgType.CACHE, reservation, timestamp=timestamp)
+        self.owner.send_message(node, msg)

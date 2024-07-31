@@ -107,7 +107,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
 
     def load_rules_adaptive(self, rules: List[Rule], reservation: ReservationAdaptive):
-        """Method to add AC protocol created rules to resource manager.
+        """Method to add AC protocol created rules (EntanglementGeneration only) to resource manager.
 
         This method will schedule the resource manager to load all rules at the reservation start time.
         The rules will be set to expire at the reservation end time.

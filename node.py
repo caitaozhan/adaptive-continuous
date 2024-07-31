@@ -21,7 +21,6 @@ class QuantumRouterAdaptive(QuantumRouter):
     '''
     def __init__(self, name: str, tl: Timeline, memo_size: int = 50, seed: int = None, component_templates: dict = None):
         super().__init__(name, tl, memo_size, seed, component_templates)
-        self.cache = []  # each item is (timestamp: int, path: list)
         adaptive_name = f'{self.name}.adaptive_continuous'
         adaptive_max_memory = component_templates['adaptive_max_memory']
         resource_reservation = self.network_manager.protocol_stack[-1]  # reference to the network manager's resource reservation protocol
