@@ -2,4 +2,5 @@
 *tmp*
 log/
 config/*.json
+config/*.png
 __pycache__/

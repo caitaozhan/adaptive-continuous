@@ -56,11 +56,11 @@ class RuleAdaptive(Rule):
                     adaptive_continuous.remove_entanglement_pair(matched_entanglement_pair)
                     self.action_args['entanglement_pair'] = matched_entanglement_pair
                     protocol, req_dsts, req_condition_funcs, req_args = swapmem_rule_action1(memories_info, self.action_args)
-                    log.logger.debug(f'{this_node_name} generates protocol {protocol.name} and replace EGA; matched entanglement pair {matched_entanglement_pair}')
+                    log.logger.info(f'{this_node_name} generates protocol {protocol.name} and replace EGA; matched entanglement pair {matched_entanglement_pair}')
                 else:
                     # this node send the request for pairing (resource manager)
                     protocol, req_dsts, req_condition_funcs, req_args = swapmem_rule_action2(memories_info, self.action_args)
-                    log.logger.debug(f'{this_node_name} generates protocol {protocol.name} and replace EGA; let {remote_node_name} decide the matched entanglement pair')
+                    log.logger.info(f'{this_node_name} generates protocol {protocol.name} and replace EGA; let {remote_node_name} decide the matched entanglement pair')
                    
         protocol.rule = self
         self.protocols.append(protocol)

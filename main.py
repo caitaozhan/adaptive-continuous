@@ -10,6 +10,7 @@ from sequence.topology.router_net_topo import RouterNetTopo
 import sequence.utils.log as log
 from request_app import RequestAppAdaptive
 from router_net_topo_adaptive import RouterNetTopoAdaptive
+from traffic import TrafficMatrix
 
 
 # linear network topology + entanglement generation
@@ -238,11 +239,11 @@ def app_5_node_linear_adaptive(verbose=False):
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('DEBUG')
+    log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
     # modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager']
-    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
     for module in modules:
         log.track_module(module)
 
@@ -274,6 +275,163 @@ def app_5_node_linear_adaptive(verbose=False):
     # print()
 
 
+# the request app, testing on a five node linear network
+def app_5_node_star_adaptive(verbose=False):
+
+    # print('\nLinear, adaptive:')
+
+    network_config = 'config/star_5.json'
+
+    # log_filename = 'log/linear_adaptive'
+    log_filename = 'log/time_to_serve-vs-cycle/star,hop=2,qmem=6'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
+    
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('INFO')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    # modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    for module in modules:
+        log.track_module(module)
+
+    apps = []
+    src_node_name  = 'router_1'
+    dest_node_name = 'router_3'
+    src_app = None
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestAppAdaptive(router)
+        apps.append(app)
+        if router.name == src_node_name:
+            src_app = app
+
+    start_time = 0.1e12
+    end_time   = 10e12
+    entanglement_number = 1
+    fidelity = 0.6
+    src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
+
+    tl.init()
+    tl.run()
+    print(src_app.get_throughput())
+    for t in src_app.get_time_to_service():
+        print(round(t/1e9), end=' ')
+    print()
+
+    # for t in src_app.get_time_stamps():
+    #     print(f'{round(t):,}')
+    # print()
+
+
+# the request app, testing on a five node linear network
+def app_10_node_bottleneck_adaptive(verbose=False):
+
+    # print('\nLinear, adaptive:')
+
+    network_config = 'config/bottleneck_10.json'
+
+    # log_filename = 'log/linear_adaptive'
+    log_filename = 'log/time_to_serve-vs-cycle/bottleneck,qmem=6,update=true'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
+    
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('INFO')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    modules = ['adaptive_continuous', 'request_app']
+    # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    for module in modules:
+        log.track_module(module)
+
+    apps = []
+    src_node_name  = 'router_0'
+    dest_node_name = 'router_6'
+    src_app = None
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestAppAdaptive(router)
+        apps.append(app)
+        if router.name == src_node_name:
+            src_app = app
+
+    start_time = 0.1e12
+    end_time   = 10e12
+    entanglement_number = 1
+    fidelity = 0.5
+    src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
+
+    tl.init()
+    tl.run()
+    print(src_app.get_throughput())
+    for t in src_app.get_time_to_service():
+        print(round(t/1e9), end=' ')
+    print()
+
+    # for t in src_app.get_time_stamps():
+    #     print(f'{round(t):,}')
+    # print()
+
+
+# the request app, testing on a five node linear network
+def app_10_node_bottleneck_request_queue():
+
+    network_config = 'config/bottleneck_10.json'
+
+    # log_filename = 'log/linear_adaptive'
+    log_filename = 'log/queue/bottleneck,qmem=0'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
+    
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('INFO')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    modules = ['adaptive_continuous', 'request_app']
+    # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    for module in modules:
+        log.track_module(module)
+
+    name_to_apps = {}
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestAppAdaptive(router)
+        name_to_apps[router.name] = app
+
+    num_nodes = len(name_to_apps)
+    traffic_matrix = TrafficMatrix(num_nodes)
+    traffic_matrix.bottleneck_10()
+    request_queue = traffic_matrix.get_request_queue(request_time=3, total_time=31, memo_size=1, fidelity=0.6, entanglement_number=1)
+    for request in request_queue:
+        id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
+        app = name_to_apps[src_name]
+        app.start(dst_name, start_time, end_time, memo_size, fidelity, entanglement_number, id)
+
+    tl.init()
+    tl.run()
+
+    for node_name, app in name_to_apps.items():
+        print(node_name)
+        request_to_throughput = app.get_request_to_throughput()
+        for reservation, throughput in request_to_throughput.items():
+            print(f'throughput = {throughput:.2f}, reservation = {reservation}')
+    
+    # for node_name, app in name_to_apps.items():
+    #     print(f'{node_name}:', end=' ')
+    #     for t in app.get_time_to_service():
+    #         print(round(t/1e9), end=' ')
+    #     print()
+
+    # for t in src_app.get_time_stamps():
+    #     print(f'{round(t):,}')
+    # print()
+
+
 
 if __name__ == '__main__':
     verbose = True
@@ -281,5 +439,8 @@ if __name__ == '__main__':
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
     # app_2_node_linear_adaptive(verbose)
-    app_5_node_linear_adaptive(verbose)
+    # app_5_node_linear_adaptive(verbose)
+    # app_5_node_star_adaptive(verbose)
+    # app_10_node_bottleneck_adaptive(verbose)
+    app_10_node_bottleneck_request_queue()
 

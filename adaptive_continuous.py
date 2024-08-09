@@ -68,6 +68,7 @@ class AdaptiveContinuousProtocol(Protocol):
         probability_table (dict): str -> float, the probability that decides which neighbor is selected
         generated_entanglement_pairs (set): each element is a tuple of (str, str), where each str is the name of the memory
         cache (list): store the history of entanglement paths
+        update (bool): whether update the probability table or not
     '''
 
     def __init__(self, owner: "Node", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive):
@@ -79,12 +80,14 @@ class AdaptiveContinuousProtocol(Protocol):
         self.probability_table_update_count = 0
         self.generated_entanglement_pairs = set()
         self.cache = []  # each item is (timestamp: int, path: list)
+        self.update = True
 
     def init(self):
         '''deal with the probability table
         '''
         self.init_probability_table()
         elapse = SECOND
+        # self.update = False
         self.update_probability_table_event(elapse)
 
     def update_probability_table_event(self, elapse):
@@ -223,11 +226,13 @@ class AdaptiveContinuousProtocol(Protocol):
             timestamp = msg.timestamp
             path = msg.reservation.path
             self.cache.append((timestamp, path))
-            log.logger.info(f'{self.owner.name} added {(timestamp, path)} to cache')
+            log.logger.debug(f'{self.owner.name} added {(timestamp, path)} to cache')
 
 
     def adaptive_memory_used_minus_one(self, memory: Memory) -> None:
-        '''reduce the self.adaptive_memory_used by 1. Called when the entanglement generation protocol is expired
+        '''reduce the self.adaptive_memory_used by 1. Called right after the entanglement generation protocol is expired
+        Args:
+            memory: this is the memory that is set to RAW (due to expired rule), released from the adaptive continuous protocol
         '''
         assert self.adaptive_memory_used > 0, f"{self.owner.name} adaptive_memory_used={self.adaptive_memory_used}"
         self.adaptive_memory_used -= 1
@@ -255,6 +260,8 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         if self.probability_table_update_count == 0:
             self.probability_table_update_count += 1
+            return
+        if self.update == False:
             return
         # print(self.probability_table)
         # 1. get all the entanglement paths
