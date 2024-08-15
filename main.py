@@ -383,7 +383,7 @@ def app_10_node_bottleneck_request_queue():
     network_config = 'config/bottleneck_10.json'
 
     # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue/bottleneck,qmem=0'
+    log_filename = 'log/queue/bottleneck,qmem=6,update=true'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -393,7 +393,7 @@ def app_10_node_bottleneck_request_queue():
     log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['adaptive_continuous', 'request_app']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager']
     # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
     for module in modules:
         log.track_module(module)

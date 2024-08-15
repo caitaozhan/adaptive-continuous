@@ -72,9 +72,7 @@ class RequestAppAdaptive(RequestApp):
                 self.node.resource_manager.update(None, info.memory, "RAW")
                 self.cache_entangled_path(reservation.path)
             elif info.remote_node == reservation.responder and info.fidelity >= reservation.fidelity: # the initiator
-                # self.memory_counter += 1
                 self.entanglement_timestamps[reservation].append(self.node.timeline.now())
-                # log.logger.info("Successfully generated entanglement. Counter is at {}.".format(self.memory_counter))
                 log.logger.info(f"Successfully generated entanglement. {reservation}: {len(self.entanglement_timestamps[reservation])}")
                 self.node.resource_manager.update(None, info.memory, "RAW")
                 self.cache_entangled_path(reservation.path)
