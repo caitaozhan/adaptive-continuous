@@ -125,6 +125,7 @@ class AdaptiveContinuousProtocol(Protocol):
             self.owner.send_message(neighbor, msg)
         else:
             # not able to schedule on current node (lack of memory), schedule another start event after 1 ms
+            # self.adaptive_memory_used -= 1 
             self.start_delay(delay = MILLISECOND)
 
 

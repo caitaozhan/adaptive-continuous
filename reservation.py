@@ -117,7 +117,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             reservation (Reservation): reservation that created the rules.
         """
 
-        self.accepted_reservation.append(reservation)
+        self.accepted_reservations.append(reservation)
         for card in self.timecards:
             if reservation in card.reservations:
                 process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"])
