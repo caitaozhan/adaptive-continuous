@@ -383,7 +383,7 @@ def app_10_node_bottleneck_request_queue():
     network_config = 'config/bottleneck_10.json'
 
     # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue/bottleneck,qmem=6,update=true'
+    log_filename = 'log/queue/bottleneck,qmem=6,update=true,active=4-5,empty-nei=false'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -402,6 +402,9 @@ def app_10_node_bottleneck_request_queue():
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
         app = RequestAppAdaptive(router)
         name_to_apps[router.name] = app
+        if router.name not in ['router_4', 'router_5']:
+            router.active = False
+        router.adaptive_continuous.has_empty_neighbor = False
 
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)

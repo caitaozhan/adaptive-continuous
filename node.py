@@ -16,8 +16,8 @@ from sequence.message import Message
 class QuantumRouterAdaptive(QuantumRouter):
     '''The quantum router customized for the adaptive continuous protocol
     Newly added attributes:
-        1) cache (list): storing the routing path
-        2) Adaptive Protocol
+        1) adaptive_continuous (AdaptiveContinuousProtocol)
+        2) active (bool): if True, then this node will actively select neighbor; if False, then this node will only respond to neighbor nodes
     '''
     def __init__(self, name: str, tl: Timeline, memo_size: int = 50, seed: int = None, component_templates: dict = None):
         super().__init__(name, tl, memo_size, seed, component_templates)
@@ -25,7 +25,7 @@ class QuantumRouterAdaptive(QuantumRouter):
         adaptive_max_memory = component_templates['adaptive_max_memory']
         resource_reservation = self.network_manager.protocol_stack[-1]  # reference to the network manager's resource reservation protocol
         self.adaptive_continuous = AdaptiveContinuousProtocol(self, adaptive_name, adaptive_max_memory, resource_reservation)
-
+        self.active = True
 
     def init_managers(self, memo_arr_name: str):
         '''override QuantumRouter.init_manager()
@@ -51,8 +51,9 @@ class QuantumRouterAdaptive(QuantumRouter):
     def init(self):
         '''start the Adaptive-continuous protocol
         '''
-        self.adaptive_continuous.init()
-        self.adaptive_continuous.start_delay(delay=0)
+        if self.active:
+            self.adaptive_continuous.init()
+            self.adaptive_continuous.start_delay(delay=0)
 
     def receive_message(self, src: str, msg: "Message") -> None:
         """Determine what to do when a message is received, based on the msg.receiver

@@ -68,7 +68,8 @@ class AdaptiveContinuousProtocol(Protocol):
         probability_table (dict): str -> float, the probability that decides which neighbor is selected
         generated_entanglement_pairs (set): each element is a tuple of (str, str), where each str is the name of the memory
         cache (list): store the history of entanglement paths
-        update (bool): whether update the probability table or not
+        update_prob (bool): whether update the probability table or not
+        has_empty_neighbor (bool): whether the probability table has empty neighbor
     '''
 
     def __init__(self, owner: "Node", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive):
@@ -80,14 +81,15 @@ class AdaptiveContinuousProtocol(Protocol):
         self.probability_table_update_count = 0
         self.generated_entanglement_pairs = set()
         self.cache = []  # each item is (timestamp: int, path: list)
-        self.update = True
+        self.update_prob = True
+        self.has_empty_neighbor = True
 
     def init(self):
         '''deal with the probability table
         '''
         self.init_probability_table()
         elapse = SECOND
-        # self.update = False
+        # self.update_prob = False
         self.update_probability_table_event(elapse)
 
     def update_probability_table_event(self, elapse):
@@ -125,7 +127,7 @@ class AdaptiveContinuousProtocol(Protocol):
             self.owner.send_message(neighbor, msg)
         else:
             # not able to schedule on current node (lack of memory), schedule another start event after 1 ms
-            # self.adaptive_memory_used -= 1 
+            self.adaptive_memory_used -= 1
             self.start_delay(delay = MILLISECOND)
 
 
@@ -159,7 +161,10 @@ class AdaptiveContinuousProtocol(Protocol):
         for dst, next_hop in forwarding_table.items():
             if dst == next_hop:  # it is a neighbor when the destination equals the next hop in the forwarding table
                 neighbors.append(dst)
-        neighbors.append('')  # add an empty string for chosing nothing
+
+        if self.has_empty_neighbor:
+            neighbors.append('')  # add an empty string for chosing nothing
+
         for neighbor in neighbors:
             probability_table[neighbor] = 1 / len(neighbors)
         assert abs(sum(probability_table.values()) - 1) < EPSILON
@@ -262,7 +267,7 @@ class AdaptiveContinuousProtocol(Protocol):
         if self.probability_table_update_count == 0:
             self.probability_table_update_count += 1
             return
-        if self.update == False:
+        if self.update_prob == False:
             return
         # print(self.probability_table)
         # 1. get all the entanglement paths
