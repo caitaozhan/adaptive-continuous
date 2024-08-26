@@ -10,6 +10,7 @@ from sequence.components.memory import Memory
 from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.entanglement_management.generation import EntanglementGenerationA
 from sequence.utils import log
+from sequence.network_management.reservation import Reservation
 
 from memory_manager import MemoryManagerAdaptive
 from rule_manager import RuleManagerAdaptive, Arguments
@@ -147,11 +148,33 @@ class ResourceManagerAdaptive(ResourceManager):
 
     def swap_two_memory(self, occupied_memory_name: str, entangled_memory_name: str):
         '''swap two quantum memories
+        
+        Args:
+            occupied_memory_name: name of memory in occupied status (from the request)
+            entangled_memory_name: name of memory in entangled status (from the AC protocol)
         '''
         self.memory_manager.swap_two_memory(occupied_memory_name, entangled_memory_name)
 
 
     def check_entangled_memory(self, entangled_memory_name: str) -> bool:
         '''return True if the memory by parameter entangled_memory_name is indeed entangled, otherwise False
+        
+        Args:
+            entangled_memory_name: the name of the memory being checked
         '''
         return self.memory_manager.check_entangled_memory(entangled_memory_name)
+
+
+    def expire_rules_by_reservation(self, reservation: Reservation) -> None:
+        '''expire rules created by the reservation
+        
+        Args:
+            reservation: the rules created by this reservation will expire
+        '''
+        rule_to_expire = []
+        for rule in self.rule_manager.rules:
+            if rule.reservation == reservation:
+                rule_to_expire.append(rule)
+        
+        for rule in rule_to_expire:
+            self.expire(rule)

@@ -81,13 +81,15 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 memory_indices.append(card.memory_index)
 
         index = path.index(self.owner.name)  # the location of this node along the path from initiator to responder
-
+        
+        priority = 20
         # create rules for entanglement generation
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index}
-            rule = Rule(10, eg_rule_action1, eg_rule_condition, action_args, condition_args)
+            rule = Rule(priority, eg_rule_action1, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         if index < len(path) - 1:
             if index == 0:
@@ -99,6 +101,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                            "path": path, "index": index, "name": self.owner.name, "reservation": reservation}
             rule = Rule(10, eg_rule_action2, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         for rule in rules:
             rule.set_reservation(reservation)
@@ -118,15 +121,6 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         """
 
         self.accepted_reservations.append(reservation)
-        for card in self.timecards:
-            if reservation in card.reservations:
-                process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"])
-                event = Event(reservation.end_time, process, 1)
-                self.owner.timeline.schedule(event)
-
-                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [self.memo_arr[card.memory_index]])
-                event = Event(reservation.end_time, process, 2)
-                self.owner.timeline.schedule(event)
 
         for rule in rules:
             process = Process(self.owner.resource_manager, "load", [rule])
@@ -134,8 +128,20 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             self.owner.timeline.schedule(event)
 
             process = Process(self.owner.resource_manager, "expire", [rule])
-            event = Event(reservation.end_time, process, 0)
+            event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
             self.owner.timeline.schedule(event)
+
+
+        for card in self.timecards:
+            if reservation in card.reservations:
+                process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"])
+                event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
+                self.owner.timeline.schedule(event)
+
+                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [self.memo_arr[card.memory_index]])
+                event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
+                self.owner.timeline.schedule(event)
+
 
 
     def create_rules_request(self, path: list, reservation: ReservationAdaptive) -> List["Rule"]:
@@ -161,13 +167,15 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
         index = path.index(self.owner.name)  # the location of this node along the path from initiator to responder
 
+        priority = 10
         # 1. create rules for entanglement generation
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]],
                            "path": path, "index": index}
-            rule = RuleAdaptive(10, eg_rule_action1, eg_rule_condition, action_args, condition_args)
+            rule = RuleAdaptive(priority, eg_rule_action1, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         if index < len(path) - 1:
             if index == 0:
@@ -177,15 +185,17 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
                            "path": path, "index": index, "name": self.owner.name, "reservation": reservation}
-            rule = RuleAdaptive(10, eg_rule_action2, eg_rule_condition, action_args, condition_args)
+            rule = RuleAdaptive(priority, eg_rule_action2, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         # 2. create rules for entanglement purification
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size], "reservation": reservation}
             action_args = {}
-            rule = Rule(10, ep_rule_action1, ep_rule_condition1, action_args, condition_args)
+            rule = Rule(priority, ep_rule_action1, ep_rule_condition1, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         if index < len(path) - 1:
             if index == 0:
@@ -194,20 +204,25 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:], "fidelity": reservation.fidelity}
 
             action_args = {}
-            rule = Rule(10, ep_rule_action2, ep_rule_condition2, action_args, condition_args)
+            rule = Rule(priority, ep_rule_action2, ep_rule_condition2, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         # 3. create rules for entanglement swapping
         if index == 0:
             condition_args = {"memory_indices": memory_indices, "target_remote": path[-1], "fidelity": reservation.fidelity}
             action_args = {}
-            rule = Rule(10, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
             rules.append(rule)
+            priority += 1
+
         elif index == len(path) - 1:
             action_args = {}
             condition_args = {"memory_indices": memory_indices, "target_remote": path[0], "fidelity": reservation.fidelity}
-            rule = Rule(10, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
             rules.append(rule)
+            priority += 1
+
         else:
             _path = path[:]
             while _path.index(self.owner.name) % 2 == 0:
@@ -221,12 +236,14 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
             condition_args = {"memory_indices": memory_indices, "left": left, "right": right, "fidelity": reservation.fidelity}
             action_args = {"es_succ_prob": self.es_succ_prob, "es_degradation": self.es_degradation}
-            rule = Rule(10, es_rule_actionA, es_rule_conditionA, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionA, es_rule_conditionA, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
             action_args = {}
-            rule = Rule(10, es_rule_actionB, es_rule_conditionB2, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB, es_rule_conditionB2, action_args, condition_args)
             rules.append(rule)
+            priority += 1
 
         for rule in rules:
             rule.set_reservation(reservation)

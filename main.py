@@ -5,12 +5,15 @@ in SeQUeNCe and conduct experiments with a large number of nodes.
 
 import logging
 import argparse
+from collections import defaultdict
 import numpy as np
 from sequence.topology.router_net_topo import RouterNetTopo
+from sequence.constants import MILLISECOND
 import sequence.utils.log as log
-from request_app import RequestAppAdaptive
+from request_app import RequestAppThroughput, RequestAppTimeToServe
 from router_net_topo_adaptive import RouterNetTopoAdaptive
 from traffic import TrafficMatrix
+
 
 
 # linear network topology + entanglement generation
@@ -204,7 +207,7 @@ def app_2_node_linear_adaptive(verbose=False):
     dest_node_name = 'router_1'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
-        app = RequestAppAdaptive(router)
+        app = RequestAppThroughput(router)
         apps.append(app)
         if router.name == src_node_name:
             src_app = app
@@ -252,7 +255,7 @@ def app_5_node_linear_adaptive(verbose=False):
     dest_node_name = 'router_3'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
-        app = RequestAppAdaptive(router)
+        app = RequestAppThroughput(router)
         apps.append(app)
         if router.name == src_node_name:
             src_app = app
@@ -303,7 +306,7 @@ def app_5_node_star_adaptive(verbose=False):
     dest_node_name = 'router_3'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
-        app = RequestAppAdaptive(router)
+        app = RequestAppThroughput(router)
         apps.append(app)
         if router.name == src_node_name:
             src_app = app
@@ -354,7 +357,7 @@ def app_10_node_bottleneck_adaptive(verbose=False):
     dest_node_name = 'router_6'
     src_app = None
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
-        app = RequestAppAdaptive(router)
+        app = RequestAppThroughput(router)
         apps.append(app)
         if router.name == src_node_name:
             src_app = app
@@ -377,7 +380,7 @@ def app_10_node_bottleneck_adaptive(verbose=False):
     # print()
 
 
-# the request app, testing on a five node linear network
+# the request app, testing on a ten node bottleneck network, for throughput
 def app_10_node_bottleneck_request_queue():
 
     network_config = 'config/bottleneck_10.json'
@@ -400,7 +403,7 @@ def app_10_node_bottleneck_request_queue():
 
     name_to_apps = {}
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
-        app = RequestAppAdaptive(router)
+        app = RequestAppThroughput(router)
         name_to_apps[router.name] = app
         if router.name not in ['router_4', 'router_5']:
             router.active = False
@@ -423,17 +426,56 @@ def app_10_node_bottleneck_request_queue():
         request_to_throughput = app.get_request_to_throughput()
         for reservation, throughput in request_to_throughput.items():
             print(f'throughput = {throughput:.2f}, reservation = {reservation}')
+
+
+# the request type-2 app, testing on a ten node bottleneck network, for time-to-serve
+def app_10_node_bottleneck_request2_queue():
+
+    network_config = 'config/bottleneck_10.json'
+
+    # log_filename = 'log/linear_adaptive'
+    log_filename = 'log/queue_tts/bottleneck,qmem=6,update=true-'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
     
-    # for node_name, app in name_to_apps.items():
-    #     print(f'{node_name}:', end=' ')
-    #     for t in app.get_time_to_service():
-    #         print(round(t/1e9), end=' ')
-    #     print()
+    tl = network_topo.get_timeline()
 
-    # for t in src_app.get_time_stamps():
-    #     print(f'{round(t):,}')
-    # print()
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('INFO')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager', 'main']
+    # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    for module in modules:
+        log.track_module(module)
 
+    name_to_apps = {}
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestAppTimeToServe(router)
+        name_to_apps[router.name] = app
+        if router.name not in ['router_4', 'router_5']:
+            router.active = False
+        router.adaptive_continuous.has_empty_neighbor = False
+        # router.adaptive_continuous.update_prob = False
+
+    num_nodes = len(name_to_apps)
+    traffic_matrix = TrafficMatrix(num_nodes)
+    traffic_matrix.bottleneck_10()
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=100, memo_size=1, fidelity=0.6, entanglement_number=1)
+    for request in request_queue:
+        id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
+        app = name_to_apps[src_name]
+        app.start(dst_name, start_time, end_time, memo_size, fidelity, entanglement_number, id)
+
+    tl.init()
+    tl.run()
+
+    time_to_serve_dict = defaultdict(float)
+    for _, app in name_to_apps.items():
+        time_to_serve_dict |= app.time_to_serve
+
+    for reservation, time_to_serve in sorted(time_to_serve_dict.items()):
+        log.logger.info(f'reservation={reservation}, time to serve={time_to_serve / MILLISECOND}')
 
 
 if __name__ == '__main__':
@@ -445,5 +487,6 @@ if __name__ == '__main__':
     # app_5_node_linear_adaptive(verbose)
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
-    app_10_node_bottleneck_request_queue()
+    # app_10_node_bottleneck_request_queue()
+    app_10_node_bottleneck_request2_queue()
 

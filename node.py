@@ -38,7 +38,7 @@ class QuantumRouterAdaptive(QuantumRouter):
         self.set_resource_manager(resource_manager)
 
         # setup network manager
-        swapping_success_rate = 0.5
+        swapping_success_rate = 0.6
         network_manager = NetworkManager(self, [])
         routing_protocol = StaticRoutingProtocol(self, f'{self.name}.StaticRoutingProtocol', {})
         rsvp_protocol = ResourceReservationProtocolAdaptive(self, f'{self.name}.RSVP', memo_arr_name)

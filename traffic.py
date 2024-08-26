@@ -39,7 +39,7 @@ class TrafficMatrix:
         return src_dst_pairs, prob_list
 
 
-    def get_request_queue(self, request_time: int, total_time: int, memo_size: int, fidelity: float, entanglement_number: int) -> list:
+    def get_request_queue(self, request_time: int, total_time: int, memo_size: int, fidelity: float, entanglement_number: int, seed: int = 0) -> list:
         '''get a queue of requests, each request is represented by (src, dst, start_time, end_time, memo_size, fidelity, entanglement_number)
            the request are uniformly distributed, one after another
         
@@ -48,12 +48,14 @@ class TrafficMatrix:
             total_time: the total time of all request
             memo_size: the memory size for each request
             fidelity: the fidelity requirement for each request
+            entanglement_number: the number of entanglement needed
+            seed: the random seed
         Return:
             a list of requests, where each request is represented by a tuple (src name, dst name, start time, end time, memory size, fidelity)
         '''
         src_dst_pairs, prob_list = self.matrix_to_prob_list()
         prob_accumulate = list(accumulate(prob_list))
-        random.seed(0)
+        random.seed(seed)
 
         request_id = 0
         request_queue = []
@@ -71,4 +73,46 @@ class TrafficMatrix:
                 request_id += 1
             cur_time = end_time + 0.01
         
+        return request_queue
+
+
+    def get_request_queue_tts(self, request_period: int, total_time: int, memo_size: int, fidelity: float, entanglement_number: int, seed: int = 0) -> list:
+        '''get a queue of requests, each request is represented by (src, dst, start_time, end_time, memo_size, fidelity, entanglement_number)
+           the request are uniformly distributed, one after another
+        
+           This is for the time to serve metric
+
+        Args:
+            request_period: the time period (in seconds) for each request
+            total_time: the total time of all request
+            memo_size: the memory size for each request
+            fidelity: the fidelity requirement for each request
+            entanglement_number: the number of entanglement needed
+            seed: the random seed
+        Return:
+            a list of requests, where each request is represented by a tuple (src name, dst name, start time, end time, memory size, fidelity)
+        '''
+        src_dst_pairs, prob_list = self.matrix_to_prob_list()
+        prob_accumulate = list(accumulate(prob_list))
+        random.seed(seed)
+
+        delta = 0.05
+        assert request_period > delta
+
+        request_id = 0
+        request_queue = []
+        cur_time = 0 # in seconds
+        while cur_time < total_time:
+            random_number = random.uniform(0, 1)
+            index = bisect_left(prob_accumulate, random_number)
+            src, dst = src_dst_pairs[index]
+            src_name = f'router_{src}'
+            dst_name = f'router_{dst}'
+            start_time = cur_time + delta
+            end_time = cur_time + request_period
+            if end_time <= total_time:
+                request_queue.append((request_id, src_name, dst_name, round(start_time * SECOND), round(end_time * SECOND), memo_size, fidelity, entanglement_number))
+                request_id += 1
+            cur_time = end_time
+
         return request_queue
