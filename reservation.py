@@ -1,17 +1,37 @@
 '''Definition of Reservation protocol for the adaptive-continuous protocol
 '''
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple, Dict
 from sequence.network_management.reservation import ResourceReservationProtocol, Reservation, ResourceReservationMessage, QCap, RSVPMsgType
 from sequence.resource_management.rule_manager import Rule
 from rule_manager import RuleAdaptive
 from sequence.network_management.reservation import eg_rule_action1, eg_rule_action2, eg_rule_condition, ep_rule_action1, ep_rule_condition1, ep_rule_action2, \
-                                                    ep_rule_condition2, es_rule_actionB, es_rule_conditionB1, es_rule_actionA, es_rule_conditionA, es_rule_conditionB2
+                                                    ep_rule_condition2, es_rule_actionB, es_rule_conditionB1, es_rule_conditionA, es_rule_conditionB2, es_req_func
 from sequence.kernel.event import Event
 from sequence.kernel.process import Process
+from sequence.resource_management.memory_manager import MemoryInfo
+from sequence.resource_management.rule_manager import Arguments
+
+from swapping import EtanglementSwappingAdelay
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
+
+
+
+def es_rule_actionA(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EtanglementSwappingAdelay, List[str], List["es_req_func"], List[Dict]]:
+    """Action function used by EntanglementSwappingA protocol on nodes
+    """
+    es_succ_prob = args["es_succ_prob"]
+    es_degradation = args["es_degradation"]
+    memories = [info.memory for info in memories_info]
+    protocol = EtanglementSwappingAdelay(None, "ESA.{}.{}".format(memories[0].name, memories[1].name),
+                                         memories[0], memories[1], success_prob=es_succ_prob, degradation=es_degradation)
+    dsts = [info.remote_node for info in memories_info]
+    req_funcs = [es_req_func, es_req_func]
+    req_args = [{"target_memo": memories_info[0].remote_memo}, {"target_memo": memories_info[1].remote_memo}]
+    return protocol, dsts, req_funcs, req_args
+
 
 
 class ReservationAdaptive(Reservation):
