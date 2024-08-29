@@ -16,10 +16,10 @@ from traffic import TrafficMatrix
 
 
 
-# linear network topology + entanglement generation
-# efficiency = 1:   avg latency = 0.0298s, rate = 33.59/s
-# efficiency = 0.5: avg latency = 0.0851s, rate = 11.76/s
-# efficiency = 0.1: avg latency = 1.4237s, rate = 0.702/s
+# linear network topology + entanglement generation (based on 20 samples)
+# efficiency = 1:   avg latency = 0.0258s, rate = 38.81/s
+# efficiency = 0.5: avg latency = 0.0548s, rate = 18.24/s
+# efficiency = 0.1: avg latency = 0.6298s, rate = 1.588/s
 def linear_entanglement_generation(verbose=False):
     print('\nLinear, entanglement generation:')
 
@@ -27,7 +27,7 @@ def linear_entanglement_generation(verbose=False):
     # level = logging.DEBUG
     # logging.basicConfig(level=level, filename='', filemode='w')
     
-    network_config = 'config/line_5.json'
+    network_config = 'config/line_2.json'
     # network_config = 'config/random_5.json'
     network_topo = RouterNetTopo(network_config)
     tl = network_topo.get_timeline()
@@ -48,7 +48,7 @@ def linear_entanglement_generation(verbose=False):
     
     start_time = 1e12
     end_time   = 10e12
-    entanglement_number = 1
+    entanglement_number = 20
     nm = src_node.network_manager
     nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
 
@@ -70,10 +70,6 @@ def linear_entanglement_generation(verbose=False):
     print(f'average latency = {latency:.4f}s; rate = {1/latency:.3f}/s')
 
 
-# linear network topology + swapping
-# efficiency = 1:   avg latency = 0.0648s, rate = 15.44/s
-# efficiency = 0.5: avg latency = 0.1517s, rate = 6.591/s
-# efficiency = 0.1: avg latency = 3.4507s, rate = 0.290/s
 def linear_swapping(verbose=False):
     print('\nLinear, swapping:')
 
@@ -142,21 +138,14 @@ def linear_swapping(verbose=False):
 def linear_adaptive(verbose=False):
     print('\nLinear, adaptive:')
 
-    log_filename = 'log/linear_adaptive'
-    # level = logging.DEBUG
-    # logging.basicConfig(level=level, filename='', filemode='w')
-    
     network_config = 'config/line_2.json'
-    # network_config = 'config/random_5.json'
     network_topo = RouterNetTopoAdaptive(network_config)
     tl = network_topo.get_timeline()
 
+    log_filename = 'log/linear_adaptive'
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
-    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['timeline', 'network_manager', 'rule_manager', 'adaptive_continuous_protocol', \
-               'resource_manager', 'generation', 'swap_memory_protocol']
+    modules = ['adaptive_continuous', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager']
     for module in modules:
         log.track_module(module)
 
@@ -195,7 +184,7 @@ def app_2_node_linear_adaptive(verbose=False):
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('DEBUG')
+    log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
     modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager', 'swap_memory']
@@ -211,19 +200,24 @@ def app_2_node_linear_adaptive(verbose=False):
         apps.append(app)
         if router.name == src_node_name:
             src_app = app
+        router.adaptive_continuous.has_empty_neighbor = False
 
     start_time = 0.5e12
-    end_time   = 3.5e12
+    end_time   = 10e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
 
     tl.init()
     tl.run()
-    print(src_app.get_throughput())
-    for t in src_app.get_time_to_service():
-        print(round(t/1e9), end=' ')
-    print()
+    # print(src_app.get_throughput())
+    # for t in src_app.get_time_to_service():
+    #     print(round(t/1e9), end=' ')
+    # print()
+
+    request_to_throughput = src_app.get_request_to_throughput()
+    for reservation, throughput in request_to_throughput.items():
+        print(f'throughput = {throughput:.2f}, reservation = {reservation}')
 
 
 
@@ -434,14 +428,14 @@ def app_10_node_bottleneck_request2_queue():
     network_config = 'config/bottleneck_10.json'
 
     # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue_tts/bottleneck,qmem=6,update=true-'
+    log_filename = 'log/queue_tts/bottleneck,qmem=6,update=true'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('INFO')
+    log.set_logger_level('DEBUG')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
     modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager', 'main']
@@ -478,15 +472,16 @@ def app_10_node_bottleneck_request2_queue():
         log.logger.info(f'reservation={reservation}, time to serve={time_to_serve / MILLISECOND}')
 
 
+
 if __name__ == '__main__':
     verbose = True
     # linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
-    # app_2_node_linear_adaptive(verbose)
+    app_2_node_linear_adaptive(verbose)
     # app_5_node_linear_adaptive(verbose)
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
-    app_10_node_bottleneck_request2_queue()
+    # app_10_node_bottleneck_request2_queue()
 

@@ -1,16 +1,18 @@
 ''' the quantum router for adaptive-continuous protocol
 '''
 
-from sequence.topology.node import QuantumRouter
+from typing import List
+from sequence.topology.node import QuantumRouter, BSMNode, SingleAtomBSM
 from sequence.network_management.routing import StaticRoutingProtocol
 from sequence.kernel.timeline import Timeline
 from sequence.network_management.network_manager import NetworkManager
+from sequence.utils import log
+from sequence.message import Message
+
 from resource_manager import ResourceManagerAdaptive
 from reservation import ResourceReservationProtocolAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
-
-from sequence.utils import log
-from sequence.message import Message
+from generation import EntanglementGenerationBadaptive
 
 
 class QuantumRouterAdaptive(QuantumRouter):
@@ -78,3 +80,36 @@ class QuantumRouterAdaptive(QuantumRouter):
                     if protocol.name == msg.receiver:
                         protocol.received_message(src, msg)
                         break
+
+
+class BSMNodeAdaptive(BSMNode):
+    """Bell state measurement node.
+
+    This node provides bell state measurement and the EntanglementGenerationB protocol for entanglement generation.
+    Creates a SingleAtomBSM object within local components.
+
+    Attributes:
+        name (str): label for node instance.
+        timeline (Timeline): timeline for simulation.
+        eg (EntanglementGenerationB): entanglement generation protocol instance.
+    """
+    def __init__(self, name: str, timeline: "Timeline", other_nodes: List[str],
+                 seed=None, component_templates=None) -> None:
+        """Constructor for BSM node.
+
+        Args:
+            name (str): name of node.
+            timeline (Timeline): simulation timeline.
+            other_nodes (List[str]): 2-member list of node names for adjacent quantum routers.
+        """
+        super().__init__(name, timeline, other_nodes, seed, component_templates)
+        if not component_templates:
+            component_templates = {}
+
+        # update BSM object's entanglement generation protocol
+        bsm_name = name + ".BSM"
+        bsm = self.components[bsm_name]
+        bsm.detach(self.eg)
+        self.eg = EntanglementGenerationBadaptive(self, "{}_eg".format(name), other_nodes)
+        bsm.attach(self.eg)
+

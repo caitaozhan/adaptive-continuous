@@ -119,4 +119,4 @@ output_file = open(path, 'w')
 json.dump(output_dict, output_file, indent=4)
 
 
-# python config/config_generator_line.py 5 10 1 0.002 1 -d config -o line_5-.json -s 10
+# python config/config_generator_line.py 2 10 1 0.0002 1 -d config -o line_2.json -s 10

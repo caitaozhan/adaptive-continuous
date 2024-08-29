@@ -5,7 +5,9 @@ from sequence.topology.topology import Topology as Topo
 from sequence.topology.node import BSMNode
 from sequence.topology.router_net_topo import RouterNetTopo
 
-from node import QuantumRouterAdaptive
+
+
+from node import QuantumRouterAdaptive, BSMNodeAdaptive
 
 
 class RouterNetTopoAdaptive(RouterNetTopo):
@@ -27,7 +29,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
 
             if node_type == self.BSM_NODE:
                 others = self.bsm_to_router_map[name]
-                node_obj = BSMNode(name, self.tl, others, component_templates=template)
+                node_obj = BSMNodeAdaptive(name, self.tl, others, component_templates=template)
             elif node_type == self.QUANTUM_ROUTER:
                 memo_size = node.get(self.MEMO_ARRAY_SIZE, 0)
                 node_obj = QuantumRouterAdaptive(name, self.tl, memo_size, component_templates=template)

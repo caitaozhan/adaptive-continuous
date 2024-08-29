@@ -1,19 +1,17 @@
 """The Resource Manager customized for the adaptive continuous protocol
 """
 
-from typing import TYPE_CHECKING, Optional
-from enum import auto, Enum
+from typing import TYPE_CHECKING
 
-from sequence.resource_management.resource_manager import ResourceManager, ResourceManagerMessage, ResourceManagerMsgType
+from sequence.resource_management.resource_manager import ResourceManager
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 from sequence.components.memory import Memory
 from sequence.resource_management.memory_manager import MemoryInfo
-from sequence.entanglement_management.generation import EntanglementGenerationA
 from sequence.utils import log
 from sequence.network_management.reservation import Reservation
 
+from generation import EntanglementGenerationAadaptive
 from memory_manager import MemoryManagerAdaptive
-from rule_manager import RuleManagerAdaptive, Arguments
 from reservation import ReservationAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
 
@@ -41,8 +39,6 @@ class ResourceManagerAdaptive(ResourceManager):
 
     def __init__(self, owner: "QuantumRouterAdaptive", memory_array_name: str):
         super().__init__(owner, memory_array_name)
-        self.rule_manager = RuleManagerAdaptive()    # reassign the rule manager
-        self.rule_manager.set_resource_manager(self)
         self.memory_manager = MemoryManagerAdaptive(owner.components[memory_array_name])
         self.memory_manager.set_resource_manager(self)
 
@@ -68,7 +64,7 @@ class ResourceManagerAdaptive(ResourceManager):
                 protocol.rule.protocols.remove(protocol)
 
             # let the AC protocol track this entanglement link
-            if isinstance(protocol, EntanglementGenerationA) and state == MemoryInfo.ENTANGLED: # entanglement succeed
+            if isinstance(protocol, EntanglementGenerationAadaptive) and state == MemoryInfo.ENTANGLED: # entanglement succeed
                 if isinstance(protocol.rule.reservation, ReservationAdaptive): # Adaptive Continuous Protocol's reservation
                     adaptive_continuous = self.get_adaptive_continuous_protocol()
                     entanglment_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
@@ -96,16 +92,15 @@ class ResourceManagerAdaptive(ResourceManager):
         self.owner.get_idle_memory(memo_info)
 
 
-    def update_swap_memory(self, protocol: "EntanglementProtocol", memory: "Memory", state: str) -> None:
+    def update_swap_memory(self, protocol: "EntanglementProtocol", memory: "Memory") -> None:
         """Method to update state of memory after completion of entanglement management protocol.
 
-        Compared with update(), the update_swap_memory() don't have the self.memory_manager.update() in the first line
-        Also, don't need to inform the AC protocol
+        Compared with update(): 1) the update_swap_memory() don't have the self.memory_manager.update() in the first line
+        2) Also, don't need to inform the AC protocol
 
         Args:
             protocol (EntanglementProtocol): concerned protocol. If not None, then remove it from everywhere
             memory (Memory): memory to update.
-            state (str): new state for the memory. NOTE: not used
 
         Side Effects:
             May modify memory state, and modify any attached protocols.
@@ -137,7 +132,7 @@ class ResourceManagerAdaptive(ResourceManager):
                     info.to_occupied()
                 return
 
-        self.owner.get_idle_memory(memo_info)
+        self.owner.get_idle_memory(memo_info)  # no new rules apply to this memory, thus "idle"
 
 
     def get_adaptive_continuous_protocol(self) -> AdaptiveContinuousProtocol:

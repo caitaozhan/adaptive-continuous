@@ -1,36 +1,67 @@
 '''Definition of Reservation protocol for the adaptive-continuous protocol
 '''
 
-from typing import TYPE_CHECKING, List, Tuple, Dict
+from typing import TYPE_CHECKING, List, Tuple, Dict, Any
 from sequence.network_management.reservation import ResourceReservationProtocol, Reservation, ResourceReservationMessage, QCap, RSVPMsgType
 from sequence.resource_management.rule_manager import Rule
-from rule_manager import RuleAdaptive
-from sequence.network_management.reservation import eg_rule_action1, eg_rule_action2, eg_rule_condition, ep_rule_action1, ep_rule_condition1, ep_rule_action2, \
-                                                    ep_rule_condition2, es_rule_actionB, es_rule_conditionB1, es_rule_conditionA, es_rule_conditionB2, es_req_func
+# from rule_manager import RuleAdaptive
+from sequence.network_management.reservation import eg_rule_condition, ep_rule_action1, ep_rule_condition1, ep_rule_action2, ep_rule_condition2, \
+                                                    es_rule_actionB, es_rule_conditionB1, es_rule_conditionA, es_rule_conditionB2, es_rule_actionA
 from sequence.kernel.event import Event
 from sequence.kernel.process import Process
 from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.resource_management.rule_manager import Arguments
+from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 
-from swapping import EtanglementSwappingAdelay
+from generation import EntanglementGenerationAadaptive
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
 
 
 
-def es_rule_actionA(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EtanglementSwappingAdelay, List[str], List["es_req_func"], List[Dict]]:
-    """Action function used by EntanglementSwappingA protocol on nodes
+def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, Any]) -> Tuple[EntanglementGenerationAadaptive, List[None], List[None], List[None]]:
+    """Action function used by entanglement generation protocol on nodes except the initiator, i.e., index > 0
     """
-    es_succ_prob = args["es_succ_prob"]
-    es_degradation = args["es_degradation"]
     memories = [info.memory for info in memories_info]
-    protocol = EtanglementSwappingAdelay(None, "ESA.{}.{}".format(memories[0].name, memories[1].name),
-                                         memories[0], memories[1], success_prob=es_succ_prob, degradation=es_degradation)
-    dsts = [info.remote_node for info in memories_info]
-    req_funcs = [es_req_func, es_req_func]
-    req_args = [{"target_memo": memories_info[0].remote_memo}, {"target_memo": memories_info[1].remote_memo}]
-    return protocol, dsts, req_funcs, req_args
+    memory = memories[0]
+    mid = args["mid"]
+    path = args["path"]
+    index = args["index"]
+    from_request = args["from_request"]
+    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index - 1], memory, from_request)
+    return protocol, [None], [None], [None]
+
+
+def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementGenerationAadaptive, List[str], List["eg_req_func_adaptive"], List[Dict]]:
+    """Action function used by entanglement generation protocol on nodes except the responder, i.e., index < len(path) - 1
+    """
+    mid = args["mid"]
+    path = args["path"]
+    index = args["index"]
+    memories = [info.memory for info in memories_info]
+    memory = memories[0]
+    from_request = args["from_request"]
+    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index + 1], memory, from_request)
+    req_args = {"name": args["name"], "reservation": args["reservation"]}
+    return protocol, [path[index + 1]], [eg_req_func_adaptive], [req_args]
+
+
+def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> EntanglementGenerationAadaptive:
+    """Function used by `eg_rule_action2` function for selecting generation protocols on the remote node
+    Args:
+        protocols: the waiting protocols (wait for request)
+        args: arguments from the node who sent the request
+    Return:
+        the selected protocol
+    """
+    name = args["name"]
+    reservation = args["reservation"]
+    for protocol in protocols:
+        if (isinstance(protocol, EntanglementGenerationAadaptive)
+                and protocol.remote_node_name == name
+                and protocol.rule.get_reservation() == reservation):
+            return protocol
 
 
 
@@ -74,8 +105,6 @@ class ReservationAdaptive(Reservation):
 
 class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
     '''ReservationProtocol for node resources customized for adaptive-continuous protocol
-    Task:
-        update the cache
     '''
 
     def __init__(self, owner: "QuantumRouterAdaptive", name: str, memory_array_name: str):
@@ -106,8 +135,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         # create rules for entanglement generation
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
-            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index}
-            rule = Rule(priority, eg_rule_action1, eg_rule_condition, action_args, condition_args)
+            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index, "from_request": False}
+            rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
@@ -118,8 +147,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation}
-            rule = Rule(10, eg_rule_action2, eg_rule_condition, action_args, condition_args)
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_request": False}
+            rule = Rule(10, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
@@ -127,6 +156,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             rule.set_reservation(reservation)
         
         return rules
+
 
 
     def load_rules_adaptive(self, rules: List[Rule], reservation: ReservationAdaptive):
@@ -192,8 +222,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]],
-                           "path": path, "index": index}
-            rule = RuleAdaptive(priority, eg_rule_action1, eg_rule_condition, action_args, condition_args)
+                           "path": path, "index": index, "from_request": True}
+            rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
@@ -204,8 +234,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation}
-            rule = RuleAdaptive(priority, eg_rule_action2, eg_rule_condition, action_args, condition_args)
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_request": True}
+            rule = Rule(priority, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
