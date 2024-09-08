@@ -28,8 +28,8 @@ def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, 
     mid = args["mid"]
     path = args["path"]
     index = args["index"]
-    from_request = args["from_request"]
-    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index - 1], memory, from_request)
+    from_app_request = args["from_app_request"]
+    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index - 1], memory, from_app_request)
     return protocol, [None], [None], [None]
 
 
@@ -41,8 +41,8 @@ def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     index = args["index"]
     memories = [info.memory for info in memories_info]
     memory = memories[0]
-    from_request = args["from_request"]
-    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index + 1], memory, from_request)
+    from_app_request = args["from_app_request"]
+    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index + 1], memory, from_app_request)
     req_args = {"name": args["name"], "reservation": args["reservation"]}
     return protocol, [path[index + 1]], [eg_req_func_adaptive], [req_args]
 
@@ -135,7 +135,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         # create rules for entanglement generation
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
-            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index, "from_request": False}
+            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index, "from_app_request": False}
             rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -147,7 +147,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_request": False}
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": False}
             rule = Rule(10, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -222,7 +222,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]],
-                           "path": path, "index": index, "from_request": True}
+                           "path": path, "index": index, "from_app_request": True}
             rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -234,7 +234,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_request": True}
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": True}
             rule = Rule(priority, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1

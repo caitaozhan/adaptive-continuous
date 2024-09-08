@@ -1,7 +1,7 @@
 """The Resource Manager customized for the adaptive continuous protocol
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sequence.resource_management.resource_manager import ResourceManager
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
@@ -9,6 +9,8 @@ from sequence.components.memory import Memory
 from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.utils import log
 from sequence.network_management.reservation import Reservation
+from sequence.resource_management.rule_manager import Arguments
+from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
 
 from generation import EntanglementGenerationAadaptive
 from memory_manager import MemoryManagerAdaptive
@@ -43,7 +45,7 @@ class ResourceManagerAdaptive(ResourceManager):
         self.memory_manager.set_resource_manager(self)
 
     def update(self, protocol: "EntanglementProtocol", memory: "Memory", state: str) -> None:
-        """Method to update state of memory after completion of entanglement management protocol.
+        """Override. Method to update state of memory after completion of entanglement management protocol.
 
         Args:
             protocol (EntanglementProtocol): concerned protocol. If not None, then remove it from everywhere
@@ -90,6 +92,35 @@ class ResourceManagerAdaptive(ResourceManager):
                 return
 
         self.owner.get_idle_memory(memo_info)
+
+
+    def send_request(self, protocol: "EntanglementProtocol", req_dst: Optional[str], req_condition_func: RequestConditionFunc, req_args: Arguments):
+        """Override. Method to send protocol request to another node.
+
+        Send the request to pair the local 'protocol' with the protocol on the remote node 'req_dst'.
+        The function `req_condition_func` describes the desired protocol.
+
+        Args:
+            protocol (EntanglementProtocol): protocol sending the request.
+            req_dst (str): name of destination node.
+            req_condition_func (Callable[[List[EntanglementProtocol]], EntanglementProtocol]):
+                function used to evaluate condition on distant node.
+            req_args (Dict[str, Any]): arguments for req_cond_func.
+        """
+
+        protocol.owner = self.owner
+        if req_dst is None:
+            self.waiting_protocols.append(protocol)
+            return
+        if protocol not in self.pending_protocols:
+            self.pending_protocols.append(protocol)
+        memo_names = [memo.name for memo in protocol.memories]
+        msg = ResourceManagerMessage(ResourceManagerMsgType.REQUEST, protocol=protocol.name, node=self.owner.name,
+                                     memories=memo_names, req_condition_func=req_condition_func, req_args=req_args)
+        self.owner.send_message(req_dst, msg)
+        if isinstance(protocol, EntanglementGenerationAadaptive) and req_dst is not None:
+            protocol.node_send_resource_management_request = True
+        log.logger.debug("{} send {} message to {}".format(self.owner.name, msg.msg_type.name, req_dst))
 
 
     def update_swap_memory(self, protocol: "EntanglementProtocol", memory: "Memory") -> None:

@@ -321,7 +321,10 @@ class AdaptiveContinuousProtocol(Protocol):
             self.probability_table[neighbor] /= summ
         print(f'{self.owner.name}, {self.probability_table_update_count}, ', end = '')
         for node, prob in self.probability_table.items():
-            print(f'{node}: {prob:.4}', end = ' ')
+            if node != '':
+                print(f'{node}: {prob:.4}', end = ' ')
+            else:
+                print(f'None: {prob:.4}', end = ' ')
         print()
         self.probability_table_update_count += 1
 

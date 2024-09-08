@@ -18,13 +18,25 @@ class TrafficMatrix:
     
     def bottleneck_10(self):
         ''' For the bottleneck_10.json
-            (0, 6) -- 50%
-            (0, 7) -- 20%
-            (1, 8) -- 30%
+            (2, 8) -- 50%
+            (3, 9) -- 20%
+            (3, 9) -- 30%
         '''
-        self.matrix[0][6] = 0.5
-        self.matrix[0][7] = 0.2
-        self.matrix[1][8] = 0.3
+        self.matrix[2][8] = 0.5
+        self.matrix[3][9] = 0.2
+        self.matrix[3][8] = 0.3
+
+    def bottleneck_20(self):
+        ''' For the bottleneck_20.json
+            (7, 18) -- 25%
+            (7, 19) -- 25%
+            (8, 18) -- 25%
+            (8, 19) -- 25%
+        '''
+        self.matrix[7][18] = 0.25
+        self.matrix[7][19] = 0.25
+        self.matrix[8][18] = 0.25
+        self.matrix[8][19] = 0.25
     
     def matrix_to_prob_list(self) -> Tuple[List]:
         '''convert the traffix matrix into probability list
@@ -96,7 +108,7 @@ class TrafficMatrix:
         prob_accumulate = list(accumulate(prob_list))
         random.seed(seed)
 
-        delta = 0.05
+        delta = 0.2
         assert request_period > delta
 
         request_id = 0

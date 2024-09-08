@@ -12,7 +12,7 @@ from sequence.message import Message
 from resource_manager import ResourceManagerAdaptive
 from reservation import ResourceReservationProtocolAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
-from generation import EntanglementGenerationBadaptive
+from generation import EntanglementGenerationBadaptive, GenerationMsgType
 
 
 class QuantumRouterAdaptive(QuantumRouter):
@@ -40,7 +40,7 @@ class QuantumRouterAdaptive(QuantumRouter):
         self.set_resource_manager(resource_manager)
 
         # setup network manager
-        swapping_success_rate = 0.6
+        swapping_success_rate = 0.9
         network_manager = NetworkManager(self, [])
         routing_protocol = StaticRoutingProtocol(self, f'{self.name}.StaticRoutingProtocol', {})
         rsvp_protocol = ResourceReservationProtocolAdaptive(self, f'{self.name}.RSVP', memo_arr_name)
@@ -80,6 +80,13 @@ class QuantumRouterAdaptive(QuantumRouter):
                     if protocol.name == msg.receiver:
                         protocol.received_message(src, msg)
                         break
+                else: # for the special case of reducing latancy during handshaking and memory re-assignment
+                    if msg.msg_type is GenerationMsgType.INFORM_EP:
+                        for protocol in self.resource_manager.pending_protocols:
+                            if protocol.name == msg.receiver:
+                                protocol.received_message(src, msg)
+                                break
+
 
 
 class BSMNodeAdaptive(BSMNode):

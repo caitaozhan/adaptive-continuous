@@ -184,10 +184,10 @@ def app_2_node_linear_adaptive(verbose=False):
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('INFO')
+    log.set_logger_level('DEBUG')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager', 'swap_memory']
+    modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager', 'resource_manager']
     for module in modules:
         log.track_module(module)
 
@@ -203,17 +203,17 @@ def app_2_node_linear_adaptive(verbose=False):
         router.adaptive_continuous.has_empty_neighbor = False
 
     start_time = 0.5e12
-    end_time   = 10e12
+    end_time   = 5e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
 
     tl.init()
     tl.run()
-    # print(src_app.get_throughput())
-    # for t in src_app.get_time_to_service():
-    #     print(round(t/1e9), end=' ')
-    # print()
+
+    for t in src_app.get_time_to_service():
+        print(round(t/1e9), end=' ')
+    print()
 
     request_to_throughput = src_app.get_request_to_throughput()
     for reservation, throughput in request_to_throughput.items():
@@ -427,18 +427,18 @@ def app_10_node_bottleneck_request2_queue():
 
     network_config = 'config/bottleneck_10.json'
 
-    # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue_tts/bottleneck,qmem=6,update=true'
+    # log_filename = 'log/queue_tts/bottleneck,qmem=0'
+    log_filename = 'log/queue_tts/bottleneck,qmem=5,update=true'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('DEBUG')
+    log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager', 'main']
+    modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'swapping', 'rule_manager', 'timeline', 'resource_manager', 'generation', 'main']
     # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
     for module in modules:
         log.track_module(module)
@@ -447,15 +447,66 @@ def app_10_node_bottleneck_request2_queue():
     for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
         app = RequestAppTimeToServe(router)
         name_to_apps[router.name] = app
-        if router.name not in ['router_4', 'router_5']:
-            router.active = False
-        router.adaptive_continuous.has_empty_neighbor = False
-        # router.adaptive_continuous.update_prob = False
+        # if router.name not in ['router_4', 'router_5']:
+        #     router.active = False
+        router.adaptive_continuous.has_empty_neighbor = True
+        router.adaptive_continuous.update_prob = True
 
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.bottleneck_10()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=100, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    for request in request_queue:
+        id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
+        app = name_to_apps[src_name]
+        app.start(dst_name, start_time, end_time, memo_size, fidelity, entanglement_number, id)
+
+    tl.init()
+    tl.run()
+
+    time_to_serve_dict = defaultdict(float)
+    for _, app in name_to_apps.items():
+        time_to_serve_dict |= app.time_to_serve
+
+    for reservation, time_to_serve in sorted(time_to_serve_dict.items()):
+        log.logger.info(f'reservation={reservation}, time to serve={time_to_serve / MILLISECOND}')
+
+
+
+# the request type-2 app, testing on a ten node bottleneck network, for time-to-serve
+def app_20_node_bottleneck_request2_queue():
+
+    network_config = 'config/bottleneck_20.json'
+
+    # log_filename = 'log/queue_tts/bottleneck20,qmem=0'
+    log_filename = 'log/queue_tts/bottleneck20,qmem=5,update=true,tmp'
+
+    network_topo = RouterNetTopoAdaptive(network_config)
+    
+    tl = network_topo.get_timeline()
+
+    log.set_logger(__name__, tl, log_filename)
+    log.set_logger_level('INFO')
+    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
+    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
+    modules = ['adaptive_continuous', 'request_app', 'swapping', 'network_manager', 'resource_manager', 'main', 'rule_manager', 'generation', 'swapping']
+    # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    for module in modules:
+        log.track_module(module)
+
+    name_to_apps = {}
+    for router in network_topo.get_nodes_by_type(RouterNetTopo.QUANTUM_ROUTER):
+        app = RequestAppTimeToServe(router)
+        name_to_apps[router.name] = app
+        # if router.name not in ['router_4', 'router_5']:
+        #     router.active = False
+        router.adaptive_continuous.has_empty_neighbor = True
+        router.adaptive_continuous.update_prob = True
+
+    num_nodes = len(name_to_apps)
+    traffic_matrix = TrafficMatrix(num_nodes)
+    traffic_matrix.bottleneck_20()
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -478,10 +529,11 @@ if __name__ == '__main__':
     # linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
-    app_2_node_linear_adaptive(verbose)
+    # app_2_node_linear_adaptive(verbose)
     # app_5_node_linear_adaptive(verbose)
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
     # app_10_node_bottleneck_request2_queue()
+    app_20_node_bottleneck_request2_queue()
 
