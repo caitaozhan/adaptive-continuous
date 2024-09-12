@@ -97,7 +97,6 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         self.init_probability_table()
         elapse = SECOND
-        # self.update_prob = False
         self.update_probability_table_event(elapse)
 
     def update_probability_table_event(self, elapse):
@@ -144,11 +143,12 @@ class AdaptiveContinuousProtocol(Protocol):
         Args:
             delay: schedule the event after some amount of delay (pico seconds) between 0 and delay
         '''
-        assert delay >= 0, f'delay = {delay} is negative'
-        random_delay = int(self.owner.get_generator().uniform(0, delay))
-        process = Process(self, 'start', [])
-        event = Event(self.owner.timeline.now() + random_delay, process)
-        self.owner.timeline.schedule(event)
+        if self.adaptive_max_memory > 0:      # only start if AC protocol is assigned some memories
+            assert delay >= 0, f'delay = {delay} is negative'
+            random_delay = int(self.owner.get_generator().uniform(0, delay))
+            process = Process(self, 'start', [])
+            event = Event(self.owner.timeline.now() + random_delay, process)
+            self.owner.timeline.schedule(event)
 
 
     def get_raw_memory_info(self) -> MemoryInfo:

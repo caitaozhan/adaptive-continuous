@@ -38,6 +38,25 @@ class TrafficMatrix:
         self.matrix[8][18] = 0.25
         self.matrix[8][19] = 0.25
     
+    def as_20(self):
+        '''for autonomous system 20 nodes
+        '''
+        self.matrix[10][14] = 1/3
+        self.matrix[13][19] = 1/3
+        self.matrix[11][16] = 1/3
+
+
+    def as_100(self):
+        '''for autonomous system 20 nodes
+        '''
+        self.matrix[53][57] = 1/6
+        self.matrix[33][51] = 1/6
+        self.matrix[57][71] = 1/6
+        self.matrix[48][54] = 1/6
+        self.matrix[73][88] = 1/6
+        self.matrix[53][85] = 1/6
+
+
     def matrix_to_prob_list(self) -> Tuple[List]:
         '''convert the traffix matrix into probability list
         '''
