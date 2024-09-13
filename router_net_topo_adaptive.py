@@ -5,9 +5,8 @@ from networkx import Graph, dijkstra_path, exception
 import random
 
 from sequence.topology.topology import Topology as Topo
-from sequence.topology.node import BSMNode
 from sequence.topology.router_net_topo import RouterNetTopo
-
+from sequence.kernel.timeline import Timeline
 
 
 from node import QuantumRouterAdaptive, BSMNodeAdaptive
@@ -88,3 +87,11 @@ class RouterNetTopoAdaptive(RouterNetTopo):
                     routing_protocol.add_forwarding_rule(dst_name, next_hop)
                 except exception.NetworkXNoPath:
                     pass
+
+    def update_stop_time(self, stop_time: int) -> None:
+        """Update the stop time
+
+        Args:
+            stop_time (int): time in picoseconds
+        """
+        self.tl.stop_time = stop_time
