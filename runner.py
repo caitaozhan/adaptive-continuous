@@ -17,6 +17,10 @@ def set_node_seed(args: list, seed: int):
 def set_queue_seed(args: list, seed: int):
     return args + ["-qs", str(seed)]
 
+def set_nodes(args: list, node: int):
+    return args + ["-n", str(node)]
+
+
 def get_output(p: Popen):
     stderr = p.stderr.readlines()
     if stderr:
@@ -34,25 +38,30 @@ def main():
     tasks = []
 
     command = ['python', 'main.py']
-    base_args = ["-tp", "as", "-n", "100", "-t", "200", "-d", "log/9.12.24"]
+    base_args = ["-tp", "as", "-t", "200", "-d", "log/9.13.24"]
 
+    nodes = [100]
     memory_adaptive = [0, 5]
-    seed = list(range(15, 20))
-    for ma in memory_adaptive:
-        for up in [False, True]:
-            if ma == 0 and up == True:
-                continue
-            for s in seed:
-                args = set_memory_adaptive(base_args, ma)
-                if up:
-                    args = set_update_prob(args)
-                ###
-                # args = set_node_seed(args, s)
-                args = set_queue_seed(args, s)
-                ###
-                tasks.append(command + args)
+    seed = list(range(20))
+    update_prob = [False, True]
+    for n in nodes:
+        for ma in memory_adaptive:
+            for up in update_prob:
+                for s in seed:
+                    if ma == 0 and up == True:
+                        continue
+                    
+                    args = set_nodes(base_args, n)
+                    args = set_memory_adaptive(args, ma)
+                    if up:
+                        args = set_update_prob(args)
+                    ###
+                    # args = set_node_seed(args, s)
+                    args = set_queue_seed(args, s)
+                    ###
+                    tasks.append(command + args)
 
-    parallel = 7
+    parallel = 8
     ps = []       # processes current running
     while len(tasks) > 0 or len(ps) > 0:
         if len(ps) < parallel and len(tasks) > 0:

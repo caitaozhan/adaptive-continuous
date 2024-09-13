@@ -67,10 +67,6 @@ class RouterNetTopoAdaptive(RouterNetTopo):
                     costs[bsm] = [router] + costs[bsm]
                     costs[bsm][-1] += qc.distance
 
-        # slightly adjust the weights to ensure that (src, dst) and (dst, src) will get the same paths
-        for cost in costs.values():
-            cost[-1] = cost[-1] * (1 + random.random() * 1e-4)
-
         graph.add_weighted_edges_from(costs.values())
         for src in self.nodes[self.QUANTUM_ROUTER]:
             for dst_name in graph.nodes:

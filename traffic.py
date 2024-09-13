@@ -47,7 +47,7 @@ class TrafficMatrix:
 
 
     def as_100(self):
-        '''for autonomous system 20 nodes
+        '''for autonomous system 100 nodes
         '''
         self.matrix[53][57] = 1/6
         self.matrix[33][51] = 1/6

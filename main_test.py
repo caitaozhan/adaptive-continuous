@@ -580,11 +580,11 @@ def app_20_node_as_request2_queue():
 def app_100_node_as_request2_queue():
 
     update_prob = True
+    memory_adaptive = 5
 
     network_config = 'config/as_100.json'
 
-    # log_filename = 'log/queue_tts/as100,qmem=0'
-    log_filename = f'log/queue_tts/as100,qmem=5,update={update_prob}'
+    log_filename = f'log/queue_tts/as100,qmem={memory_adaptive},update={update_prob}'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -594,7 +594,7 @@ def app_100_node_as_request2_queue():
     log.set_logger_level('INFO')
     # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
     #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['adaptive_continuous', 'request_app', 'network_manager', 'resource_manager', 'main']
+    modules = ['adaptive_continuous', 'request_app', 'network_manager', 'resource_manager', 'main_test']
     # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
     for module in modules:
         log.track_module(module)
@@ -607,11 +607,14 @@ def app_100_node_as_request2_queue():
         #     router.active = False
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = update_prob
+        router.adaptive_continuous.set_adaptive_max_memory(memory_adaptive)      
 
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.as_100()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    # traffic_matrix.as_100_()
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=10, memo_size=1, fidelity=0.6, entanglement_number=1)
+    print(request_queue)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]

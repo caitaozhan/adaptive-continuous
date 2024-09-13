@@ -333,26 +333,40 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                     msg.reservation.set_path(path)
                     new_msg = ResourceReservationMessage(RSVPMsgType.APPROVE, self.name, msg.reservation, path=path)
                     self._pop(msg=msg)
-                    self._push(dst=msg.reservation.initiator, msg=new_msg)
+                    self._push(dst=None, msg=new_msg, next_hop=src)
                 else:
                     self._push(dst=msg.reservation.responder, msg=msg)
             else:
                 new_msg = ResourceReservationMessage(RSVPMsgType.REJECT, self.name, msg.reservation)
-                self._push(dst=msg.reservation.initiator, msg=new_msg)
+                self._push(dst=None, msg=new_msg, next_hop=src)
         elif msg.msg_type == RSVPMsgType.REJECT:
             for card in self.timecards:
                 card.remove(msg.reservation)
             if msg.reservation.initiator == self.owner.name:
                 self._pop(msg=msg)
             else:
-                self._push(dst=msg.reservation.initiator, msg=msg)
+                next_hop = self.next_hop_when_tracing_back(msg.path)
+                self._push(dst=None, msg=msg, next_hop=next_hop)
         elif msg.msg_type == RSVPMsgType.APPROVE:
             rules = self.create_rules_request(msg.path, msg.reservation)
             self.load_rules(rules, msg.reservation)
             if msg.reservation.initiator == self.owner.name:
                 self._pop(msg=msg)
             else:
-                self._push(dst=msg.reservation.initiator, msg=msg)
+                next_hop = self.next_hop_when_tracing_back(msg.path)
+                self._push(dst=None, msg=msg, next_hop=next_hop)
         else:
             raise Exception("Unknown type of message", msg.msg_type)
 
+    def next_hop_when_tracing_back(self, path: List[str]) -> str:
+        '''the next hop when going back from the responder to the initiator
+
+        Args:
+            path (List[str]): a list of router names that goes from initiator to responder
+        Return:
+            str: the name of the next hop
+        '''
+        cur_index = path.index(self.owner.name)
+        assert cur_index >= 1, f'{cur_index} must be larger equal than 1'
+        next_hop = path[cur_index - 1]
+        return next_hop
