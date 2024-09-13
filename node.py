@@ -1,6 +1,7 @@
 ''' the quantum router for adaptive-continuous protocol
 '''
 
+import numpy as np
 from typing import List
 from sequence.topology.node import QuantumRouter, BSMNode, SingleAtomBSM
 from sequence.network_management.routing import StaticRoutingProtocol
@@ -87,6 +88,26 @@ class QuantumRouterAdaptive(QuantumRouter):
                                 protocol.received_message(src, msg)
                                 break
 
+
+    def set_seed(self, seed: int) -> None:
+        """Set the seed
+        
+        Args:
+            seed (int): the random seed
+        """
+        self.seed = seed
+    
+    def get_seed(self) -> int:
+        """Get the seed"""
+        return self.seed
+    
+    def set_generator(self, seed: int) -> None:
+        """Set the random number generator
+
+        Args:
+            seed (int): the random seed
+        """
+        self.generator = np.random.default_rng(seed)
 
 
 class BSMNodeAdaptive(BSMNode):

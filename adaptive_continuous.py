@@ -99,6 +99,11 @@ class AdaptiveContinuousProtocol(Protocol):
         elapse = SECOND
         self.update_probability_table_event(elapse)
 
+    def set_adaptive_max_memory(self, adaptive_max_memory: int) -> None:
+        '''set the max memory used for the adaptive continuousp protocol
+        '''
+        self.adaptive_max_memory = adaptive_max_memory
+
     def update_probability_table_event(self, elapse):
         self.update_probability_table(elapse)
         process = Process(self.owner.adaptive_continuous, "update_probability_table_event", [elapse])

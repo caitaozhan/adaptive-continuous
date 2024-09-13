@@ -53,6 +53,8 @@ def main():
     for router in network_topo.get_nodes_by_type(RouterNetTopoAdaptive.QUANTUM_ROUTER):
         router.set_seed(router.get_seed() + node_seed)
         router.set_generator(router.get_seed())
+        router.adaptive_continuous.set_adaptive_max_memory(memory_adaptive)        
+
         app = RequestAppTimeToServe(router)
         name_to_apps[router.name] = app
         router.adaptive_continuous.has_empty_neighbor = True

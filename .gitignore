@@ -4,3 +4,4 @@ log/
 config/*.json
 config/*.png
 __pycache__/
+.DS_store
