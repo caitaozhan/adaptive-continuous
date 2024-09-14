@@ -323,21 +323,21 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
         if msg.msg_type == RSVPMsgType.REQUEST:
             assert self.owner.timeline.now() < msg.reservation.start_time
-            if self.schedule(msg.reservation):
-                qcap = QCap(self.owner.name)
-                msg.qcaps.append(qcap)
+            qcap = QCap(self.owner.name)
+            msg.qcaps.append(qcap)
+            path = [qcap.node for qcap in msg.qcaps]
+            if self.schedule(msg.reservation):   # schedule success
                 if self.owner.name == msg.reservation.responder:
-                    path = [qcap.node for qcap in msg.qcaps]
                     rules = self.create_rules_request(path, reservation=msg.reservation)
                     self.load_rules(rules, msg.reservation)
                     msg.reservation.set_path(path)
                     new_msg = ResourceReservationMessage(RSVPMsgType.APPROVE, self.name, msg.reservation, path=path)
                     self._pop(msg=msg)
                     self._push(dst=None, msg=new_msg, next_hop=src)
-                else:
+                else:                            # schedule failed
                     self._push(dst=msg.reservation.responder, msg=msg)
             else:
-                new_msg = ResourceReservationMessage(RSVPMsgType.REJECT, self.name, msg.reservation)
+                new_msg = ResourceReservationMessage(RSVPMsgType.REJECT, self.name, msg.reservation, path=path)
                 self._push(dst=None, msg=new_msg, next_hop=src)
         elif msg.msg_type == RSVPMsgType.REJECT:
             for card in self.timecards:
