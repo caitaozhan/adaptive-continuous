@@ -13,7 +13,7 @@ from sequence.message import Message
 from resource_manager import ResourceManagerAdaptive
 from reservation import ResourceReservationProtocolAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
-from generation import EntanglementGenerationBadaptive, GenerationMsgType
+from generation import EntanglementGenerationBadaptive, GenerationMsgType, ShEntanglementGenerationBadaptive
 
 
 class QuantumRouterAdaptive(QuantumRouter):
@@ -138,6 +138,10 @@ class BSMNodeAdaptive(BSMNode):
         bsm_name = name + ".BSM"
         bsm = self.components[bsm_name]
         bsm.detach(self.eg)
-        self.eg = EntanglementGenerationBadaptive(self, "{}_eg".format(name), other_nodes)
+        if self.encoding_type == 'single_atom':
+            self.eg = EntanglementGenerationBadaptive(self, "{}_eg".format(name), other_nodes)
+        elif self.encoding_type == 'single_heralded':
+            self.eg = ShEntanglementGenerationBadaptive(self, "{}_eg".format(name), other_nodes)
+        else:
+            raise ValueError(f'encoding type {self.encoding_type} not supported')
         bsm.attach(self.eg)
-

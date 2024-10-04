@@ -12,7 +12,7 @@ from sequence.network_management.reservation import Reservation
 from sequence.resource_management.rule_manager import Arguments
 from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
 
-from generation import EntanglementGenerationAadaptive
+from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
 from memory_manager import MemoryManagerAdaptive
 from reservation import ReservationAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol
@@ -66,7 +66,7 @@ class ResourceManagerAdaptive(ResourceManager):
                 protocol.rule.protocols.remove(protocol)
 
             # let the AC protocol track this entanglement link
-            if isinstance(protocol, EntanglementGenerationAadaptive) and state == MemoryInfo.ENTANGLED: # entanglement succeed
+            if isinstance(protocol, EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive) and state == MemoryInfo.ENTANGLED: # entanglement succeed
                 if isinstance(protocol.rule.reservation, ReservationAdaptive): # Adaptive Continuous Protocol's reservation
                     adaptive_continuous = self.get_adaptive_continuous_protocol()
                     entanglment_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
@@ -81,7 +81,7 @@ class ResourceManagerAdaptive(ResourceManager):
         if protocol in self.pending_protocols:
             self.pending_protocols.remove(protocol)
 
-        # check if any rules have been met
+        # check if any rules have been met. If no rule met, then entanglment generation (for the request) is successful -> get_idle_memory()
         memo_info = self.memory_manager.get_info_by_memory(memory)
         for rule in self.rule_manager:
             memories_info = rule.is_valid(memo_info)
@@ -118,8 +118,8 @@ class ResourceManagerAdaptive(ResourceManager):
         msg = ResourceManagerMessage(ResourceManagerMsgType.REQUEST, protocol=protocol.name, node=self.owner.name,
                                      memories=memo_names, req_condition_func=req_condition_func, req_args=req_args)
         self.owner.send_message(req_dst, msg)
-        if isinstance(protocol, EntanglementGenerationAadaptive) and req_dst is not None:
-            protocol.node_send_resource_management_request = True
+        if isinstance(protocol, EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive) and req_dst is not None:
+            protocol.node_send_resource_management_request = True  # to decrease the time spend on resource manager pairing
         log.logger.debug("{} send {} message to {}".format(self.owner.name, msg.msg_type.name, req_dst))
 
 

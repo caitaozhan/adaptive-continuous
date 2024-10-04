@@ -48,7 +48,7 @@ def linear_entanglement_generation(verbose=False):
     
     start_time = 1e12
     end_time   = 10e12
-    entanglement_number = 20
+    entanglement_number = 1
     nm = src_node.network_manager
     nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
 
@@ -145,7 +145,7 @@ def linear_adaptive(verbose=False):
     log_filename = 'log/linear_adaptive'
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    modules = ['adaptive_continuous', 'swap_memory', 'swapping', 'rule_manager', 'network_manager', 'resource_manager']
+    modules = ['adaptive_continuous', 'generation', 'bsm', 'timeline', 'rule_manager', 'network_manager', 'resource_manager', 'memory']
     for module in modules:
         log.track_module(module)
 
@@ -158,13 +158,27 @@ def linear_adaptive(verbose=False):
             break
 
     start_time = 0.5e12
-    end_time   = 1.5e12
+    end_time   = 10e12
     entanglement_number = 1
     nm = src_node.network_manager
     nm.request(dest_node_name, start_time=start_time, end_time=end_time, memory_size=entanglement_number, target_fidelity=0.8)
 
     tl.init()
     tl.run()
+
+    latencies = []
+    if verbose:
+        print(src_node_name, "memories:")
+        print("{:5}  {:14}  {:8}  {:>7}".format("Index", "Entangled Node", "Fidelity", "Latency"))
+    for info in src_node.resource_manager.memory_manager:
+        latency = (info.entangle_time - start_time) * 1e-12
+        if latency < 0:
+            break
+        latencies.append(latency)
+        if verbose:
+            print("{:5}  {:>14}  {:8.5f}  {:.5f}".format(info.index, str(info.remote_node), float(info.fidelity), latency))
+    latency = np.average(latencies)
+    print(f'average latency = {latency:.4f}s; rate = {1/latency:.3f}/s')
 
 
 # the request app, testing on a two node network
@@ -185,9 +199,7 @@ def app_2_node_linear_adaptive(verbose=False):
 
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    # modules = ['timeline', 'network_manager', 'resource_manager', 'rule_manager', 'generation', 
-    #            'purification', 'swapping', 'bsm', 'adaptive_continuous', 'memory_manager']
-    modules = ['timeline', 'generation', 'adaptive_continuous', 'request_app', 'rule_manager', 'resource_manager']
+    modules = ['adaptive_continuous', 'generation', 'bsm', 'timeline', 'rule_manager', 'network_manager', 'resource_manager', 'memory']
     for module in modules:
         log.track_module(module)
 
@@ -203,7 +215,7 @@ def app_2_node_linear_adaptive(verbose=False):
         router.adaptive_continuous.has_empty_neighbor = False
 
     start_time = 0.5e12
-    end_time   = 5e12
+    end_time   = 10e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
@@ -212,7 +224,11 @@ def app_2_node_linear_adaptive(verbose=False):
     tl.run()
 
     for t in src_app.get_time_to_service():
-        print(round(t/1e9), end=' ')
+        print(round(t/1e9), end=', ')
+    print()
+
+    for f in src_app.get_fidelity():
+        print(f'{f:.5f}', end=', ')
     print()
 
     request_to_throughput = src_app.get_request_to_throughput()
@@ -637,12 +653,12 @@ if __name__ == '__main__':
     # linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
-    # app_2_node_linear_adaptive(verbose)
+    app_2_node_linear_adaptive(verbose)
     # app_5_node_linear_adaptive(verbose)
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
     # app_10_node_bottleneck_request2_queue()
     # app_20_node_as_request2_queue()
-    app_100_node_as_request2_queue()
+    # app_100_node_as_request2_queue()
 

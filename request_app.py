@@ -25,8 +25,9 @@ class RequestAppThroughput(RequestApp):
 
     def __init__(self, node: "QuantumRouter"):
         super().__init__(node)
-        self.entanglement_timestamps = defaultdict(list)  # reservation: list[float]
-    
+        self.entanglement_timestamps = defaultdict(list)  # reservation -> list[float]
+        self.entanglement_fidelities = defaultdict(list)  # reservation -> list[float]
+
     def start(self, responder: str, start_t: int, end_t: int, memo_size: int, fidelity: float, entanglement_number: int = 1, id: int = 0):
         """Method to start the application.
 
@@ -72,6 +73,7 @@ class RequestAppThroughput(RequestApp):
                 self.cache_entangled_path(reservation.path)
             elif info.remote_node == reservation.responder and info.fidelity >= reservation.fidelity: # the initiator
                 self.entanglement_timestamps[reservation].append(self.node.timeline.now())
+                self.entanglement_fidelities[reservation].append(info.fidelity)
                 log.logger.info(f"Successfully generated entanglement. {reservation}: {len(self.entanglement_timestamps[reservation])}")
                 self.node.resource_manager.update(None, info.memory, "RAW")
                 self.cache_entangled_path(reservation.path)
@@ -86,7 +88,7 @@ class RequestAppThroughput(RequestApp):
 
 
     def get_time_to_service(self) -> list:
-        '''compute the time to service (for the "first" reservations)
+        '''compute the time to service (for the "first" reservation)
         '''
         time_to_sevice = []
         for reservation, entangled_timestamps in self.entanglement_timestamps.items():
@@ -96,6 +98,14 @@ class RequestAppThroughput(RequestApp):
                 time_to_sevice.append(entangled_timestamps[i] - entangled_timestamps[i-1])
             break
         return time_to_sevice
+    
+    def get_fidelity(self) -> list:
+        '''get the entanglement's fidelity (for the "first request)
+        '''
+        for _, fidelities in self.entanglement_fidelities.items():
+            return fidelities
+
+        
 
 
     def cache_entangled_path(self, path: list):

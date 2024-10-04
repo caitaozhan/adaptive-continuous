@@ -7,7 +7,7 @@ import random
 from sequence.topology.topology import Topology as Topo
 from sequence.topology.router_net_topo import RouterNetTopo
 from sequence.kernel.timeline import Timeline
-
+from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
 
 from node import QuantumRouterAdaptive, BSMNodeAdaptive
 
@@ -28,6 +28,8 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             name = node[Topo.NAME]
             template_name = node.get(Topo.TEMPLATE, None)
             template = self.templates.get(template_name, {})
+            if self.encoding_type is None:
+                self.encoding_type = template.get('encoding_type', 'single_atom')
 
             if node_type == self.BSM_NODE:
                 others = self.bsm_to_router_map[name]
@@ -40,6 +42,9 @@ class RouterNetTopoAdaptive(RouterNetTopo):
 
             node_obj.set_seed(seed)
             self.nodes[node_type].append(node_obj)
+
+        if self.encoding_type == "single_heralded":
+            self.tl.set_quantum_manager(BELL_DIAGONAL_STATE_FORMALISM)
 
 
     def _generate_forwarding_table(self, config: dict):

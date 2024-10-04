@@ -13,7 +13,7 @@ from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.resource_management.rule_manager import Arguments
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 
-from generation import EntanglementGenerationAadaptive
+from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
@@ -29,7 +29,16 @@ def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, 
     path = args["path"]
     index = args["index"]
     from_app_request = args["from_app_request"]
-    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index - 1], memory, from_app_request)
+    encoding_type = args["encoding_type"]
+    if encoding_type == "single_atom":
+        protocol_name = "EGAa." + memory.name
+        protocol = EntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request)
+    elif encoding_type == "single_heralded":
+        protocol_name = "ShEGAa." + memory.name
+        raw_epr_errors = args["raw_epr_errors"]
+        protocol = ShEntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request, raw_epr_errors)
+    else:
+        raise ValueError(f'encoding type {encoding_type} not supported yet')
     return protocol, [None], [None], [None]
 
 
@@ -42,7 +51,16 @@ def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     memories = [info.memory for info in memories_info]
     memory = memories[0]
     from_app_request = args["from_app_request"]
-    protocol = EntanglementGenerationAadaptive(None, "EGAa." + memory.name, mid, path[index + 1], memory, from_app_request)
+    encoding_type = args["encoding_type"]
+    if encoding_type == "single_atom":
+        protocol_name = "EGAa." + memory.name
+        protocol = EntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request)
+    elif encoding_type == "single_heralded":
+        protocol_name = "ShEGAa." + memory.name
+        raw_epr_errors = args["raw_epr_errors"]
+        protocol = ShEntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request, raw_epr_errors)
+    else:
+        raise ValueError(f'encoding type {encoding_type} not supported yet')
     req_args = {"name": args["name"], "reservation": args["reservation"]}
     return protocol, [path[index + 1]], [eg_req_func_adaptive], [req_args]
 
@@ -58,7 +76,7 @@ def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Argument
     name = args["name"]
     reservation = args["reservation"]
     for protocol in protocols:
-        if (isinstance(protocol, EntanglementGenerationAadaptive)
+        if (isinstance(protocol, EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive)
                 and protocol.remote_node_name == name
                 and protocol.rule.get_reservation() == reservation):
             return protocol
@@ -135,7 +153,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         # create rules for entanglement generation
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
-            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index, "from_app_request": False}
+            action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]], "path": path, "index": index, "from_app_request": False,
+                           "encoding_type": "single_heralded", "raw_epr_errors": [1/3, 1/3, 1/3]}
             rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -147,7 +166,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": False}
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": False,
+                           "encoding_type": "single_heralded", "raw_epr_errors": [1/3, 1/3, 1/3]}
             rule = Rule(10, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -222,7 +242,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         if index > 0:
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]],
-                           "path": path, "index": index, "from_app_request": True}
+                           "path": path, "index": index, "from_app_request": True,
+                           "encoding_type": "single_heralded", "raw_epr_errors": [1/3, 1/3, 1/3]}  # TODO: make 1/3 an input
             rule = Rule(priority, eg_rule_action1_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
@@ -234,7 +255,8 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
-                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": True}
+                           "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": True,
+                           "encoding_type": "single_heralded", "raw_epr_errors": [1/3, 1/3, 1/3]}
             rule = Rule(priority, eg_rule_action2_adaptive, eg_rule_condition, action_args, condition_args)
             rules.append(rule)
             priority += 1
