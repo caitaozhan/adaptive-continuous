@@ -199,7 +199,7 @@ def app_2_node_linear_adaptive(verbose=False):
 
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    modules = ['adaptive_continuous', 'generation', 'bsm', 'timeline', 'rule_manager', 'network_manager', 'resource_manager', 'memory']
+    modules = ['adaptive_continuous', 'generation', 'bsm', 'timeline', 'rule_manager', 'network_manager', 'resource_manager', 'memory', 'request_app']
     for module in modules:
         log.track_module(module)
 
@@ -214,8 +214,8 @@ def app_2_node_linear_adaptive(verbose=False):
             src_app = app
         router.adaptive_continuous.has_empty_neighbor = False
 
-    start_time = 0.5e12
-    end_time   = 10e12
+    start_time = 0.1e12
+    end_time   = 5e12
     entanglement_number = 1
     fidelity = 0.6
     src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)

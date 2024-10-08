@@ -83,31 +83,24 @@ class QuantumRouterAdaptive(QuantumRouter):
                         break
                 else: # for the special case of reducing latancy during handshaking and memory re-assignment
                     if msg.msg_type is GenerationMsgType.INFORM_EP:
-                        for protocol in self.resource_manager.pending_protocols:
+                        for protocol in self.resource_manager.pending_protocols:  # the EG protocol is still pending (not finished pairing yet)
                             if protocol.name == msg.receiver:
                                 protocol.received_message(src, msg)
                                 break
 
 
     def set_seed(self, seed: int) -> None:
-        """Set the seed
+        """Set the seed, also set the generator
         
         Args:
             seed (int): the random seed
         """
         self.seed = seed
+        self.generator = np.random.default_rng(seed)
     
     def get_seed(self) -> int:
         """Get the seed"""
         return self.seed
-    
-    def set_generator(self, seed: int) -> None:
-        """Set the random number generator
-
-        Args:
-            seed (int): the random seed
-        """
-        self.generator = np.random.default_rng(seed)
 
 
 class BSMNodeAdaptive(BSMNode):

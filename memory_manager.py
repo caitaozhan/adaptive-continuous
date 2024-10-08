@@ -57,7 +57,13 @@ class MemoryManagerAdaptive(MemoryManager):
         self.memory_array[i].expiration_event, self.memory_array[j].expiration_event = self.memory_array[j].expiration_event, self.memory_array[i].expiration_event
         self.memory_array[i].excited_photon, self.memory_array[j].excited_photon     = self.memory_array[j].excited_photon, self.memory_array[i].excited_photon
         self.memory_array[i].next_excite_time, self.memory_array[j].next_excite_time = self.memory_array[j].next_excite_time, self.memory_array[i].next_excite_time
-
+        if 'decoherence_errors' in dir(self.memory_array[i]):   # single heralded
+            self.memory_array[i].decoherence_errors, self.memory_array[j].decoherence_errors = self.memory_array[j].decoherence_errors, self.memory_array[i].decoherence_errors
+            self.memory_array[i].cutoff_ratio, self.memory_array[j].cutoff_ratio             = self.memory_array[j].cutoff_ratio, self.memory_array[i].cutoff_ratio
+            self.memory_array[i].generation_time, self.memory_array[j].generation_time       = self.memory_array[j].generation_time, self.memory_array[i].generation_time
+            self.memory_array[i].last_update_time, self.memory_array[j].last_update_time     = self.memory_array[j].last_update_time, self.memory_array[i].last_update_time
+            self.memory_array[i].is_in_application, self.memory_array[j].is_in_application   = self.memory_array[j].is_in_application, self.memory_array[i].is_in_application
+    
         # swap all memory_info's attributes except the index, and memory (it's attributes are already swapped)
         self.memory_map[i].state, self.memory_map[j].state                 = self.memory_map[j].state, self.memory_map[i].state
         self.memory_map[i].remote_node, self.memory_map[j].remote_node     = self.memory_map[j].remote_node, self.memory_map[i].remote_node

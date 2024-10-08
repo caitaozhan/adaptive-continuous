@@ -829,34 +829,46 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
         '''
         if self.check_entangled_memory(entangled_memory_name) is False:
             # Adaptive continuous protocol's reservation expire in the middle of swap_memory protocol
-            log.logger.info(f'{self.owner.name} Swap memory failed between {occupied_memory_name} and {entangled_memory_name}!')
+            log.logger.warning(f'{self.owner.name} Swap memory failed between {occupied_memory_name} and {entangled_memory_name}!')
             self.update_resource_manager(self.memory, MemoryInfo.RAW)
             return
 
         if self not in self.owner.protocols:
             # Request's reservation expire in the middle of swap_memory protocol
-            log.logger.info(f'{self.owner.name} Swap memory failed between {occupied_memory_name} and {entangled_memory_name}!')
+            log.logger.warning(f'{self.owner.name} Swap memory failed between {occupied_memory_name} and {entangled_memory_name}!')
             self.update_resource_manager(self.memory, MemoryInfo.RAW)
             return
 
         log.logger.info(f'{self.owner.name} Swap memory between {occupied_memory_name} and {entangled_memory_name}')
-        self.owner.resource_manager.swap_two_memory(occupied_memory_name, entangled_memory_name) # the memory_array is updated, but more needs to update
-
         memory_manager = self.get_memory_manager()
         memory_array = memory_manager.get_memory_array()
-        # after swapping, the entanged memory turns into occupied memory, while the occupied memory turns into entangled memory
-        entangled_memory = memory_array.get_memory_by_name(occupied_memory_name)
-        occupied_memory  = memory_array.get_memory_by_name(entangled_memory_name)
+
+        # udpate the memory fidelity here. Note: for two entangled memories at two nodes,
+        # only the node that first run the code will success, the node that runs second will fail,
+        # because in the second run, `other_memory` is already swapped at the remote node, but not reflected here
+        try:
+            entangled_memory: Memory = memory_array.get_memory_by_name(entangled_memory_name)
+            mem_info: MemoryInfo = memory_manager.get_info_by_memory(entangled_memory)
+            other_memory: Memory = self.owner.timeline.get_entity_by_name(mem_info.remote_memo)
+            entangled_memory.bds_decohere()
+            other_memory.bds_decohere()
+        except Exception as e:
+            log.logger.error(f'{self.name}: key error {e}')
+        finally:
+            mem_info.fidelity = entangled_memory.fidelity = entangled_memory.get_bds_fidelity()
+
+        # the swapping of attributes in memory and mem_info object
+        self.owner.resource_manager.swap_two_memory(occupied_memory_name, entangled_memory_name) # the memory_array is updated, but more needs to update
 
         # update self.memory (the current entangled memory)
-        self.memory = entangled_memory
-        self.memories = [self.memory]
         self.memory.entangled_memory['memo_id'] = self.remote_memory_name
-        mem_info = memory_manager.get_info_by_memory(entangled_memory)
+        mem_info = memory_manager.get_info_by_memory(self.memory)
         mem_info.remote_memo = self.remote_memory_name
         self.update_resource_manager_swap_memory(self, self.memory)
 
         # update the current occupied memory to RAW
+        # after swapping, the entanged memory turns into occupied memory, while the occupied memory turns into entangled memory
+        occupied_memory  = memory_array.get_memory_by_name(entangled_memory_name)
         mem_info = memory_manager.get_info_by_memory(occupied_memory)
         mem_info.to_raw()
         self.update_resource_manager_swap_memory(None, occupied_memory)
@@ -1052,9 +1064,9 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
 
         elif msg_type is GenerationMsgType.INFORM_EP:
 
-            if self.remote_protocol_name is None:                       # protocol not paired with remote
+            if self.remote_protocol_name is None:                       # primary node: protocol not paired with remote
                 self.matched_entanglement_pair = msg.entanglement_pair  # save msg.entanglement_pair
-            else:                                                       # already paired with remote
+            else:                                                       # non-primary node: already paired with remote
                 adaptive_continuous = self.owner.adaptive_continuous
                 try:
                     entangled_memory_name = self.get_entanglement_memory_name(msg.entanglement_pair)

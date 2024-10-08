@@ -9,9 +9,10 @@ from collections import defaultdict
 from reservation import ReservationAdaptive
 from sequence.constants import SECOND
 from sequence.resource_management.memory_manager import MemoryInfo
+from sequence.components.memory import Memory
 
 if TYPE_CHECKING:
-    from sequence.topology.node import QuantumRouter
+    from node import QuantumRouterAdaptive
     from sequence.network_management.reservation import Reservation
 
 
@@ -23,7 +24,7 @@ class RequestAppThroughput(RequestApp):
     It can handle multiple requests one by one (no timing overlap between consequtive requests)
     '''
 
-    def __init__(self, node: "QuantumRouter"):
+    def __init__(self, node: "QuantumRouterAdaptive"):
         super().__init__(node)
         self.entanglement_timestamps = defaultdict(list)  # reservation -> list[float]
         self.entanglement_fidelities = defaultdict(list)  # reservation -> list[float]
@@ -74,7 +75,7 @@ class RequestAppThroughput(RequestApp):
             elif info.remote_node == reservation.responder and info.fidelity >= reservation.fidelity: # the initiator
                 self.entanglement_timestamps[reservation].append(self.node.timeline.now())
                 self.entanglement_fidelities[reservation].append(info.fidelity)
-                log.logger.info(f"Successfully generated entanglement. {reservation}: {len(self.entanglement_timestamps[reservation])}")
+                log.logger.info(f"Successfully generated entanglement. {reservation}: {len(self.entanglement_timestamps[reservation])}, {info.fidelity:.6f}")
                 self.node.resource_manager.update(None, info.memory, "RAW")
                 self.cache_entangled_path(reservation.path)
                 self.send_entangled_path(reservation)
@@ -146,7 +147,7 @@ class RequestAppTimeToServe(RequestApp):
     It can handle multiple requests one by one (no timing overlap between consequtive requests)
     '''
 
-    def __init__(self, node: "QuantumRouter"):
+    def __init__(self, node: "QuantumRouterAdaptive"):
         super().__init__(node)
         self.entanglement_timestamps = defaultdict(list)  # reservation: list[float]
         self.time_to_serve = defaultdict(float)           # reservation: float
