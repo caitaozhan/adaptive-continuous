@@ -106,9 +106,6 @@ class RequestAppThroughput(RequestApp):
         for _, fidelities in self.entanglement_fidelities.items():
             return fidelities
 
-        
-
-
     def cache_entangled_path(self, path: list):
         '''save the entanlged path to the AC protocol at this node
         '''
@@ -151,6 +148,7 @@ class RequestAppTimeToServe(RequestApp):
         super().__init__(node)
         self.entanglement_timestamps = defaultdict(list)  # reservation: list[float]
         self.time_to_serve = defaultdict(float)           # reservation: float
+        self.entanglement_fidelities = defaultdict(list)  # reservation: list[float]
     
     def start(self, responder: str, start_t: int, end_t: int, memo_size: int, fidelity: float, entanglement_number: int = 1, id: int = 0):
         """Method to start the application.
@@ -204,9 +202,10 @@ class RequestAppTimeToServe(RequestApp):
 
             elif info.remote_node == reservation.responder and info.fidelity >= reservation.fidelity: # the initiator
                 self.entanglement_timestamps[reservation].append(self.node.timeline.now())
+                self.entanglement_fidelities[reservation].append(info.fidelity)
                 entanglement_number = len(self.entanglement_timestamps[reservation])
 
-                log.logger.info(f"Successfully generated entanglement. {reservation}: {entanglement_number}")
+                log.logger.info(f"Successfully generated entanglement. {reservation}: {entanglement_number}, {info.fidelity}")
                 self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
                 self.cache_entangled_path(reservation.path)
                 self.send_entangled_path(reservation)

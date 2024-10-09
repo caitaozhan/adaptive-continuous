@@ -15,7 +15,15 @@ class TrafficMatrix:
     def __init__(self, num_nodes: int):
         self.num_nodes = num_nodes
         self.matrix = [[0 if i < j else None for j in range(num_nodes)] for i in range(num_nodes)]
-    
+
+    def line_2(self):
+        ''' For the bottleneck_10.json
+            (2, 8) -- 50%
+            (3, 9) -- 20%
+            (3, 9) -- 30%
+        '''
+        self.matrix[0][1] = 1
+
     def bottleneck_10(self):
         ''' For the bottleneck_10.json
             (2, 8) -- 50%
@@ -127,7 +135,7 @@ class TrafficMatrix:
         prob_accumulate = list(accumulate(prob_list))
         random.seed(seed)
 
-        delta = 0.2
+        delta = 0.1
         assert request_period > delta
 
         request_id = 0

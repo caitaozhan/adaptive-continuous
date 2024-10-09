@@ -14,13 +14,18 @@ from sequence.resource_management.rule_manager import Arguments
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 
 from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
+from swapping import ShEntanglementSwappingA, ShEntanglementSwappingB
+from sequence.entanglement_management.swapping import EntanglementSwappingA, EntanglementSwappingB
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
 
 
 
-def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, Any]) -> Tuple[EntanglementGenerationAadaptive, List[None], List[None], List[None]]:
+# entanglement generation #
+
+def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, Any]) -> \
+                             Tuple[EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive, List[None], List[None], List[None]]:
     """Action function used by entanglement generation protocol on nodes except the initiator, i.e., index > 0
     """
     memories = [info.memory for info in memories_info]
@@ -42,7 +47,8 @@ def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, 
     return protocol, [None], [None], [None]
 
 
-def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementGenerationAadaptive, List[str], List["eg_req_func_adaptive"], List[Dict]]:
+def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> \
+                             Tuple[EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive, List[str], List["eg_req_func_adaptive"], List[Dict]]:
     """Action function used by entanglement generation protocol on nodes except the responder, i.e., index < len(path) - 1
     """
     mid = args["mid"]
@@ -54,18 +60,18 @@ def eg_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     encoding_type = args["encoding_type"]
     if encoding_type == "single_atom":
         protocol_name = "EGAa." + memory.name
-        protocol = EntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request)
+        protocol = EntanglementGenerationAadaptive(None, protocol_name, mid, path[index + 1], memory, from_app_request)
     elif encoding_type == "single_heralded":
         protocol_name = "ShEGAa." + memory.name
         raw_epr_errors = args["raw_epr_errors"]
-        protocol = ShEntanglementGenerationAadaptive(None, protocol_name, mid, path[index - 1], memory, from_app_request, raw_epr_errors)
+        protocol = ShEntanglementGenerationAadaptive(None, protocol_name, mid, path[index + 1], memory, from_app_request, raw_epr_errors)
     else:
         raise ValueError(f'encoding type {encoding_type} not supported yet')
     req_args = {"name": args["name"], "reservation": args["reservation"]}
     return protocol, [path[index + 1]], [eg_req_func_adaptive], [req_args]
 
 
-def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> EntanglementGenerationAadaptive:
+def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive:
     """Function used by `eg_rule_action2` function for selecting generation protocols on the remote node
     Args:
         protocols: the waiting protocols (wait for request)
@@ -79,6 +85,55 @@ def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Argument
         if (isinstance(protocol, EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive)
                 and protocol.remote_node_name == name
                 and protocol.rule.get_reservation() == reservation):
+            return protocol
+
+
+
+# entanglement swapping #
+
+def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingA | ShEntanglementSwappingA, List[str], List["es_req_func_adaptive"], List[Dict]]:
+    """Action function used by EntanglementSwappingA protocol on nodes
+    """
+    es_succ_prob = args["es_succ_prob"]
+    es_degradation = args["es_degradation"]
+    memories = [info.memory for info in memories_info]
+    encoding_type = args["encoding_type"]
+    
+    if encoding_type == "single_atom":
+        name = "ESA.{}.{}".format(memories[0].name, memories[1].name)
+        protocol = EntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, es_degradation)
+    elif encoding_type == 'single_heralded':
+        is_twirled = args['is_twirled']
+        name = "ShESA.{}.{}".format(memories[0].name, memories[1].name)
+        protocol = ShEntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, es_degradation, is_twirled)
+
+    dsts = [info.remote_node for info in memories_info]
+    req_funcs = [es_req_func_adaptive, es_req_func_adaptive]
+    req_args = [{"target_memo": memories_info[0].remote_memo}, {"target_memo": memories_info[1].remote_memo}]
+    return protocol, dsts, req_funcs, req_args
+
+
+def es_rule_actionB_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingB | ShEntanglementSwappingB, List[None], List[None], List[None]]:
+    """Action function used by EntanglementSwappingB protocol
+    """
+    memories = [info.memory for info in memories_info]
+    memory = memories[0]
+    encoding_type = args["encoding_type"]
+    if encoding_type == "single_atom":
+        protocol = EntanglementSwappingB(None, "ESB." + memory.name, memory)
+    elif encoding_type == 'single_heralded':
+        protocol = ShEntanglementSwappingB(None, "ShESB." + memory.name, memory)
+    return protocol, [None], [None], [None]
+
+
+def es_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> ShEntanglementSwappingB | ShEntanglementSwappingB:
+    """Function used by `es_rule_actionA` for selecting swapping protocols on the remote node
+    """
+    target_memo = args["target_memo"]
+    for protocol in protocols:
+        if (isinstance(protocol, EntanglementSwappingB | ShEntanglementSwappingB)
+                # and protocol.memory.name == memories_info[0].remote_memo):
+                and protocol.memory.name == target_memo):
             return protocol
 
 
@@ -281,21 +336,21 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             priority += 1
 
         # 3. create rules for entanglement swapping
-        if index == 0:
+        if index == 0:                 # initiator
             condition_args = {"memory_indices": memory_indices, "target_remote": path[-1], "fidelity": reservation.fidelity}
-            action_args = {}
-            rule = Rule(priority, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
+            action_args = {"encoding_type": "single_heralded"}
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB1, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
-        elif index == len(path) - 1:
-            action_args = {}
+        elif index == len(path) - 1:   # responder
+            action_args = {"encoding_type": "single_heralded"}
             condition_args = {"memory_indices": memory_indices, "target_remote": path[0], "fidelity": reservation.fidelity}
-            rule = Rule(priority, es_rule_actionB, es_rule_conditionB1, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB1, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
-        else:
+        else:                          # middle nodes
             _path = path[:]
             while _path.index(self.owner.name) % 2 == 0:
                 new_path = []
@@ -307,13 +362,13 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             left, right = _path[_index - 1], _path[_index + 1]
 
             condition_args = {"memory_indices": memory_indices, "left": left, "right": right, "fidelity": reservation.fidelity}
-            action_args = {"es_succ_prob": self.es_succ_prob, "es_degradation": self.es_degradation}
-            rule = Rule(priority, es_rule_actionA, es_rule_conditionA, action_args, condition_args)
+            action_args = {"es_succ_prob": self.es_succ_prob, "es_degradation": self.es_degradation, "encoding_type": "single_heralded", "is_twirled": True}
+            rule = Rule(priority, es_rule_actionA_adaptive, es_rule_conditionA, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
-            action_args = {}
-            rule = Rule(priority, es_rule_actionB, es_rule_conditionB2, action_args, condition_args)
+            action_args = {"encoding_type": "single_heralded"}
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB2, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
