@@ -42,15 +42,13 @@ class ShEntanglementSwappingA(EntanglementProtocol):
         right_node (str): name of node that contains memory entangling with right_memo.
         right_remote_memo (str): name of memory that entangles with right_memo.
         success_prob (float): probability of a successful swapping operation.
-        degradation (float): degradation factor of memory fidelity after swapping, does not apply to BDS formalism.
         is_success (bool): flag to show the result of swapping.
         left_protocol_name (str): name of left protocol.
         right_protocol_name (str): name of right protocol.
         is_twirled (bool): whether the input and output states are twirled into Werner form (default True).
     """
 
-    def __init__(self, owner: "Node", name: str, left_memo: "Memory", right_memo: "Memory", success_prob=1,
-                 degradation=0.95, is_twirled=True):
+    def __init__(self, owner: "Node", name: str, left_memo: "Memory", right_memo: "Memory", success_prob=1, is_twirled=True):
         """Constructor for entanglement swapping A protocol.
 
         Args:
@@ -59,8 +57,6 @@ class ShEntanglementSwappingA(EntanglementProtocol):
             left_memo (Memory): memory entangled with a memory on one distant node.
             right_memo (Memory): memory entangled with a memory on the other distant node.
             success_prob (float): probability of a successful swapping operation (default 1).
-            degradation (float): degradation factor of memory fidelity after swapping (default 0.95).
-                Does not apply to BDS formalism.
         """
 
         assert left_memo != right_memo
@@ -75,9 +71,6 @@ class ShEntanglementSwappingA(EntanglementProtocol):
 
         self.success_prob = success_prob
         assert 1 >= self.success_prob >= 0, "Entanglement swapping success probability must be between 0 and 1."
-
-        self.degradation = degradation
-        assert 1 >= self.degradation >= 0, "Entanglement swapping fidelity degradation factor must be between 0 and 1."
 
         self.is_success = False
         self.left_protocol_name = None
@@ -140,7 +133,6 @@ class ShEntanglementSwappingA(EntanglementProtocol):
             fidelity = new_bds[0]
             keys = [left_remote_memory.qstate_key, right_remote_memory.qstate_key]
             self.owner.timeline.quantum_manager.set(keys, new_bds)
-            log.logger.debug(f'after swapping, fidelity = {fidelity:.6f}')
 
             msg_l = EntanglementSwappingMessage(SwappingMsgType.SWAP_RES,
                                                 self.left_protocol_name,
@@ -213,6 +205,9 @@ class ShEntanglementSwappingA(EntanglementProtocol):
             bds_elems = [new_elem_1, (1-new_elem_1)/3, (1-new_elem_1)/3, (1-new_elem_1)/3]
         else:
             bds_elems = [new_elem_1, new_elem_2, new_elem_3, new_elem_4]
+        
+        log.logger.debug(f'before swapping, f = {left_state.state[0]:.6f}, {right_state.state[0]:.6f}; after swapping, f = {bds_elems[0]:.6f}')
+
         return bds_elems
 
     def received_message(self, src: str, msg: "Message") -> None:
@@ -323,17 +318,14 @@ class ShEntanglementSwappingB(EntanglementProtocol):
         assert src == self.remote_node_name
 
         if msg.fidelity > 0 and self.owner.timeline.now() < msg.expire_time:
-            # if using BDS formalism,
-            # updated BDS has been determined analytically taking into account local correction,
-            # thus need to do nothing
-            pass
-
-            self.memory.fidelity = msg.fidelity
+            # if using BDS formalism, updated BDS has been determined analytically taking into account local correction, 
             self.memory.entangled_memory["node_id"] = msg.remote_node
             self.memory.entangled_memory["memo_id"] = msg.remote_memo
+            remote_memory: Memory = self.owner.timeline.get_entity_by_name(msg.remote_memo)
+            self.memory.bds_decohere()
+            remote_memory.bds_decohere()
+            self.memory.fidelity = self.memory.get_bds_fidelity()
             self.memory.update_expire_time(msg.expire_time)
-            # TODO: if time-dependent decoherence exists,
-            #  the current state should have undergone decoherence during classical communication
             self.update_resource_manager(self.memory, "ENTANGLED")
         else:
             self.update_resource_manager(self.memory, "RAW")

@@ -95,17 +95,17 @@ def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     """Action function used by EntanglementSwappingA protocol on nodes
     """
     es_succ_prob = args["es_succ_prob"]
-    es_degradation = args["es_degradation"]
     memories = [info.memory for info in memories_info]
     encoding_type = args["encoding_type"]
     
     if encoding_type == "single_atom":
+        es_degradation = args["es_degradation"]
         name = "ESA.{}.{}".format(memories[0].name, memories[1].name)
         protocol = EntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, es_degradation)
     elif encoding_type == 'single_heralded':
         is_twirled = args['is_twirled']
         name = "ShESA.{}.{}".format(memories[0].name, memories[1].name)
-        protocol = ShEntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, es_degradation, is_twirled)
+        protocol = ShEntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, is_twirled)
 
     dsts = [info.remote_node for info in memories_info]
     req_funcs = [es_req_func_adaptive, es_req_func_adaptive]

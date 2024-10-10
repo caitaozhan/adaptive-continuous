@@ -53,7 +53,7 @@ output_dict[Topology.ALL_TEMPLATES] = \
                 "coherence_time": 0.5,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
-            "adaptive_max_memory": 2,
+            "adaptive_max_memory": 0,
             "encoding_type": "single_heralded"
         }
     }
@@ -68,7 +68,7 @@ else:
 router_names = list(node_procs.keys())
 # nodes = generate_nodes(node_procs, router_names, args.memo_size)
 template = 'adaptive_protocol'
-nodes = generate_nodes(node_procs, router_names, args.memo_size, template=template)
+nodes = generate_nodes(node_procs, router_names, args.memo_size, template, args.gate_fidelity, args.measurement_fidelity)
 
 # generate bsm nodes
 bsm_names = ["BSM_{}_{}".format(i, i + 1) for i in range(args.linear_size - 1)]
@@ -123,4 +123,5 @@ output_file = open(path, 'w')
 json.dump(output_dict, output_file, indent=4)
 
 
-# python config/config_generator_line.py 2 10 1 0.0002 1 -d config -o line_2.json -s 10
+# python config/config_generator_line.py 2 10 1 0.0002 1 -d config -o line_2.json -s 10 -gf 0.99 -mf 0.99
+# python config/config_generator_line.py 5 10 1 0.0002 1 -d config -o line_5.json -s 10 -gf 0.99 -mf 0.99

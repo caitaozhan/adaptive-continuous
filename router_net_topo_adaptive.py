@@ -27,16 +27,20 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             node_type = node[Topo.TYPE]
             name = node[Topo.NAME]
             template_name = node.get(Topo.TEMPLATE, None)
-            template = self.templates.get(template_name, {})
+            component_templates = self.templates.get(template_name, {})
             if self.encoding_type is None:
-                self.encoding_type = template.get('encoding_type', 'single_atom')
+                self.encoding_type = component_templates.get('encoding_type', 'single_atom')
 
             if node_type == self.BSM_NODE:
                 others = self.bsm_to_router_map[name]
-                node_obj = BSMNodeAdaptive(name, self.tl, others, component_templates=template)
+                seed = node.get(self.SEED, 0)
+                node_obj = BSMNodeAdaptive(name, self.tl, others, seed, component_templates)
             elif node_type == self.QUANTUM_ROUTER:
                 memo_size = node.get(self.MEMO_ARRAY_SIZE, 0)
-                node_obj = QuantumRouterAdaptive(name, self.tl, memo_size, component_templates=template)
+                seed = node.get(self.SEED, 0)
+                gate_fidelity = node.get(self.GATE_FIDELITY, 1)
+                measurement_fidelity = node.get(self.MEASUREMENT_FIDELITY, 1)
+                node_obj = QuantumRouterAdaptive(name, self.tl, memo_size, seed, component_templates, gate_fidelity, measurement_fidelity)
             else:
                 raise ValueError("Unknown type of node '{}'".format(node_type))
 

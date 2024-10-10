@@ -17,12 +17,16 @@ class TrafficMatrix:
         self.matrix = [[0 if i < j else None for j in range(num_nodes)] for i in range(num_nodes)]
 
     def line_2(self):
-        ''' For the bottleneck_10.json
-            (2, 8) -- 50%
-            (3, 9) -- 20%
-            (3, 9) -- 30%
+        ''' For the line_2.json
         '''
         self.matrix[0][1] = 1
+
+
+    def line_5(self):
+        ''' For the line_5.json
+        '''
+        self.matrix[1][3] = 1
+
 
     def bottleneck_10(self):
         ''' For the bottleneck_10.json

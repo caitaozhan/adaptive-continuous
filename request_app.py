@@ -192,6 +192,7 @@ class RequestAppTimeToServe(RequestApp):
             reservation = self.memo_to_reservation[info.index]
             if info.remote_node == reservation.initiator and info.fidelity >= reservation.fidelity:   # the responder
                 self.entanglement_timestamps[reservation].append(self.node.timeline.now())
+                self.entanglement_fidelities[reservation].append(info.fidelity)
                 self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
                 self.cache_entangled_path(reservation.path)
                 
