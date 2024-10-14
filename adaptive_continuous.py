@@ -6,7 +6,7 @@ Paper link: https://ieeexplore.ieee.org/document/9798130
 from enum import Enum, auto
 from itertools import accumulate
 from bisect import bisect_left
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sequence.message import Message
 from sequence.protocol import Protocol
@@ -91,6 +91,7 @@ class AdaptiveContinuousProtocol(Protocol):
         self.cache = []  # each item is (timestamp: int, path: list)
         self.update_prob = True
         self.has_empty_neighbor = True
+        self.strategy = "first"  # "first" or "freshest", for picking an entanglement pair given multiple entanglement pairs
 
     def init(self):
         '''deal with the probability table
@@ -348,20 +349,52 @@ class AdaptiveContinuousProtocol(Protocol):
             log.logger.warning(f'{self.owner.name} EP {entanglement_pair} already exist')
 
 
-    def match_generated_entanglement_pair(self, this_node_name: str, remote_node_name: str) -> tuple:
+    def match_generated_entanglement_pair(self, this_node_name: str, remote_node_name: str) -> Optional[tuple]:
         '''match (this_node_name, remote_node_name) to an existing entanglement pair
         
         Return:
-            Tuple[(node_name, memory_name), (remote_node_name, remote_memory_name)] -- the first matched entanglement link
+            Tuple[(node_name, memory_name), (remote_node_name, remote_memory_name)] -- the freshest entanglement pair
             None -- if no match exist
         '''
+        entanglement_pairs = []
         for entanglement_pair in sorted(self.generated_entanglement_pairs):
             ent_this_node_name   = entanglement_pair[0][0]
             ent_remote_node_name = entanglement_pair[1][0]
             if ent_this_node_name == this_node_name and ent_remote_node_name == remote_node_name:
-                return entanglement_pair
-        return None
+                entanglement_pairs.append(entanglement_pair)
+        
+        if len(entanglement_pairs) == 0:
+            return None
 
+        if self.strategy == "first":
+            return entanglement_pairs[0]
+        elif self.strategy == "freshest":
+            freshest_ep = None
+            best_fidelity = 0
+            for ep in entanglement_pairs:
+                fidelity = self.get_fidelity(ep)
+                if fidelity > best_fidelity:
+                    freshest_ep = ep
+                    best_fidelity = fidelity
+            return freshest_ep
+        else:
+            raise Exception(f'{self.strategy} not supported')
+
+
+    def get_fidelity(self, entanglement_pair: tuple) -> float:
+        '''
+        Args:
+            entanglement_pair (tuple): the entanglement pair created by the ACP, ((node_name, memory_name), (remote_node_name, remote_memory_name))
+        Return:
+            float: the fidelity of the entanglement pair, will update the fidelity
+        '''
+        local_memory_name  = entanglement_pair[0][1]
+        remote_memory_name = entanglement_pair[1][1]
+        local_memory: Memory = self.owner.timeline.get_entity_by_name(local_memory_name)
+        remote_memory: Memory = self.owner.timeline.get_entity_by_name(remote_memory_name)
+        local_memory.bds_decohere()
+        remote_memory.bds_decohere()
+        return local_memory.get_bds_fidelity()
 
     def remove_entanglement_pair(self, entanglement_pair: tuple):
         '''remove an entanglement_pair because it is used
