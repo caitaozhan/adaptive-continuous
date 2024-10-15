@@ -16,6 +16,18 @@ class TrafficMatrix:
         self.num_nodes = num_nodes
         self.matrix = [[0 if i < j else None for j in range(num_nodes)] for i in range(num_nodes)]
 
+    def set(self, topology: str, nodes: int):
+        '''set the traffix matrix for runner.py and main.py
+        '''
+        if topology == 'as' and nodes == 20:
+            self.as_20()
+        elif topology == 'as' and nodes == 100:
+            self.as_100()
+        elif topology == 'line' and nodes == 2:
+            self.line_2()
+        else:
+            raise Exception(f'{topology},{nodes} combination not supported')
+
     def line_2(self):
         ''' For the line_2.json
         '''

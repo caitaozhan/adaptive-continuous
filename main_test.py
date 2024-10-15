@@ -216,9 +216,9 @@ def app_2_node_linear_adaptive(verbose=False):
 
     start_time = 0.1e12
     end_time   = 5e12
-    entanglement_number = 1
-    fidelity = 0.6
-    src_app.start(dest_node_name, start_time, end_time, entanglement_number, fidelity)
+    memory_size = 1
+    fidelity = 0.85
+    src_app.start(dest_node_name, start_time, end_time, memory_size, fidelity)
 
     tl.init()
     tl.run()
@@ -438,17 +438,18 @@ def app_2_node_line_request2_queue():
 
     network_config = 'config/line_2.json'
 
-    # log_filename = 'log/queue_tts/bottleneck,qmem=0'
-    log_filename = 'log/queue_tts/line2,qmem=2,update=false'
+    strategy = 'freshest'
+    log_filename = f'log/queue_tts/line2,qmem=5,update=false,{strategy}'
+    # log_filename = 'log/queue_tts/line2,qmem=0,update=false'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
     tl = network_topo.get_timeline()
 
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('INFO')
-    modules = ['adaptive_continuous', 'request_app', 'swapping', 'rule_manager', 'timeline', 'resource_manager', 'generation', 'main_test']
-    # modules = ['adaptive_continuous', 'request_app', 'swap_memory', 'reservation', 'resource_manager', 'rule_manager', 'generation', 'swapping']
+    log.set_logger_level('DEBUG')
+    # modules = ['adaptive_continuous', 'request_app', 'swapping', 'rule_manager', 'timeline', 'resource_manager', 'generation', 'main_test', 'memory']
+    modules = ['main_test']
     for module in modules:
         log.track_module(module)
 
@@ -460,6 +461,7 @@ def app_2_node_line_request2_queue():
         #     router.active = False
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = True
+        router.adaptive_continuous.strategy = strategy
 
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
@@ -753,12 +755,12 @@ if __name__ == '__main__':
     # app_2_node_linear_adaptive(verbose)
 
     # app_5_node_linear_adaptive(verbose)
-    app_5_node_line_request2_queue()
+    # app_5_node_line_request2_queue()
 
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
-    # app_2_node_line_request2_queue()
+    app_2_node_line_request2_queue()
     # app_10_node_bottleneck_request2_queue()
     # app_20_node_as_request2_queue()
     # app_100_node_as_request2_queue()

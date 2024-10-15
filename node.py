@@ -29,6 +29,7 @@ class QuantumRouterAdaptive(QuantumRouter):
         resource_reservation = self.network_manager.protocol_stack[-1]  # reference to the network manager's resource reservation protocol
         self.adaptive_continuous = AdaptiveContinuousProtocol(self, adaptive_name, adaptive_max_memory, resource_reservation)
         self.active = True
+        self.seed = seed
 
     def init_managers(self, memo_arr_name: str):
         '''override QuantumRouter.init_manager()
@@ -88,7 +89,6 @@ class QuantumRouterAdaptive(QuantumRouter):
                                 protocol.received_message(src, msg)
                                 break
 
-
     def set_seed(self, seed: int) -> None:
         """Set the seed, also set the generator
         
@@ -138,3 +138,16 @@ class BSMNodeAdaptive(BSMNode):
         else:
             raise ValueError(f'encoding type {self.encoding_type} not supported')
         bsm.attach(self.eg)
+
+    def set_seed(self, seed: int) -> None:
+        """Set the seed, also set the generator
+        
+        Args:
+            seed (int): the random seed
+        """
+        self.seed = seed
+        self.generator = np.random.default_rng(seed)
+    
+    def get_seed(self) -> int:
+        """Get the seed"""
+        return self.seed

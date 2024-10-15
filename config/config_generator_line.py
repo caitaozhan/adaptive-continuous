@@ -48,9 +48,9 @@ output_dict[Topology.ALL_TEMPLATES] = \
         },
         "adaptive_protocol": {
             "MemoryArray": {
-                "fidelity": 0.99,
+                "fidelity": 0.95,
                 "efficiency": 0.5,
-                "coherence_time": 0.5,
+                "coherence_time": 1,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
             "adaptive_max_memory": 0,

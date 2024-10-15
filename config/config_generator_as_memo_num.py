@@ -14,7 +14,7 @@ from simanneal import Annealer
 import random
 import matplotlib.pyplot as plt
 
-from sequence.utils.config_generator import add_default_args, generate_bsm_links, generate_classical, final_config, router_name_func, bsm_name_func
+from sequence.utils.config_generator import add_default_args, generate_classical, final_config, router_name_func, bsm_name_func
 from sequence.topology.topology import Topology
 from sequence.topology.router_net_topo import RouterNetTopo
 
@@ -26,8 +26,42 @@ random.seed(SEED)
 '''
 python config/config_generator_as_memo_num.py 20 0 1 1 10 1 0.0002 1 -d config -o as_20.json -s 10
 python config/draw_topo.py config/an_20.json -d config -f an_20
+
+python config/config_generator_as_memo_num.py 100 0 1 1 10 1 0.0002 1 -d config -o as_100.json -s 200 -gf 0.99 -mf 0.99
+
+
 '''
 
+def generate_bsm_links(graph, parsed_args, bsm_naming_func):
+    cchannels = []
+    qchannels = []
+    bsm_nodes = []
+
+    for i, node_pair in enumerate(graph.edges):
+        node1, node2 = node_pair
+        bsm_name = bsm_naming_func(node1, node2)
+        bsm_node = {Topology.NAME: bsm_name,
+                    Topology.TYPE: RouterNetTopo.BSM_NODE,
+                    Topology.SEED: i,
+                    RouterNetTopo.TEMPLATE: template}
+        bsm_nodes.append(bsm_node)
+
+        for node in node_pair:
+            qchannels.append({Topology.SRC: node,
+                              Topology.DST: bsm_name,
+                              Topology.DISTANCE: parsed_args.qc_length * 500,
+                              Topology.ATTENUATION: parsed_args.qc_atten})
+
+        for node in node_pair:
+            cchannels.append({Topology.SRC: bsm_name,
+                              Topology.DST: node,
+                              Topology.DELAY: parsed_args.cc_delay * 1e9})
+
+            cchannels.append({Topology.SRC: node,
+                              Topology.DST: bsm_name,
+                              Topology.DELAY: parsed_args.cc_delay * 1e9})
+
+    return cchannels, qchannels, bsm_nodes
 
 
 def get_exp_dis_prob(x0, x1, alpha):
@@ -221,13 +255,15 @@ output_dict[Topology.ALL_TEMPLATES] = \
         },
         "adaptive_protocol": {
             "MemoryArray": {
-                "fidelity": 0.98,
-                "efficiency": 0.5
+                "fidelity": 0.95,
+                "efficiency": 0.5,
+                "coherence_time": 1,
+                "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
-            "adaptive_max_memory": 5
+            "adaptive_max_memory": 0,
+            "encoding_type": "single_heralded"
         }
     }
-
 
 
 node_procs = {}
@@ -255,7 +291,7 @@ nodes = [{Topology.NAME: name,
          for i, name in enumerate(router_names)]
 
 # add bsm links
-cchannels, qchannels, bsm_nodes = generate_bsm_links(graph, node_procs, args, bsm_name_func)
+cchannels, qchannels, bsm_nodes = generate_bsm_links(graph, args, bsm_name_func)
 nodes += bsm_nodes
 output_dict[Topology.ALL_NODE] = nodes
 output_dict[Topology.ALL_Q_CHANNEL] = qchannels

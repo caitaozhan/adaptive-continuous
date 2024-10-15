@@ -366,7 +366,7 @@ class AdaptiveContinuousProtocol(Protocol):
         if len(entanglement_pairs) == 0:
             return None
 
-        if self.strategy == "first":
+        if self.strategy == "random":
             return entanglement_pairs[0]
         elif self.strategy == "freshest":
             freshest_ep = None

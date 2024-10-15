@@ -23,6 +23,7 @@ def main():
     parser.add_argument('-ma', '--memory_adaptive', type=int, default=5, help='number of memory per node used by the adaptive continuous protocol')
     parser.add_argument('-up', '--update_prob', action='store_true', help='whether to update the probability table or not')
     parser.add_argument('-d', '--log_directory', type=str, default='log', help='the directory of the log')
+    parser.add_argument('-s', '--strategy', type=str, default='freshest', help='the strategy of selecting one of the multiple entanglement pairs')
 
     args = parser.parse_args()
     topology = args.topology
@@ -33,6 +34,7 @@ def main():
     memory_adaptive = args.memory_adaptive
     update_prob     = args.update_prob
     log_directory   = args.log_directory
+    strategy        = args.strategy
 
     if os.path.exists(log_directory) is False:
         os.mkdir(log_directory)
@@ -42,7 +44,7 @@ def main():
     network_topo.update_stop_time(time * SECOND)
     tl = network_topo.get_timeline()
 
-    log_filename = f'{log_directory}/{topology}{node},ma={memory_adaptive},up={update_prob},ns={node_seed},qs={queue_seed}'
+    log_filename = f'{log_directory}/{topology}{node},ma={memory_adaptive},up={update_prob},ns={node_seed},qs={queue_seed},s={strategy}'
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('INFO')
     modules = ['main']
@@ -58,18 +60,15 @@ def main():
         name_to_apps[router.name] = app
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = update_prob
+        router.adaptive_continuous.strategy = strategy
 
-    num_nodes = len(name_to_apps)
-    traffic_matrix = TrafficMatrix(num_nodes)
-    #######
-    if topology == 'as' and node == 20:
-        traffic_matrix.as_20()
-    elif topology == 'as' and node == 100:
-        traffic_matrix.as_100()
-    else:
-        raise Exception(f'Oops! topology={topology}, node={node}')
-    #######
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=time, memo_size=1, fidelity=0.6, entanglement_number=1, seed=queue_seed)
+    for bsm_node in network_topo.get_nodes_by_type(RouterNetTopoAdaptive.BSM_NODE):
+        bsm_node.set_seed(bsm_node.get_seed() + node_seed)
+
+    traffic_matrix = TrafficMatrix(node)
+    traffic_matrix.set(topology, node)
+    
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=time, memo_size=1, fidelity=0.5, entanglement_number=1, seed=queue_seed)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -79,11 +78,14 @@ def main():
     tl.run()
 
     time_to_serve_dict = defaultdict(float)
+    fidelity_dict = defaultdict(float)
     for _, app in name_to_apps.items():
         time_to_serve_dict |= app.time_to_serve
+        fidelity_dict |= app.entanglement_fidelities
 
     for reservation, time_to_serve in sorted(time_to_serve_dict.items()):
-        log.logger.info(f'reservation={reservation}, time to serve={time_to_serve / MILLISECOND}')
+        fidelity = fidelity_dict[reservation][0]
+        log.logger.info(f'reservation={reservation}, time to serve={time_to_serve / MILLISECOND}, fidelity={fidelity:.6f}')
 
 
 
