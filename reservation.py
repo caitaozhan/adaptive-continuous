@@ -4,9 +4,7 @@
 from typing import TYPE_CHECKING, List, Tuple, Dict, Any
 from sequence.network_management.reservation import ResourceReservationProtocol, Reservation, ResourceReservationMessage, QCap, RSVPMsgType
 from sequence.resource_management.rule_manager import Rule
-# from rule_manager import RuleAdaptive
-from sequence.network_management.reservation import eg_rule_condition, ep_rule_action1, ep_rule_condition1, ep_rule_action2, ep_rule_condition2, \
-                                                    es_rule_actionB, es_rule_conditionB1, es_rule_conditionA, es_rule_conditionB2, es_rule_actionA
+from sequence.network_management.reservation import eg_rule_condition, ep_rule_condition1, ep_rule_condition2, es_rule_conditionB1, es_rule_conditionA, es_rule_conditionB2
 from sequence.kernel.event import Event
 from sequence.kernel.process import Process
 from sequence.resource_management.memory_manager import MemoryInfo
@@ -16,13 +14,15 @@ from sequence.entanglement_management.entanglement_protocol import EntanglementP
 from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
 from swapping import ShEntanglementSwappingA, ShEntanglementSwappingB
 from sequence.entanglement_management.swapping import EntanglementSwappingA, EntanglementSwappingB
+from purification import BBPSSW_bds
+from sequence.entanglement_management.purification import BBPSSW
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
 
 
 
-# entanglement generation #
+# 1. entanglement generation #
 
 def eg_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Dict[str, Any]) -> \
                              Tuple[EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive, List[None], List[None], List[None]]:
@@ -77,7 +77,7 @@ def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Argument
         protocols: the waiting protocols (wait for request)
         args: arguments from the node who sent the request
     Return:
-        the selected protocol
+        the selected protocol (there could be multiple protocols that satisfy the condition, if so, return the first protocol)
     """
     name = args["name"]
     reservation = args["reservation"]
@@ -88,8 +88,79 @@ def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Argument
             return protocol
 
 
+# 2. entanglement purification #
 
-# entanglement swapping #
+def ep_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSW | BBPSSW_bds, List[str], List["ep_req_func1_adaptive"], List[Dict]]:
+    """Action function used by BBPSSW protocol on nodes except the initiator node
+    """
+    encoding_type=args["encoding_type"]
+    memories = [info.memory for info in memories_info]
+    if encoding_type == "single_atom":
+        name = "EP.%s.%s" % (memories[0].name, memories[1].name)
+        protocol = BBPSSW(None, name, memories[0], memories[1])
+    elif encoding_type == "single_heralded":
+        name = "EP_bds.%s.%s" % (memories[0].name, memories[1].name)
+        protocol = BBPSSW_bds(None, name, memories[0], memories[1])
+
+    dsts = [memories_info[0].remote_node]
+    req_funcs = [ep_req_func1_adaptive]
+    req_args = [{"remote0": memories_info[0].remote_memo, "remote1": memories_info[1].remote_memo}]
+    return protocol, dsts, req_funcs, req_args
+
+
+def ep_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSW | BBPSSW_bds, List[None], List[None], List[None]]:
+    """Action function used by BBPSSW protocol on nodes except the responder node
+    """
+    encoding_type = args['encoding_type']
+    memories = [info.memory for info in memories_info]
+    if encoding_type == "single_atom":
+        name = "EP.%s" % memories[0].name
+        protocol = BBPSSW(None, name, memories[0], None)
+    elif encoding_type == "single_heralded":
+        name = "EP_bds.%s" % memories[0].name
+        protocol = BBPSSW_bds(None, name, memories[0], None)
+    return protocol, [None], [None], [None]
+
+
+def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSW | BBPSSW_bds:
+    """Function used by `ep_rule_action1` for selecting purification protocols on the remote node
+       Will "combine" two BBPSSW into one BBPSSW
+
+    Args:
+        protocols (list): a list of waiting protocols
+        args (dict): the arguments
+    Return:
+        the selected protocol
+    """
+    remote0 = args["remote0"]
+    remote1 = args["remote1"]
+
+    _protocols = []
+    for protocol in protocols:
+        if not (isinstance(protocol, BBPSSW) or isinstance(protocol, BBPSSW_bds)):
+            continue
+
+        if protocol.kept_memo.name == remote0:
+            _protocols.insert(0, protocol)
+        if protocol.kept_memo.name == remote1:
+            _protocols.insert(1, protocol)
+
+    if len(_protocols) != 2:
+        return None
+
+    protocols.remove(_protocols[1])
+    _protocols[1].rule.protocols.remove(_protocols[1])
+    _protocols[1].kept_memo.detach(_protocols[1])
+    _protocols[0].meas_memo = _protocols[1].kept_memo
+    _protocols[0].memories = [_protocols[0].kept_memo, _protocols[0].meas_memo]
+    _protocols[0].name = _protocols[0].name + "." + _protocols[0].meas_memo.name
+    _protocols[0].meas_memo.attach(_protocols[0])
+
+    return _protocols[0]
+
+
+
+# 3. entanglement swapping #
 
 def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingA | ShEntanglementSwappingA, List[str], List["es_req_func_adaptive"], List[Dict]]:
     """Action function used by EntanglementSwappingA protocol on nodes
@@ -233,7 +304,6 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         return rules
 
 
-
     def load_rules_adaptive(self, rules: List[Rule], reservation: ReservationAdaptive):
         """Method to add AC protocol created rules (EntanglementGeneration only) to resource manager.
 
@@ -268,7 +338,6 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 self.owner.timeline.schedule(event)
 
 
-
     def create_rules_request(self, path: list, reservation: ReservationAdaptive) -> List["Rule"]:
         """Method to create rules for a successful request.
 
@@ -294,7 +363,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
         priority = 10
         # 1. create rules for entanglement generation
-        if index > 0:
+        if index > 0:                  # non initiator
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             action_args = {"mid": self.owner.map_to_middle_node[path[index - 1]],
                            "path": path, "index": index, "from_app_request": True,
@@ -303,11 +372,11 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             rules.append(rule)
             priority += 1
 
-        if index < len(path) - 1:
+        if index < len(path) - 1:      # non responder
             if index == 0:
                 condition_args = {"memory_indices": memory_indices[:reservation.memory_size]}
             else:
-                condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}
+                condition_args = {"memory_indices": memory_indices[reservation.memory_size:]}  # the second half
 
             action_args = {"mid": self.owner.map_to_middle_node[path[index + 1]],
                            "path": path, "index": index, "name": self.owner.name, "reservation": reservation, "from_app_request": True,
@@ -317,21 +386,21 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             priority += 1
 
         # 2. create rules for entanglement purification
-        if index > 0:
+        if index > 0:                  # non initiator
             condition_args = {"memory_indices": memory_indices[:reservation.memory_size], "reservation": reservation}
-            action_args = {}
-            rule = Rule(priority, ep_rule_action1, ep_rule_condition1, action_args, condition_args)
+            action_args = {"encoding_type": "single_heralded"}
+            rule = Rule(priority, ep_rule_action1_adaptive, ep_rule_condition1, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
-        if index < len(path) - 1:
+        if index < len(path) - 1:      # non responder
             if index == 0:
                 condition_args = {"memory_indices": memory_indices, "fidelity": reservation.fidelity}
             else:
                 condition_args = {"memory_indices": memory_indices[reservation.memory_size:], "fidelity": reservation.fidelity}
 
-            action_args = {}
-            rule = Rule(priority, ep_rule_action2, ep_rule_condition2, action_args, condition_args)
+            action_args = {"encoding_type": "single_heralded"}
+            rule = Rule(priority, ep_rule_action2_adaptive, ep_rule_condition2, action_args, condition_args)
             rules.append(rule)
             priority += 1
 

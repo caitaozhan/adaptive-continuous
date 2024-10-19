@@ -121,11 +121,11 @@ class ShEntanglementSwappingA(EntanglementProtocol):
             # first invoke single-memory decoherence channels on each involved quantum memory (in total 4)
             # note that bds_decohere() has changed the last_update_time to now, 
             # thus we don't need to change it for the udpated state from swapping
-            self.left_memo.bds_decohere()
-            self.right_memo.bds_decohere()
             left_remote_memory: Memory = self.owner.timeline.get_entity_by_name(self.left_remote_memo)
             right_remote_memory: Memory = self.owner.timeline.get_entity_by_name(self.right_remote_memo)
+            self.left_memo.bds_decohere()
             left_remote_memory.bds_decohere()
+            self.right_memo.bds_decohere()
             right_remote_memory.bds_decohere()
 
             # get BDS conditioned on success, fidelity is the first diagonal element
@@ -313,7 +313,7 @@ class ShEntanglementSwappingB(EntanglementProtocol):
             Will invoke `update_resource_manager` method.
         """
 
-        log.logger.debug(self.owner.name + " protocol received_message from node {}, fidelity={}".format(src, msg.fidelity))
+        log.logger.debug(self.owner.name + " protocol received_message from node {}, fidelity={:.6f}".format(src, msg.fidelity))
 
         assert src == self.remote_node_name
 

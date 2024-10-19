@@ -198,31 +198,37 @@ class RequestAppTimeToServe(RequestApp):
 
         if info.index in self.memo_to_reservation:
             reservation = self.memo_to_reservation[info.index]
-            if info.remote_node == reservation.initiator and info.fidelity >= reservation.fidelity:   # the responder
-                self.entanglement_timestamps[reservation].append(self.node.timeline.now())
-                self.entanglement_fidelities[reservation].append(info.fidelity)
-                self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
-                self.cache_entangled_path(reservation.path)
-                
-                entanglement_number = len(self.entanglement_timestamps[reservation])
-                if entanglement_number == reservation.entanglement_number:
-                    # self.time_to_serve[reservation] = self.node.timeline.now() - reservation.start_time
-                    self.node.resource_manager.expire_rules_by_reservation(reservation)
+            if info.remote_node == reservation.initiator:
+                if info.fidelity >= reservation.fidelity:   # the responder
+                    self.entanglement_timestamps[reservation].append(self.node.timeline.now())
+                    self.entanglement_fidelities[reservation].append(info.fidelity)
+                    self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
+                    self.cache_entangled_path(reservation.path)
+                    
+                    entanglement_number = len(self.entanglement_timestamps[reservation])
+                    if entanglement_number == reservation.entanglement_number:
+                        # self.time_to_serve[reservation] = self.node.timeline.now() - reservation.start_time
+                        self.node.resource_manager.expire_rules_by_reservation(reservation)
+                else:
+                    log.logger.info(f'Memory={info}, does not meet the fidelity threshold, {reservation}')
 
-            elif info.remote_node == reservation.responder and info.fidelity >= reservation.fidelity: # the initiator
-                self.entanglement_timestamps[reservation].append(self.node.timeline.now())
-                self.entanglement_fidelities[reservation].append(info.fidelity)
-                entanglement_number = len(self.entanglement_timestamps[reservation])
+            elif info.remote_node == reservation.responder:
+                if info.fidelity >= reservation.fidelity: # the initiator
+                    self.entanglement_timestamps[reservation].append(self.node.timeline.now())
+                    self.entanglement_fidelities[reservation].append(info.fidelity)
+                    entanglement_number = len(self.entanglement_timestamps[reservation])
 
-                log.logger.info(f"Successfully generated entanglement. {reservation}: {entanglement_number}, {info.fidelity}")
-                self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
-                self.cache_entangled_path(reservation.path)
-                self.send_entangled_path(reservation)
+                    log.logger.info(f"Successfully generated entanglement. {reservation}: {entanglement_number}, {info.fidelity:.6f}")
+                    self.node.resource_manager.update(None, info.memory, MemoryInfo.RAW)
+                    self.cache_entangled_path(reservation.path)
+                    self.send_entangled_path(reservation)
 
-                if entanglement_number == reservation.entanglement_number:
-                    self.time_to_serve[reservation] = self.node.timeline.now() - reservation.start_time
-                    self.node.resource_manager.expire_rules_by_reservation(reservation)
-                    self.send_expire_rules_message(reservation)
+                    if entanglement_number == reservation.entanglement_number:
+                        self.time_to_serve[reservation] = self.node.timeline.now() - reservation.start_time
+                        self.node.resource_manager.expire_rules_by_reservation(reservation)
+                        self.send_expire_rules_message(reservation)
+                else:
+                    log.logger.info(f'Memory={info} has not meet the threshold, {reservation}')
 
 
     def get_time_stamps(self) -> list:

@@ -91,7 +91,7 @@ class AdaptiveContinuousProtocol(Protocol):
         self.cache = []  # each item is (timestamp: int, path: list)
         self.update_prob = True
         self.has_empty_neighbor = True
-        self.strategy = "first"  # "first" or "freshest", for picking an entanglement pair given multiple entanglement pairs
+        self.strategy = "freshest"  # "random" or "freshest", for picking an entanglement pair given multiple entanglement pairs
 
     def init(self):
         '''deal with the probability table
