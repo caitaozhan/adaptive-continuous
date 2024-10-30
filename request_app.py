@@ -88,7 +88,6 @@ class RequestAppThroughput(RequestApp):
                     log.logger.info(f'{self.name}: Successfully generated entanglement. BUT the fidelity={info.fidelity:.6f} does not meet requirement ({reservation.fidelity})')
 
 
-
     def get_time_stamps(self) -> list:
         '''get the entangled time stamps (for the "first" reservations)
         '''

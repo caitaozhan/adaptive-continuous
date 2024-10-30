@@ -12,7 +12,7 @@ from sequence.resource_management.rule_manager import Arguments
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 
 from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
-from swapping import ShEntanglementSwappingA, ShEntanglementSwappingB
+from swapping import EntanglementSwappingA_bds, EntanglementSwappingB_bds
 from sequence.entanglement_management.swapping import EntanglementSwappingA, EntanglementSwappingB
 from purification import BBPSSW_bds
 from sequence.entanglement_management.purification import BBPSSW
@@ -141,17 +141,17 @@ def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSW | BBPSSW_bds:
             continue
 
         if protocol.kept_memo.name == remote0:
-            _protocols.insert(0, protocol)
+            _protocols.insert(0, protocol)     # 0 is kept
         if protocol.kept_memo.name == remote1:
-            _protocols.insert(1, protocol)
+            _protocols.insert(1, protocol)     # 1 is meas
 
     if len(_protocols) != 2:
         return None
 
-    protocols.remove(_protocols[1])
+    protocols.remove(_protocols[1])            # remove the EP_bds for meas
     _protocols[1].rule.protocols.remove(_protocols[1])
     _protocols[1].kept_memo.detach(_protocols[1])
-    _protocols[0].meas_memo = _protocols[1].kept_memo
+    _protocols[0].meas_memo = _protocols[1].kept_memo  # [0]'s meas is [1]'s kept
     _protocols[0].memories = [_protocols[0].kept_memo, _protocols[0].meas_memo]
     _protocols[0].name = _protocols[0].name + "." + _protocols[0].meas_memo.name
     _protocols[0].meas_memo.attach(_protocols[0])
@@ -162,7 +162,7 @@ def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSW | BBPSSW_bds:
 
 # 3. entanglement swapping #
 
-def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingA | ShEntanglementSwappingA, List[str], List["es_req_func_adaptive"], List[Dict]]:
+def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingA | EntanglementSwappingA_bds, List[str], List["es_req_func_adaptive"], List[Dict]]:
     """Action function used by EntanglementSwappingA protocol on nodes
     """
     es_succ_prob = args["es_succ_prob"]
@@ -175,8 +175,8 @@ def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
         protocol = EntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, es_degradation)
     elif encoding_type == 'single_heralded':
         is_twirled = args['is_twirled']
-        name = "ShESA.{}.{}".format(memories[0].name, memories[1].name)
-        protocol = ShEntanglementSwappingA(None, name, memories[0], memories[1], es_succ_prob, is_twirled)
+        name = "ESA_bds.{}.{}".format(memories[0].name, memories[1].name)
+        protocol = EntanglementSwappingA_bds(None, name, memories[0], memories[1], es_succ_prob, is_twirled)
 
     dsts = [info.remote_node for info in memories_info]
     req_funcs = [es_req_func_adaptive, es_req_func_adaptive]
@@ -184,7 +184,7 @@ def es_rule_actionA_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     return protocol, dsts, req_funcs, req_args
 
 
-def es_rule_actionB_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingB | ShEntanglementSwappingB, List[None], List[None], List[None]]:
+def es_rule_actionB_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[EntanglementSwappingB | EntanglementSwappingB_bds, List[None], List[None], List[None]]:
     """Action function used by EntanglementSwappingB protocol
     """
     memories = [info.memory for info in memories_info]
@@ -193,16 +193,16 @@ def es_rule_actionB_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     if encoding_type == "single_atom":
         protocol = EntanglementSwappingB(None, "ESB." + memory.name, memory)
     elif encoding_type == 'single_heralded':
-        protocol = ShEntanglementSwappingB(None, "ShESB." + memory.name, memory)
+        protocol = EntanglementSwappingB_bds(None, "ESB_bds." + memory.name, memory)
     return protocol, [None], [None], [None]
 
 
-def es_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> ShEntanglementSwappingB | ShEntanglementSwappingB:
+def es_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Arguments) -> EntanglementSwappingB_bds | EntanglementSwappingB_bds:
     """Function used by `es_rule_actionA` for selecting swapping protocols on the remote node
     """
     target_memo = args["target_memo"]
     for protocol in protocols:
-        if (isinstance(protocol, EntanglementSwappingB | ShEntanglementSwappingB)
+        if (isinstance(protocol, EntanglementSwappingB | EntanglementSwappingB_bds)
                 # and protocol.memory.name == memories_info[0].remote_memo):
                 and protocol.memory.name == target_memo):
             return protocol
@@ -329,7 +329,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
         for card in self.timecards:
             if reservation in card.reservations:
-                process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"])
+                process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"]) # update memory to RAW
                 event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
                 self.owner.timeline.schedule(event)
 

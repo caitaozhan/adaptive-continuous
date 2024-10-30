@@ -1,7 +1,7 @@
 '''modified version for entanglement generation
 '''
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from enum import Enum, auto
 from math import sqrt
 
@@ -17,6 +17,9 @@ from sequence.kernel.event import Event
 from sequence.kernel.process import Process
 from sequence.resource_management.memory_manager import MemoryInfo, MemoryManager
 from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
+
+if TYPE_CHECKING:
+    from adaptive_continuous import AdaptiveContinuousProtocol
 
 
 def valid_trigger_time(trigger_time: int, target_time: int, resolution: int) -> bool:
@@ -203,7 +206,7 @@ class EntanglementGenerationAadaptive(EntanglementProtocol):
                     if self.ent_round == 1:
                         
                         if self.matched_entanglement_pair is None:                       # if not informed EP
-                            adaptive_continuous = self.owner.adaptive_continuous         # first check if there is pre-generated entanglement pair
+                            adaptive_continuous: AdaptiveContinuousProtocol = self.owner.adaptive_continuous         # first check if there is pre-generated entanglement pair
                             this_node_name = self.owner.name
                             remote_node_name = self.remote_node_name
                             matched_entanglement_pair = adaptive_continuous.match_generated_entanglement_pair(this_node_name, remote_node_name)
@@ -702,6 +705,7 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
         self.from_app_request: bool = from_app_request
 
         self.node_send_resource_management_request: bool = False
+        self.select_ep = False    # this node select the EP for memory assignment
         self.matched_entanglement_pair = None
 
 
@@ -746,7 +750,7 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
 
                 else:                                # EGA protocol is generated from the request
                     if self.matched_entanglement_pair is None:                       # if not informed EP
-                        adaptive_continuous = self.owner.adaptive_continuous         # first check if there is pre-generated entanglement pair
+                        adaptive_continuous: AdaptiveContinuousProtocol = self.owner.adaptive_continuous         # first check if there is pre-generated entanglement pair
                         this_node_name = self.owner.name
                         remote_node_name = self.remote_node_name
                         matched_entanglement_pair = adaptive_continuous.match_generated_entanglement_pair(this_node_name, remote_node_name)
@@ -961,7 +965,10 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
             May change state of attached memory.
             May cause attached memory to emit photon.
         """
-
+        if self.is_valid() is False:
+            log.logger.info(f'{self} is not valid. emit_event() failed')
+            return
+        
         if self.ent_round == 1:
             self.memory.update_state(EntanglementGenerationAadaptive._plus_state)
         self.memory.excite(self.middle, protocol="sh")
@@ -1016,8 +1023,8 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
             future_start_time = self.expected_time + self.owner.cchannels[self.middle].delay + 10  # delay is for sending the BSM_RES to end nodes, 10 is a small gap
 
             process = Process(self, "update_memory", [])
-
-            event = Event(future_start_time, process)
+            priority = self.owner.timeline.schedule_counter
+            event = Event(future_start_time, process, priority)
             self.owner.timeline.schedule(event)
             self.scheduled_events.append(event)
 
@@ -1043,8 +1050,8 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
             future_start_time = self.expected_time + self.owner.cchannels[self.middle].delay + 10
 
             process = Process(self, "update_memory", [])
-
-            event = Event(future_start_time, process)
+            priority = self.owner.timeline.schedule_counter
+            event = Event(future_start_time, process, priority)
             self.owner.timeline.schedule(event)
             self.scheduled_events.append(event)
 
@@ -1106,6 +1113,17 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
         log.logger.info(self.owner.name + " failed entanglement of memory {}".format(self.memory))
         
         self.update_resource_manager(self.memory, MemoryInfo.RAW)
+
+    def is_valid(self) -> bool:
+        """Method to check if this protocol is valid or not by checking if the protocol exists in self.owners.protocols
+           checking existance in self.rule.protocols should also work
+
+           NOTE: may add to parent class
+        
+        Return:
+            bool: if this protocol is valid
+        """
+        return self in self.owner.protocols
 
 
 

@@ -20,7 +20,8 @@ from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
 
 class BBPSSWMsgType(Enum):
     """Defines possible message types for entanglement purification."""
-
+    INFORM_EP = auto()
+    RESPOND_INFORM_EP = auto()
     PURIFICATION_RES = auto()
 
 
@@ -38,6 +39,10 @@ class BBPSSWMessage(Message):
         Message.__init__(self, msg_type, receiver)
         if self.msg_type is BBPSSWMsgType.PURIFICATION_RES:
             self.meas_res = kwargs['meas_res']
+        elif self.msg_type is BBPSSWMsgType.INFORM_EP:
+            self.entanglement_pairs = kwargs['entanglement_pairs']
+        elif self.msg_type is BBPSSWMsgType.RESPOND_INFORM_EP:
+            self.respond = kwargs['respond']
         else:
             raise Exception("BBPSSW protocol create unknown type of message: %s" % str(msg_type))
 
@@ -86,6 +91,7 @@ class BBPSSW_bds(EntanglementProtocol):
             self.memories.pop()
 
         self.is_twirled = is_twirled
+        self.ep_matched = False
 
     def is_ready(self) -> bool:
         return self.remote_node_name is not None
@@ -117,8 +123,7 @@ class BBPSSW_bds(EntanglementProtocol):
         assert self.is_ready(), "other protocol is not set; please use set_others function to set it."
         kept_memo_ent_node = self.kept_memo.entangled_memory["node_id"]
         meas_memo_ent_node = self.meas_memo.entangled_memory["node_id"]
-        assert kept_memo_ent_node == meas_memo_ent_node, "mismatch of remote nodes {}, {} on node {}".format(
-            kept_memo_ent_node, meas_memo_ent_node, self.owner.name)
+        assert kept_memo_ent_node == meas_memo_ent_node, "mismatch of remote nodes {}, {} on node {}".format(kept_memo_ent_node, meas_memo_ent_node, self.owner.name)
         
         # get remote memories
         remote_memos = [self.owner.timeline.get_entity_by_name(memo) for memo in self.remote_memories]
@@ -166,6 +171,7 @@ class BBPSSW_bds(EntanglementProtocol):
         message = BBPSSWMessage(BBPSSWMsgType.PURIFICATION_RES, self.remote_protocol_name, meas_res=self.meas_res)
         self.owner.send_message(self.remote_node_name, message)
 
+
     def received_message(self, src: str, msg: BBPSSWMessage) -> None:
         """Method to receive messages.
 
@@ -176,23 +182,51 @@ class BBPSSW_bds(EntanglementProtocol):
         Side Effects:
             Will call `update_resource_manager` method.
         """
-        puridication_success = self.meas_res == msg.meas_res
-        log.logger.info(self.owner.name + " received result message, succeeded: {}".format(puridication_success))
-        assert src == self.remote_node_name
 
-        self.update_resource_manager(self.meas_memo, "RAW")
+        if msg.msg_type == BBPSSWMsgType.INFORM_EP:
+            entanglement_pair, entanglement_pair2 = msg.entanglement_pairs
+            remote_kept = self.remote_memories[0]
+            remote_meas = self.remote_memories[1]
+            if remote_kept == entanglement_pair[0][1] and remote_meas == entanglement_pair2[0][1]:
+                self.ep_matched = True
+                log.logger.debug(f'{self.name}, local EP selection matched remote EP selection, remote kept is {remote_kept}, remote meas is {remote_meas}')
+                msg = BBPSSWMessage(BBPSSWMsgType.RESPOND_INFORM_EP, self.remote_protocol_name, respond=True)
+                self.owner.send_message(self.remote_node_name, msg)
+            else:
+                msg = BBPSSWMessage(BBPSSWMsgType.RESPOND_INFORM_EP, self.remote_protocol_name, respond=False)
+                self.owner.send_message(self.remote_node_name, msg)
+                log.logger.warning('EPs protocol at two nodes selected different entanglement pairs!')
 
-        if puridication_success:
-            log.logger.info(f'Purification success, measurement results: {self.meas_res}, {msg.meas_res}')
-            remote_kept_memory_name = self.remote_memories[0]
-            remote_kept_memory: Memory = self.owner.timeline.get_entity_by_name(remote_kept_memory_name)
-            remote_kept_memory.bds_decohere()
-            self.kept_memo.bds_decohere()
-            self.kept_memo.fidelity = self.kept_memo.get_bds_fidelity()
-            self.update_resource_manager(self.kept_memo, state="ENTANGLED")
+        elif msg.msg_type == BBPSSWMsgType.RESPOND_INFORM_EP:
+            if self.ep_matched and msg.respond:
+                self.start()
+            else:
+                # TODO remove this EP protocol
+                log.logger.warning(f'ep_matched={self.ep_matched} and msg.respond={msg.respond}')
+                raise NotImplementedError(f'program shoud not reach here')
+
+        elif msg.msg_type == BBPSSWMsgType.PURIFICATION_RES:
+            purification_success = (self.meas_res == msg.meas_res)
+            log.logger.info(self.owner.name + " received result message, succeeded={}".format(purification_success))
+            assert src == self.remote_node_name
+
+            self.update_resource_manager(self.meas_memo, "RAW")
+
+            if purification_success:
+                log.logger.info(f'Purification success, measurement results: {self.meas_res}, {msg.meas_res}')
+                remote_kept_memory_name = self.remote_memories[0]
+                remote_kept_memory: Memory = self.owner.timeline.get_entity_by_name(remote_kept_memory_name)
+                remote_kept_memory.bds_decohere()
+                self.kept_memo.bds_decohere()
+                self.kept_memo.fidelity = self.kept_memo.get_bds_fidelity()
+                self.update_resource_manager(self.kept_memo, state="ENTANGLED")
+            else:
+                log.logger.info(f'Purification failed because measure results: {self.meas_res}, {msg.meas_res}')
+                self.update_resource_manager(self.kept_memo, state="RAW")
+
         else:
-            log.logger.info(f'Purification failed because measure results: {self.meas_res}, {msg.meas_res}')
-            self.update_resource_manager(self.kept_memo, state="RAW")
+            raise Exception(f'{msg.msg_type} unknown')
+
 
     def memory_expire(self, memory: "Memory") -> None:
         """Method to receive memory expiration events.

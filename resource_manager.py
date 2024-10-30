@@ -11,12 +11,14 @@ from sequence.utils import log
 from sequence.network_management.reservation import Reservation
 from sequence.resource_management.rule_manager import Arguments
 from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
+from sequence.kernel.process import Process
+from sequence.kernel.event import Event
 
 from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
 from memory_manager import MemoryManagerAdaptive
 from reservation import ReservationAdaptive
-from adaptive_continuous import AdaptiveContinuousProtocol
-
+from adaptive_continuous import AdaptiveContinuousProtocol, AdaptiveContinuousMessage, ACMsgType
+from purification import BBPSSW_bds, BBPSSWMessage, BBPSSWMsgType
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
@@ -69,8 +71,26 @@ class ResourceManagerAdaptive(ResourceManager):
             if isinstance(protocol, EntanglementGenerationAadaptive | ShEntanglementGenerationAadaptive) and state == MemoryInfo.ENTANGLED: # entanglement succeed
                 if isinstance(protocol.rule.reservation, ReservationAdaptive): # Adaptive Continuous Protocol's reservation
                     adaptive_continuous = self.get_adaptive_continuous_protocol()
-                    entanglment_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
-                    adaptive_continuous.add_generated_entanglement_pair(entanglment_pair)
+                    entanglement_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
+                    adaptive_continuous.add_generated_entanglement_pair(entanglement_pair)
+
+                    # entanglement purification
+                    entanglement_pair2 = adaptive_continuous.get_entanglement_pair2(entanglement_pair)
+                    if entanglement_pair2:
+                        adaptive_continuous.remove_entanglement_pair(entanglement_pair)
+                        adaptive_continuous.remove_entanglement_pair(entanglement_pair2)  # two distant nodes creating purification protocol at the same time
+                        purification_protocol = adaptive_continuous.create_purification_protocol(entanglement_pair, entanglement_pair2, protocol.rule)
+                        self.owner.protocols.append(purification_protocol)
+                        msg = BBPSSWMessage(BBPSSWMsgType.INFORM_EP, purification_protocol.remote_protocol_name, entanglement_pairs=(entanglement_pair, entanglement_pair2))
+                        self.owner.send_message(purification_protocol.remote_node_name, msg)
+
+            # let the AC protocol track the purified kept memory
+            # if isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED and protocol.rule.reservation is None:
+            if isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED:
+                adaptive_continuous = self.get_adaptive_continuous_protocol()
+                entanglement_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
+                adaptive_continuous.add_generated_entanglement_pair(entanglement_pair)
+
 
         if protocol in self.owner.protocols:
             self.owner.protocols.remove(protocol)
@@ -81,7 +101,7 @@ class ResourceManagerAdaptive(ResourceManager):
         if protocol in self.pending_protocols:
             self.pending_protocols.remove(protocol)
 
-        # check if any rules have been met. If no rule met, then entanglment generation (for the request) is successful -> get_idle_memory()
+        # check if any rules have been met. If no rule met, then get_idle_memory()
         memo_info = self.memory_manager.get_info_by_memory(memory)
         for rule in self.rule_manager:
             memories_info = rule.is_valid(memo_info)

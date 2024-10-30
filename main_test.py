@@ -492,7 +492,7 @@ def app_5_node_line_request2_queue():
     network_config = 'config/line_5.json'
 
     # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue_tts/line5,qmem=0,update=false'
+    log_filename = 'log/queue_tts/line5,qmem=5,update=true'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -500,8 +500,8 @@ def app_5_node_line_request2_queue():
 
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    modules = ['adaptive_continuous', 'request_app', 'swapping', 'rule_manager', 'resource_manager', 'generation', 'memory', 'main_test', 'purification']
-    # modules = ['main_test']
+    # modules = ['request_app', 'swapping', 'rule_manager', 'resource_manager', 'generation', 'memory', 'main_test', 'purification', 'bsm']
+    modules = ['main_test']
     for module in modules:
         log.track_module(module)
 
@@ -514,12 +514,12 @@ def app_5_node_line_request2_queue():
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = True
 
-    mem_size = 2
+    mem_size = 1
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_5()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=100, memo_size=mem_size, fidelity=0.95, entanglement_number=1)
-    for request in request_queue[:1]:
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=10, memo_size=mem_size, fidelity=0.7, entanglement_number=1)
+    for request in request_queue[:]:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
         app.start(dst_name, start_time, end_time, memo_size, fidelity, entanglement_number, id)

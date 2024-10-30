@@ -21,7 +21,7 @@ from sequence.message import Message
 from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
 
 
-class ShEntanglementSwappingA(EntanglementProtocol):
+class EntanglementSwappingA_bds(EntanglementProtocol):
     """Entanglement swapping protocol for middle router.
 
     The entanglement swapping protocol is an asymmetric protocol.
@@ -252,7 +252,7 @@ class ShEntanglementSwappingA(EntanglementProtocol):
         self.owner.resource_manager.release_remote_memory(remote_node, remote_memo)
 
 
-class ShEntanglementSwappingB(EntanglementProtocol):
+class EntanglementSwappingB_bds(EntanglementProtocol):
     """Entanglement swapping protocol for middle router.
 
     The entanglement swapping protocol is an asymmetric protocol.
