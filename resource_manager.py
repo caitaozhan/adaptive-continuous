@@ -39,12 +39,14 @@ class ResourceManagerAdaptive(ResourceManager):
         rule_manager (RuleManager): internal rule manager object.
         pending_protocols (List[Protocol]): list of protocols awaiting a response for a remote resource request.
         waiting_protocols (List[Protocol]): list of protocols awaiting a request from a remote protocol.
+        purify (bool): whether enable purification
     """
 
     def __init__(self, owner: "QuantumRouterAdaptive", memory_array_name: str):
         super().__init__(owner, memory_array_name)
         self.memory_manager = MemoryManagerAdaptive(owner.components[memory_array_name])
         self.memory_manager.set_resource_manager(self)
+        self.purify = False
 
     def update(self, protocol: "EntanglementProtocol", memory: "Memory", state: str) -> None:
         """Override. Method to update state of memory after completion of entanglement management protocol.
@@ -75,18 +77,18 @@ class ResourceManagerAdaptive(ResourceManager):
                     adaptive_continuous.add_generated_entanglement_pair(entanglement_pair)
 
                     # entanglement purification
-                    entanglement_pair2 = adaptive_continuous.get_entanglement_pair2(entanglement_pair)
-                    if entanglement_pair2:
-                        adaptive_continuous.remove_entanglement_pair(entanglement_pair)
-                        adaptive_continuous.remove_entanglement_pair(entanglement_pair2)  # two distant nodes creating purification protocol at the same time
-                        purification_protocol = adaptive_continuous.create_purification_protocol(entanglement_pair, entanglement_pair2, protocol.rule)
-                        self.owner.protocols.append(purification_protocol)
-                        msg = BBPSSWMessage(BBPSSWMsgType.INFORM_EP, purification_protocol.remote_protocol_name, entanglement_pairs=(entanglement_pair, entanglement_pair2))
-                        self.owner.send_message(purification_protocol.remote_node_name, msg)
+                    if self.purify:
+                        entanglement_pair2 = adaptive_continuous.get_entanglement_pair2(entanglement_pair)
+                        if entanglement_pair2:
+                            adaptive_continuous.remove_entanglement_pair(entanglement_pair)
+                            adaptive_continuous.remove_entanglement_pair(entanglement_pair2)  # two distant nodes creating purification protocol at the same time
+                            purification_protocol = adaptive_continuous.create_purification_protocol(entanglement_pair, entanglement_pair2, protocol.rule)
+                            self.owner.protocols.append(purification_protocol)
+                            msg = BBPSSWMessage(BBPSSWMsgType.INFORM_EP, purification_protocol.remote_protocol_name, entanglement_pairs=(entanglement_pair, entanglement_pair2))
+                            self.owner.send_message(purification_protocol.remote_node_name, msg)
 
             # let the AC protocol track the purified kept memory
-            # if isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED and protocol.rule.reservation is None:
-            if isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED:
+            if self.purify and isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED:
                 adaptive_continuous = self.get_adaptive_continuous_protocol()
                 entanglement_pair = ((self.owner.name, memory.name), (memory.entangled_memory['node_id'], memory.entangled_memory['memo_id']))
                 adaptive_continuous.add_generated_entanglement_pair(entanglement_pair)

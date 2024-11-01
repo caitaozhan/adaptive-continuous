@@ -1066,7 +1066,8 @@ class ShEntanglementGenerationAadaptive(EntanglementProtocol):
             if valid_trigger_time(time, self.expected_time, resolution):
                 self.bsm_res[detector] += 1  # record one trigger of the detector (here `detector` is the index of detector object)
             else:
-                log.logger.debug('{} BSM trigger time not valid'.format(self.owner.name))
+                pass
+                # log.logger.debug('{} BSM trigger time not valid'.format(self.owner.name))
 
 
         elif msg_type is GenerationMsgType.INFORM_EP:

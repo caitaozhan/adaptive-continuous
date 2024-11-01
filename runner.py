@@ -23,6 +23,9 @@ def set_nodes(args: list, node: int) -> list:
 def set_strategy(args: list, strategy: str) -> list:
     return args + ["-s", strategy]
 
+def set_purify(args: list) -> list:
+    return args + ["-pf"]
+
 
 def get_output(p: Popen):
     stderr = p.stderr.readlines()
@@ -166,6 +169,54 @@ def main_10_14_24():
     #         ps = new_ps
 
 
+def main_10_30_24():
+
+    tasks = []
+
+    ###### for 2 node line topology ########
+    command = ['python', 'main.py']
+    base_args = ["-tp", "line", "-n", "2", "-t", "100", "-d", "log/10.30.24"]
+
+    memory_adaptive = [0, 5]
+    seed = list(range(20))
+
+    for ma in memory_adaptive:
+        if ma == 0:
+            for s in seed:
+                args = set_memory_adaptive(base_args, ma)
+                args = set_node_seed(args, s)
+                tasks.append(command + args)
+        else:
+            for strategy in ['freshest']:
+                for s in seed:
+                    for pf in [False, True]:
+                        args = set_strategy(base_args, strategy)
+                        args = set_memory_adaptive(args, ma)
+                        args = set_node_seed(args, s)
+                        if pf:
+                            args = set_purify(args)
+                        tasks.append(command + args)
+
+    parallel = 8
+    ps = []       # processes current running
+    while len(tasks) > 0 or len(ps) > 0:
+        if len(ps) < parallel and len(tasks) > 0:
+            task = tasks.pop(0)
+            print(task, f'{len(tasks)} still in queue')
+            ps.append(Popen(task, stdout=PIPE, stderr=PIPE))
+        else:
+            time.sleep(0.05)
+            new_ps = []
+            for p in ps:
+                if p.poll() is None:
+                    new_ps.append(p)
+                else:
+                    get_output(p)
+            ps = new_ps
+
+
+
+
 if __name__ == '__main__':
-    main_10_14_24()
+    main_10_30_24()
 

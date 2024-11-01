@@ -489,6 +489,8 @@ def app_2_node_line_request2_queue():
 # the request type-2 app, testing on a five node linear network, for time-to-serve
 def app_5_node_line_request2_queue():
 
+    purify = True
+
     network_config = 'config/line_5.json'
 
     # log_filename = 'log/linear_adaptive'
@@ -513,6 +515,7 @@ def app_5_node_line_request2_queue():
         #     router.active = False
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = True
+        router.resource_manager.purify = purify
 
     mem_size = 1
     num_nodes = len(name_to_apps)

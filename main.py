@@ -22,6 +22,7 @@ def main():
     parser.add_argument('-qs', '--queue_seed', type=int, default=0, help='related to the random seed of the queue')
     parser.add_argument('-ma', '--memory_adaptive', type=int, default=5, help='number of memory per node used by the adaptive continuous protocol')
     parser.add_argument('-up', '--update_prob', action='store_true', help='whether to update the probability table or not')
+    parser.add_argument('-pf', '--purify', action='store_true', help='whether anable purification')
     parser.add_argument('-d', '--log_directory', type=str, default='log', help='the directory of the log')
     parser.add_argument('-s', '--strategy', type=str, default='freshest', help='the strategy of selecting one of the multiple entanglement pairs')
 
@@ -33,6 +34,7 @@ def main():
     queue_seed      = args.queue_seed
     memory_adaptive = args.memory_adaptive
     update_prob     = args.update_prob
+    purify          = args.purify
     log_directory   = args.log_directory
     strategy        = args.strategy
 
@@ -44,10 +46,11 @@ def main():
     network_topo.update_stop_time(time * SECOND)
     tl = network_topo.get_timeline()
 
-    log_filename = f'{log_directory}/{topology}{node},ma={memory_adaptive},up={update_prob},ns={node_seed},qs={queue_seed},s={strategy}'
+    log_filename = f'{log_directory}/{topology}{node},ma={memory_adaptive},up={update_prob},ns={node_seed},qs={queue_seed},s={strategy},pf={purify}'
     log.set_logger(__name__, tl, log_filename)
-    log.set_logger_level('INFO')
+    log.set_logger_level('DEBUG')
     modules = ['main']
+    modules = ['main', 'purification', 'memory', 'generation']
     for module in modules:
         log.track_module(module)
 
@@ -61,6 +64,7 @@ def main():
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = update_prob
         router.adaptive_continuous.strategy = strategy
+        router.resource_manager.purify = purify
 
     for bsm_node in network_topo.get_nodes_by_type(RouterNetTopoAdaptive.BSM_NODE):
         bsm_node.set_seed(bsm_node.get_seed() + node_seed)
