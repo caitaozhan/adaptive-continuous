@@ -71,9 +71,9 @@ class RequestAppThroughput(RequestApp):
             reservation = self.memo_to_reservation[info.index]
             if info.remote_node == reservation.initiator:
                 if info.fidelity >= reservation.fidelity:   # the responder
-                    self.node.resource_manager.update(None, info.memory, "RAW")
                     self.cache_entangled_path(reservation.path)
-                    log.logger.info(f"{self.name}: Successfully generated entanglement. {reservation}: {len(self.entanglement_timestamps[reservation])}, {info.fidelity:.6f}")
+                    log.logger.info(f"{self.name}: Successfully generated entanglement. {info.fidelity:.6f}")
+                    self.node.resource_manager.update(None, info.memory, "RAW")
                 else:
                     log.logger.info(f'{self.name}: Successfully generated entanglement. BUT the fidelity={info.fidelity:.6f} does not meet requirement ({reservation.fidelity})')
             elif info.remote_node == reservation.responder:

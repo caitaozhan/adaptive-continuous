@@ -13,12 +13,13 @@ from sequence.resource_management.rule_manager import Arguments
 from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
 from sequence.kernel.process import Process
 from sequence.kernel.event import Event
+from sequence.resource_management.rule_manager import Rule
 
 from generation import EntanglementGenerationAadaptive, ShEntanglementGenerationAadaptive
 from memory_manager import MemoryManagerAdaptive
 from reservation import ReservationAdaptive
 from adaptive_continuous import AdaptiveContinuousProtocol, AdaptiveContinuousMessage, ACMsgType
-from purification import BBPSSW_bds, BBPSSWMessage, BBPSSWMsgType
+from purification import BBPSSW_bds
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
@@ -77,15 +78,25 @@ class ResourceManagerAdaptive(ResourceManager):
                     adaptive_continuous.add_generated_entanglement_pair(entanglement_pair)
 
                     # entanglement purification
-                    if self.purify:
+                    if self.purify and protocol.primary:  # the primary node select the EP
                         entanglement_pair2 = adaptive_continuous.get_entanglement_pair2(entanglement_pair)
                         if entanglement_pair2:
                             adaptive_continuous.remove_entanglement_pair(entanglement_pair)
                             adaptive_continuous.remove_entanglement_pair(entanglement_pair2)  # two distant nodes creating purification protocol at the same time
                             purification_protocol = adaptive_continuous.create_purification_protocol(entanglement_pair, entanglement_pair2, protocol.rule)
                             self.owner.protocols.append(purification_protocol)
-                            msg = BBPSSWMessage(BBPSSWMsgType.INFORM_EP, purification_protocol.remote_protocol_name, entanglement_pairs=(entanglement_pair, entanglement_pair2))
-                            self.owner.send_message(purification_protocol.remote_node_name, msg)
+
+                            msg = AdaptiveContinuousMessage(ACMsgType.INFORM_EP, reservation=protocol.rule.reservation, selected_ep=(entanglement_pair, entanglement_pair2), rule=protocol.rule)
+                            self.owner.send_message(protocol.remote_node_name, msg)
+
+                            if purification_protocol.is_ready():
+                                classical_delay = self.owner.cchannels[protocol.remote_node_name].delay
+                                future_purify_time = self.owner.timeline.now() + classical_delay
+                                process = Process(purification_protocol, 'start', [])
+                                event = Event(future_purify_time, process)
+                                self.owner.timeline.schedule(event)
+                            else:
+                                raise Exception('Program should not run to here')
 
             # let the AC protocol track the purified kept memory
             if self.purify and isinstance(protocol, BBPSSW_bds) and state == MemoryInfo.ENTANGLED:
@@ -114,6 +125,39 @@ class ResourceManagerAdaptive(ResourceManager):
                 return
 
         self.owner.get_idle_memory(memo_info)
+
+
+    def expire(self, rule: "Rule") -> None:
+        """Method to remove expired rule.
+
+        override parent method
+
+        Will update (remove) rule in rule manager.
+        Will also update (remove) protocols connected to the rule (if they have already been created, and not finished yet).
+
+        Args:
+            rule (Rule): rule to remove.
+        """
+
+        log.logger.info('{} expire rule {}'.format(self.owner.name, rule))
+        created_protocols = self.rule_manager.expire(rule)
+        while created_protocols:
+            protocol = created_protocols.pop()
+            if protocol in self.waiting_protocols:
+                self.waiting_protocols.remove(protocol)
+            elif protocol in self.pending_protocols:
+                self.pending_protocols.remove(protocol)
+            elif protocol in self.owner.protocols:
+                self.owner.protocols.remove(protocol)
+            else:
+                if isinstance(protocol, BBPSSW_bds):
+                    log.logger.info(f'Purification protocol {protocol} to be removed is located on the neighbor node')
+                    continue
+                else:
+                    raise Exception("Unknown place of protocol")
+
+            for memory in protocol.memories:
+                self.update(protocol, memory, MemoryInfo.RAW)
 
 
     def send_request(self, protocol: "EntanglementProtocol", req_dst: Optional[str], req_condition_func: RequestConditionFunc, req_args: Arguments):

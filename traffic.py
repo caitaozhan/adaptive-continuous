@@ -32,6 +32,7 @@ class TrafficMatrix:
         ''' For the line_2.json
         '''
         self.matrix[0][1] = 1
+        # self.matrix[1][0] = 1
 
 
     def line_5(self):
@@ -87,7 +88,7 @@ class TrafficMatrix:
         src_dst_pairs = []
         prob_list = []
         for i in range(self.num_nodes):
-            for j in range(i+1, self.num_nodes):
+            for j in range(self.num_nodes):
                 if self.matrix[i][j] is not None and self.matrix[i][j] > 0:
                     src_dst_pairs.append((i, j))
                     prob_list.append(self.matrix[i][j])

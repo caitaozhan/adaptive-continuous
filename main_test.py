@@ -436,11 +436,12 @@ def app_10_node_bottleneck_request_queue():
 # the request type-2 app, testing on a two node linear network, for time-to-serve
 def app_2_node_line_request2_queue():
 
-    network_config = 'config/line_2.json'
-
+    purify = True
     strategy = 'freshest'
-    log_filename = f'log/queue_tts/line2,qmem=5,update=false,{strategy}'
+    log_filename = f'log/queue_tts/line2,ma=1,up=False,{strategy},pf={purify}'
     # log_filename = 'log/queue_tts/line2,qmem=0,update=false'
+    
+    network_config = 'config/line_2.json'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -448,7 +449,7 @@ def app_2_node_line_request2_queue():
 
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    # modules = ['adaptive_continuous', 'request_app', 'swapping', 'rule_manager', 'timeline', 'resource_manager', 'generation', 'main_test', 'memory']
+    modules = ['adaptive_continuous', 'request_app', 'rule_manager', 'timeline', 'resource_manager', 'generation', 'main_test', 'memory', 'purification']
     modules = ['main_test']
     for module in modules:
         log.track_module(module)
@@ -462,11 +463,12 @@ def app_2_node_line_request2_queue():
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = True
         router.adaptive_continuous.strategy = strategy
+        router.resource_manager.purify = purify
 
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_2()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=100, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -494,7 +496,7 @@ def app_5_node_line_request2_queue():
     network_config = 'config/line_5.json'
 
     # log_filename = 'log/linear_adaptive'
-    log_filename = 'log/queue_tts/line5,qmem=5,update=true'
+    log_filename = 'log/queue_tts/line5,qmem=1,update=true'
 
     network_topo = RouterNetTopoAdaptive(network_config)
     
@@ -758,14 +760,14 @@ if __name__ == '__main__':
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
     # app_2_node_linear_adaptive(verbose)
+    app_2_node_line_request2_queue()
 
     # app_5_node_linear_adaptive(verbose)
-    app_5_node_line_request2_queue()
+    # app_5_node_line_request2_queue()
 
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
-    # app_2_node_line_request2_queue()
     # app_10_node_bottleneck_request2_queue()
     # app_20_node_as_request2_queue()
     # app_100_node_as_request2_queue()

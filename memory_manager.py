@@ -75,6 +75,9 @@ class MemoryManagerAdaptive(MemoryManager):
 
     def check_entangled_memory(self, entangled_memory_name: str) -> bool:
         '''return True if the memory by parameter entangled_memory_name is indeed entangled, otherwise False
+
+        Args:
+            entangled_memory_name (str): the name of the memory
         '''
         i = self.memory_array.memory_name_to_index[entangled_memory_name]
         if self.memory_array[i].entangled_memory['node_id'] is None:
