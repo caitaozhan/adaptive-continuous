@@ -174,8 +174,50 @@ def main_10_30_24():
     tasks = []
 
     ###### for 2 node line topology ########
+    # command = ['python', 'main.py']
+    # base_args = ["-tp", "line", "-n", "2", "-t", "100", "-d", "log/11.5.24.1s"]
+
+    # memory_adaptive = [0, 5]
+    # seed = list(range(20))
+
+    # for ma in memory_adaptive:
+    #     if ma == 0:
+    #         for s in seed:
+    #             args = set_memory_adaptive(base_args, ma)
+    #             args = set_node_seed(args, s)
+    #             tasks.append(command + args)
+    #     else:
+    #         for strategy in ['freshest']:
+    #             for s in seed:
+    #                 for pf in [False, True]:
+    #                     args = set_strategy(base_args, strategy)
+    #                     args = set_memory_adaptive(args, ma)
+    #                     args = set_node_seed(args, s)
+    #                     if pf:
+    #                         args = set_purify(args)
+    #                     tasks.append(command + args)
+
+    # parallel = 8
+    # ps = []       # processes current running
+    # while len(tasks) > 0 or len(ps) > 0:
+    #     if len(ps) < parallel and len(tasks) > 0:
+    #         task = tasks.pop(0)
+    #         print(task, f'{len(tasks)} still in queue')
+    #         ps.append(Popen(task, stdout=PIPE, stderr=PIPE))
+    #     else:
+    #         time.sleep(0.05)
+    #         new_ps = []
+    #         for p in ps:
+    #             if p.poll() is None:
+    #                 new_ps.append(p)
+    #             else:
+    #                 get_output(p)
+    #         ps = new_ps
+
+
+    ###### for 100 node as topology ########
     command = ['python', 'main.py']
-    base_args = ["-tp", "line", "-n", "2", "-t", "100", "-d", "log/10.30.24"]
+    base_args = ["-tp", "as", "-n", "100", "-t", "207", "-d", "log/11.8.24.1s"]
 
     memory_adaptive = [0, 5]
     seed = list(range(20))
@@ -184,17 +226,18 @@ def main_10_30_24():
         if ma == 0:
             for s in seed:
                 args = set_memory_adaptive(base_args, ma)
-                args = set_node_seed(args, s)
+                args = set_queue_seed(args, s)
                 tasks.append(command + args)
         else:
-            for strategy in ['freshest']:
-                for s in seed:
-                    for pf in [False, True]:
-                        args = set_strategy(base_args, strategy)
-                        args = set_memory_adaptive(args, ma)
-                        args = set_node_seed(args, s)
+            for update in [False, True]:
+                for pf in [False, True]:
+                    for s in seed:
+                        args = set_queue_seed(base_args, s)
+                        if update:
+                            args = set_update_prob(args)
                         if pf:
                             args = set_purify(args)
+                        args = set_memory_adaptive(args, ma)
                         tasks.append(command + args)
 
     parallel = 8
@@ -213,7 +256,6 @@ def main_10_30_24():
                 else:
                     get_output(p)
             ps = new_ps
-
 
 
 

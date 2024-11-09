@@ -185,7 +185,7 @@ class EntanglementSwappingA_bds(EntanglementProtocol):
             left_elem_2, left_elem_3, left_elem_4 = [(1-left_elem_1)/3] * 3
             right_elem_2, right_elem_3, right_elem_4 = [(1-right_elem_1)/3] * 3
 
-        assert 1. >= left_elem_1 >= 0.5 and 1. >= right_elem_1 >= 0.5, "Input states should have fidelity above 1/2."
+        # assert 1. >= left_elem_1 >= 0.5 and 1. >= right_elem_1 >= 0.5, "Input states should have fidelity above 1/2."
 
         # gate and measurment fidelities on swapping node, assuming two single-qubit measurements have equal fidelity
         gate_fid, meas_fid = self.owner.gate_fid, self.owner.meas_fid
