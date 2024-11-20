@@ -189,12 +189,15 @@ def draw_plots():
     ax.set_title('AC Protocol Improves TTS in 5-Node Linear Network', fontsize=13)
     fig.savefig("demo/demo.png")
 
+
 if __name__ == '__main__':
     
-    # linear_5node_0memory()
-    # linear_5node_4memory(update_prob_table=False)
-    # linear_5node_4memory(update_prob_table=True)
+    # run experiments
+    linear_5node_0memory()
+    linear_5node_4memory(update_prob_table=False)
+    linear_5node_4memory(update_prob_table=True)
 
+    # plotting
     draw_plots()
 
 
