@@ -101,6 +101,7 @@ class AdaptiveContinuousProtocol(Protocol):
         self.update_prob = True
         self.has_empty_neighbor = True
         self.strategy = "freshest"  # "random" or "freshest", for picking an entanglement pair given multiple entanglement pairs
+        self.print_prob_table = False
 
     def init(self):
         '''deal with the probability table
@@ -345,13 +346,14 @@ class AdaptiveContinuousProtocol(Protocol):
         for neighbor in self.probability_table.keys():
             self.probability_table[neighbor] /= summ
 
-        # print(f'{self.owner.name}, {self.probability_table_update_count}, ', end = '')
-        # for node, prob in self.probability_table.items():
-        #     if node != '':
-        #         print(f'{node}: {prob:.4}', end = ' ')
-        #     else:
-        #         print(f'None: {prob:.4}', end = ' ')
-        # print()
+        if self.print_prob_table:
+            print(f'{self.owner.name}, {self.probability_table_update_count}, ', end = '')
+            for node, prob in self.probability_table.items():
+                if node != '':
+                    print(f'{node}: {prob:.4}', end = ' ')
+                else:
+                    print(f'None: {prob:.4}', end = ' ')
+            print()
 
         self.probability_table_update_count += 1
 

@@ -1,0 +1,334 @@
+{
+    "templates": {
+        "perfect_memo": {
+            "MemoryArray": {
+                "fidelity": 1.0,
+                "efficiency": 1.0
+            }
+        },
+        "adaptive_protocol": {
+            "MemoryArray": {
+                "fidelity": 0.99,
+                "efficiency": 0.5,
+                "coherence_time": 5,
+                "decoherence_errors": [
+                    0.3333333333333333,
+                    0.3333333333333333,
+                    0.3333333333333333
+                ]
+            },
+            "adaptive_max_memory": 4,
+            "encoding_type": "single_heralded"
+        }
+    },
+    "nodes": [
+        {
+            "name": "router_0",
+            "type": "QuantumRouter",
+            "seed": 0,
+            "memo_size": 10,
+            "group": 0,
+            "template": "adaptive_protocol",
+            "gate_fidelity": 0.99,
+            "measurement_fidelity": 0.99
+        },
+        {
+            "name": "router_1",
+            "type": "QuantumRouter",
+            "seed": 1,
+            "memo_size": 10,
+            "group": 0,
+            "template": "adaptive_protocol",
+            "gate_fidelity": 0.99,
+            "measurement_fidelity": 0.99
+        },
+        {
+            "name": "router_2",
+            "type": "QuantumRouter",
+            "seed": 2,
+            "memo_size": 10,
+            "group": 0,
+            "template": "adaptive_protocol",
+            "gate_fidelity": 0.99,
+            "measurement_fidelity": 0.99
+        },
+        {
+            "name": "router_3",
+            "type": "QuantumRouter",
+            "seed": 3,
+            "memo_size": 10,
+            "group": 0,
+            "template": "adaptive_protocol",
+            "gate_fidelity": 0.99,
+            "measurement_fidelity": 0.99
+        },
+        {
+            "name": "router_4",
+            "type": "QuantumRouter",
+            "seed": 4,
+            "memo_size": 10,
+            "group": 0,
+            "template": "adaptive_protocol",
+            "gate_fidelity": 0.99,
+            "measurement_fidelity": 0.99
+        },
+        {
+            "name": "BSM_0_1",
+            "type": "BSMNode",
+            "seed": 0,
+            "template": "adaptive_protocol"
+        },
+        {
+            "name": "BSM_1_2",
+            "type": "BSMNode",
+            "seed": 1,
+            "template": "adaptive_protocol"
+        },
+        {
+            "name": "BSM_2_3",
+            "type": "BSMNode",
+            "seed": 2,
+            "template": "adaptive_protocol"
+        },
+        {
+            "name": "BSM_3_4",
+            "type": "BSMNode",
+            "seed": 3,
+            "template": "adaptive_protocol"
+        }
+    ],
+    "qchannels": [
+        {
+            "source": "router_0",
+            "destination": "BSM_0_1",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_1",
+            "destination": "BSM_0_1",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_1",
+            "destination": "BSM_1_2",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_2",
+            "destination": "BSM_1_2",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_2",
+            "destination": "BSM_2_3",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_3",
+            "destination": "BSM_2_3",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_3",
+            "destination": "BSM_3_4",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        },
+        {
+            "source": "router_4",
+            "destination": "BSM_3_4",
+            "distance": 500.0,
+            "attenuation": 0.0002
+        }
+    ],
+    "cchannels": [
+        {
+            "source": "BSM_0_1",
+            "destination": "router_0",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_0",
+            "destination": "BSM_0_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_0_1",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "BSM_0_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_1_2",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "BSM_1_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_1_2",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "BSM_1_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_2_3",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "BSM_2_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_2_3",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "BSM_2_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_3_4",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "BSM_3_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "BSM_3_4",
+            "destination": "router_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_4",
+            "destination": "BSM_3_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_0",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_0",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_0",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_0",
+            "destination": "router_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "router_0",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_1",
+            "destination": "router_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "router_0",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_2",
+            "destination": "router_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "router_0",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_3",
+            "destination": "router_4",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_4",
+            "destination": "router_0",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_4",
+            "destination": "router_1",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_4",
+            "destination": "router_2",
+            "delay": 1000000000.0
+        },
+        {
+            "source": "router_4",
+            "destination": "router_3",
+            "delay": 1000000000.0
+        }
+    ],
+    "stop_time": 60000000000000.0,
+    "is_parallel": false
+}
