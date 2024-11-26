@@ -9,7 +9,6 @@ from collections import defaultdict
 from reservation import ReservationAdaptive
 from sequence.constants import SECOND
 from sequence.resource_management.memory_manager import MemoryInfo
-from sequence.components.memory import Memory
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
@@ -68,7 +67,7 @@ class RequestAppThroughput(RequestApp):
             return
 
         if info.index in self.memo_to_reservation:
-            reservation = self.memo_to_reservation[info.index]
+            reservation: Reservation = self.memo_to_reservation[info.index]
             if info.remote_node == reservation.initiator:
                 if info.fidelity >= reservation.fidelity:   # the responder
                     self.cache_entangled_path(reservation.path)
@@ -284,7 +283,8 @@ class RequestAppTimeToServe(RequestApp):
             for i in range(1, len(path) - 1):
                 node = path[i]
                 self.node.adaptive_continuous.send_expire_rules_message(node, reservation)
-
+                # NOTE: shouldn't be AC Protocol's job. It should be resource manager's job
+                # I am letting the AC Protocol sending expire msm because I don't want to add a new message type to Resource Manager and make changes
 
     def get_request_to_throughput(self) -> dict:
         '''each request maps to a reservation

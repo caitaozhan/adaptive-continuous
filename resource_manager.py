@@ -82,10 +82,12 @@ class ResourceManagerAdaptive(ResourceManager):
                         entanglement_pair2 = adaptive_continuous.get_entanglement_pair2(entanglement_pair)
                         if entanglement_pair2:
                             adaptive_continuous.remove_entanglement_pair(entanglement_pair)
-                            adaptive_continuous.remove_entanglement_pair(entanglement_pair2)  # two distant nodes creating purification protocol at the same time
+                            adaptive_continuous.remove_entanglement_pair(entanglement_pair2)
                             purification_protocol = adaptive_continuous.create_purification_protocol(entanglement_pair, entanglement_pair2, protocol.rule)
                             self.owner.protocols.append(purification_protocol)
 
+                            # NOTE: The purification protocol at the non-primary node is created by the AC Protocol, which shouldn't be (it should be the resource manager)
+                            # I am letting the AC Protocol creating it because I don't want to add a new message type to Resource Manager and make changes
                             msg = AdaptiveContinuousMessage(ACMsgType.INFORM_EP, reservation=protocol.rule.reservation, selected_ep=(entanglement_pair, entanglement_pair2), rule=protocol.rule)
                             self.owner.send_message(protocol.remote_node_name, msg)
 

@@ -3,7 +3,7 @@
 
 import numpy as np
 from typing import List
-from sequence.topology.node import QuantumRouter, BSMNode, SingleAtomBSM
+from sequence.topology.node import QuantumRouter, BSMNode
 from sequence.network_management.routing import StaticRoutingProtocol
 from sequence.kernel.timeline import Timeline
 from sequence.network_management.network_manager import NetworkManager
