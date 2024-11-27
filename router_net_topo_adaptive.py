@@ -122,7 +122,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             length, hop_count, path = all_paths[(src, dst)]
             cc.delay = classical_delay(length, hop_count)
             cc.distance = length   # not important
-            print(f'{path}: {cc.delay/1e6}ms')
+            print(f'{path}: {cc.delay/1e6}us')
 
         print()
 

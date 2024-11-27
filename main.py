@@ -41,6 +41,10 @@ def main():
     if os.path.exists(log_directory) is False:
         os.mkdir(log_directory)
 
+    ##### assuming reqeust arrives one by one
+    REQUEST_PERIOD = 0.1 # seconds
+    #####
+
     network_config = f'config/{topology}_{node}.json'
     network_topo = RouterNetTopoAdaptive(network_config)
     network_topo.update_stop_time(time * SECOND)
@@ -49,7 +53,7 @@ def main():
     log_filename = f'{log_directory}/{topology}{node},ma={memory_adaptive},up={update_prob},ns={node_seed},qs={queue_seed},s={strategy},pf={purify}'
     log.set_logger(__name__, tl, log_filename)
     log.set_logger_level('DEBUG')
-    modules = ['main', 'purification', 'memory', 'generation', 'swapping']
+    modules = ['main', 'purification', 'memory', 'generation', 'swapping', 'resource_manager']
     modules = ['main']
     for module in modules:
         log.track_module(module)
@@ -64,6 +68,7 @@ def main():
         router.adaptive_continuous.has_empty_neighbor = True
         router.adaptive_continuous.update_prob = update_prob
         router.adaptive_continuous.strategy = strategy
+        router.adaptive_continuous.update_period(REQUEST_PERIOD * SECOND)
         router.resource_manager.purify = purify
 
     for bsm_node in network_topo.get_nodes_by_type(RouterNetTopoAdaptive.BSM_NODE):
@@ -72,7 +77,7 @@ def main():
     traffic_matrix = TrafficMatrix(node)
     traffic_matrix.set(topology, node)
     
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=0.1, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=REQUEST_PERIOD, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]

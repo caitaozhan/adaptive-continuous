@@ -1,6 +1,8 @@
 '''
 Implement paper "Adaptive, Continuous Entanglement Generation for Quantum Networks" in SeQUeNCe
 Paper link: https://ieeexplore.ieee.org/document/9798130
+
+NOTE (11/27/2024): the ACP period needs to match the reqeust period
 '''
 
 from enum import Enum, auto
@@ -88,7 +90,7 @@ class AdaptiveContinuousProtocol(Protocol):
         has_empty_neighbor (bool): whether the probability table has empty neighbor
     '''
 
-    def __init__(self, owner: "QuantumRouterAdaptive", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive):
+    def __init__(self, owner: "QuantumRouterAdaptive", name: str, adaptive_max_memory: int, resource_reservation: ResourceReservationProtocolAdaptive, period: int = SECOND):
         super().__init__(owner, name)
         self.adaptive_max_memory = adaptive_max_memory
         self.adaptive_memory_used = 0
@@ -101,13 +103,30 @@ class AdaptiveContinuousProtocol(Protocol):
         self.has_empty_neighbor = True
         self.strategy = "freshest"  # "random" or "freshest", for picking an entanglement pair given multiple entanglement pairs
         self.print_prob_table = False
+        self.period = period
+        self.delay_no_memory = 0             # this node either reached adaptive_max_memory or no memory 
+        self.delay_select_neighbor_none = 0  # this node selected none as neighbor
+        self.delay_remote_response = 0       # neighbor has a response
+        self.update_period(period)
+
 
     def init(self):
         '''deal with the probability table
         '''
         self.init_probability_table()
-        elapse = SECOND
+        elapse = self.period
         self.update_probability_table_event(elapse)
+
+    def update_period(self, period: int) -> None:
+        '''update the period of ACP, and also update the delays
+
+        Args:
+            period (int): time in ps
+        '''
+        self.period = period
+        self.delay_no_memory            = period // 1000
+        self.delay_select_neighbor_none = period // 100
+        self.delay_remote_response      = 3 * self.delay_no_memory
 
     def set_adaptive_max_memory(self, adaptive_max_memory: int) -> None:
         '''set the max memory used for the adaptive continuousp protocol
@@ -125,22 +144,21 @@ class AdaptiveContinuousProtocol(Protocol):
         '''
         # check whether the adaptive protocol has used up its memory quota
         if self.adaptive_memory_used >= self.adaptive_max_memory:
-            self.start_delay(delay = MILLISECOND)  # schedule a start event in the future
+            self.start_delay(delay = self.delay_no_memory)  # schedule a start event in the future
             return
 
         # select neighbor
         neighbor = self.select_neighbor()
         if neighbor == '':
             log.logger.debug(f'{self.owner.name} selected neighbor None')
-            self.start_delay(delay = 10 * MILLISECOND)  # schedule a start event in the future
+            self.start_delay(delay = self.delay_select_neighbor_none)  # schedule a start event in the future
             return
 
         log.logger.debug(f'{self.owner.name} selected neighbor {neighbor}, adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
         self.adaptive_memory_used += 1
         round_trip_time = self.owner.cchannels[neighbor].delay * 2
-        start_time = self.owner.timeline.now() + round_trip_time # consider a round trip time for the "handshaking"
-        end_time = self.round_to_second(start_time + SECOND)     # the 'period' is one second
-        # end_time = start_time + SECOND/3     # the 'period' is one second
+        start_time = self.owner.timeline.now() + round_trip_time    # consider a round trip time for the "handshaking"
+        end_time = self.round_to_period(start_time + self.period)   # the 'period' is one second
         # set up reservation
         reservation = ReservationAdaptive(self.owner.name, neighbor, start_time, end_time, memory_size=1, fidelity=0.9)
         if self.resource_reservation.schedule(reservation):
@@ -150,7 +168,7 @@ class AdaptiveContinuousProtocol(Protocol):
         else:
             # not able to schedule on current node (lack of memory), schedule another start event after 1 ms
             self.adaptive_memory_used -= 1
-            self.start_delay(delay = MILLISECOND)
+            self.start_delay(delay = self.delay_no_memory)
 
 
     def start_delay(self, delay: float) -> None:
@@ -240,7 +258,7 @@ class AdaptiveContinuousProtocol(Protocol):
                 rules = self.resource_reservation.create_rules_adaptive(msg.path, msg.reservation)
                 self.resource_reservation.load_rules_adaptive(rules, msg.reservation)
                 log.logger.info(f'{self.owner.name} attempting to establish entanglement link {self.owner.name}-{src}')
-            self.start_delay(3 * MILLISECOND)
+            self.start_delay(delay = self.delay_remote_response)
         
         elif msg.msg_type is ACMsgType.CACHE:
             timestamp = msg.timestamp
@@ -437,13 +455,13 @@ class AdaptiveContinuousProtocol(Protocol):
             raise Exception(f"{entanglement_pair} doesn't exist in {self.name}")
             
 
-    def round_to_second(self, time: int) -> int:
-        '''turn 1.001 second into 1 second
+    def round_to_period(self, time: int) -> int:
+        '''if period is 1 second, then turn 1.001 second into 1 second
         
         Args:
             time: in picoseconds
         '''
-        return (time // SECOND) * SECOND
+        return (time // self.period) * self.period
 
 
     def send_entanglement_path(self, node: str, timestamp: float, reservation: Reservation):
