@@ -72,7 +72,7 @@ def main():
     traffic_matrix = TrafficMatrix(node)
     traffic_matrix.set(topology, node)
     
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=0.1, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]

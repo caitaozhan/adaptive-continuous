@@ -507,7 +507,7 @@ class AdaptiveContinuousProtocol(Protocol):
             return None
 
 
-    def create_purification_protocol(self, entanglement_pair: tuple, entanglement_pair2: tuple, rule: Rule) -> BBPSSW_bds:
+    def create_purification_protocol(self, entanglement_pair: tuple, entanglement_pair2: tuple, rule: "Rule") -> BBPSSW_bds:
         '''given two entanglement pairs, create the purification protocol and pair it directly 
         (instead of creating the purification through rules and pairing in the resource management)
         

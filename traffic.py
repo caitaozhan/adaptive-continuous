@@ -152,7 +152,7 @@ class TrafficMatrix:
         prob_accumulate = list(accumulate(prob_list))
         random.seed(seed)
 
-        delta = 0.1
+        delta = 0.01
         assert request_period > delta
 
         request_id = 0
@@ -167,7 +167,7 @@ class TrafficMatrix:
             start_time = cur_time + delta
             end_time = cur_time + request_period
             if end_time <= total_time:
-                request_queue.append((request_id, src_name, dst_name, round(start_time * SECOND), round(end_time * SECOND), memo_size, fidelity, entanglement_number))
+                request_queue.append((request_id, src_name, dst_name, round(start_time * 0.1*SECOND), round(end_time * 0.1*SECOND), memo_size, fidelity, entanglement_number))
                 request_id += 1
             cur_time = end_time
 

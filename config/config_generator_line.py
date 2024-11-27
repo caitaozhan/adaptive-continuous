@@ -49,12 +49,18 @@ output_dict[Topology.ALL_TEMPLATES] = \
         "adaptive_protocol": {
             "MemoryArray": {
                 "fidelity": 0.95,
-                "efficiency": 0.5,
+                "efficiency": 0.6,
                 "coherence_time": 1,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
             "adaptive_max_memory": 0,
-            "encoding_type": "single_heralded"
+            "encoding_type": "single_heralded",
+            "SingleHeraldedBSM": {
+                "detectors" :[
+                    {"efficiency": 0.95}, 
+                    {"efficiency": 0.95}
+                ]
+            }
         }
     }
 
@@ -91,20 +97,22 @@ for i, bsm_name in enumerate(bsm_names):
     # qchannels
     qchannels.append({Topology.SRC: router_names[i],
                       Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.ATTENUATION: args.qc_atten})
     qchannels.append({Topology.SRC: router_names[i + 1],
                       Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.ATTENUATION: args.qc_atten})
     # cchannels
     for node in [router_names[i], router_names[i + 1]]:
         cchannels.append({Topology.SRC: bsm_name,
                           Topology.DST: node,
+                          Topology.DISTANCE: args.qc_length * 1000 / 2,
                           Topology.DELAY: args.cc_delay * 1e9})
 
         cchannels.append({Topology.SRC: node,
                           Topology.DST: bsm_name,
+                          Topology.DISTANCE: args.qc_length * 1000 / 2,
                           Topology.DELAY: args.cc_delay * 1e9})
 output_dict[Topology.ALL_Q_CHANNEL] = qchannels
 
@@ -123,5 +131,5 @@ output_file = open(path, 'w')
 json.dump(output_dict, output_file, indent=4)
 
 
-# python config/config_generator_line.py 2 10 1 0.0002 1 -d config -o line_2.json -s 10 -gf 0.99 -mf 0.99
+# python config/config_generator_line.py 2 10 10 0.0002 1 -d config -o line_2.json -s 10 -gf 0.99 -mf 0.99
 # python config/config_generator_line.py 5 10 1 0.0002 1 -d config -o line_5.json -s 10 -gf 0.99 -mf 0.99

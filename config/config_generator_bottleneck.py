@@ -35,7 +35,7 @@ import argparse
 import json
 import os
 
-from sequence.utils.config_generator import add_default_args, get_node_csv, generate_node_procs, generate_nodes, generate_classical, final_config, router_name_func
+from sequence.utils.config_generator import get_node_csv, generate_node_procs, generate_nodes, generate_classical, final_config, router_name_func
 from sequence.topology.topology import Topology
 from sequence.topology.router_net_topo import RouterNetTopo
 
@@ -72,10 +72,19 @@ output_dict[Topology.ALL_TEMPLATES] = \
         },
         "adaptive_protocol": {
             "MemoryArray": {
-                "fidelity": 0.98,
-                "efficiency": 0.5
+                "fidelity": 0.95,
+                "efficiency": 0.6,
+                "coherence_time": 1,
+                "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
-            "adaptive_max_memory": 2
+            "adaptive_max_memory": 0,
+            "encoding_type": "single_heralded",
+            "SingleHeraldedBSM": {
+                "detectors" :[
+                    {"efficiency": 0.95}, 
+                    {"efficiency": 0.95}
+                ]
+            }
         }
     }
 
@@ -139,24 +148,28 @@ for left_node_name, bsm_name, right_node_name in channels:
     # qchannels
     qchannels.append({Topology.SRC: left_node_name,
                       Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.ATTENUATION: args.qc_atten})
     qchannels.append({Topology.SRC: right_node_name,
                       Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.ATTENUATION: args.qc_atten})
     # cchannels
     cchannels.append({Topology.SRC: left_node_name,
                       Topology.DST: bsm_name,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.DELAY: args.cc_delay * 1e9})
     cchannels.append({Topology.SRC: right_node_name,
                       Topology.DST: bsm_name,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.DELAY: args.cc_delay * 1e9})
     cchannels.append({Topology.SRC: bsm_name,
                       Topology.DST: left_node_name,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.DELAY: args.cc_delay * 1e9})
     cchannels.append({Topology.SRC: bsm_name,
                       Topology.DST: right_node_name,
+                      Topology.DISTANCE: args.qc_length * 1000 / 2,
                       Topology.DELAY: args.cc_delay * 1e9})
 
 output_dict[Topology.ALL_NODE] = nodes + bsm_nodes
@@ -175,3 +188,6 @@ path = os.path.join(args.directory, args.output)
 output_file = open(path, 'w')
 json.dump(output_dict, output_file, indent=4)
 
+
+
+# python config/config_generator_bottleneck.py 9 9 10 10 10 0.0002 1 -d config -o bottleneck_20.json -s 10
