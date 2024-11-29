@@ -53,7 +53,7 @@ def linear_5node_0memory():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_5()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=60, memo_size=mem_size, fidelity=0.7, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=60, memo_size=mem_size, fidelity=0.7, entanglement_number=1)
     for request in request_queue[:]:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -111,7 +111,7 @@ def linear_5node_4memory(update_prob_table: bool):
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_5()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=60, memo_size=mem_size, fidelity=0.5, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=60, memo_size=mem_size, fidelity=0.5, entanglement_number=1)
     for request in request_queue[:]:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]

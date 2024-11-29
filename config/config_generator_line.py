@@ -50,7 +50,7 @@ output_dict[Topology.ALL_TEMPLATES] = \
             "MemoryArray": {
                 "fidelity": 0.95,
                 "efficiency": 0.6,
-                "coherence_time": 1,
+                "coherence_time": 2,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
             "adaptive_max_memory": 0,

@@ -74,7 +74,7 @@ output_dict[Topology.ALL_TEMPLATES] = \
             "MemoryArray": {
                 "fidelity": 0.95,
                 "efficiency": 0.6,
-                "coherence_time": 1,
+                "coherence_time": 2,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
             "adaptive_max_memory": 0,
@@ -135,9 +135,11 @@ for i in range(args.left_size + 2, args.left_size + 2 + args.right_size):
     bsm_names.append(bsm_name)
     channels.append((bottleneck_right_name, bsm_name, router_names[i]))
 
+# generate bsm nodes
 bsm_nodes = [{Topology.NAME: bsm_name,
               Topology.TYPE: RouterNetTopo.BSM_NODE,
-              Topology.SEED: i}
+              Topology.SEED: i,
+              RouterNetTopo.TEMPLATE: template}
               for i, bsm_name in enumerate(bsm_names)]
 
 if args.parallel:

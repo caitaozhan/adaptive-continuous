@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description='Parameters for Adaptive Continuous Protocol simulation')
     parser.add_argument('-tp', '--topology', type=str, default='line', help='topology, i.e. line, bottleneck, as')
     parser.add_argument('-n', '--node', type=int, default=5, help='number of nodes in the quantum network')
-    parser.add_argument('-t', '--time', type=int, default=10, help='simulation time in seconds')
+    parser.add_argument('-t', '--time', type=float, default=10, help='simulation time in seconds')
     parser.add_argument('-ns', '--node_seed', type=int, default=0, help='related to the random seed of the node')
     parser.add_argument('-qs', '--queue_seed', type=int, default=0, help='related to the random seed of the queue')
     parser.add_argument('-ma', '--memory_adaptive', type=int, default=5, help='number of memory per node used by the adaptive continuous protocol')
@@ -41,8 +41,9 @@ def main():
     if os.path.exists(log_directory) is False:
         os.mkdir(log_directory)
 
-    ##### assuming reqeust arrives one by one
-    REQUEST_PERIOD = 0.1 # seconds
+    ##### 
+    REQUEST_PERIOD = 0.1 # seconds, request incoming rate, assuming reqeust arrives one by one
+    DELTA = 0.02         # seconds, time for EP pre-generation
     #####
 
     network_config = f'config/{topology}_{node}.json'
@@ -75,9 +76,19 @@ def main():
         bsm_node.set_seed(bsm_node.get_seed() + node_seed)
 
     traffic_matrix = TrafficMatrix(node)
-    traffic_matrix.set(topology, node)
     
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=REQUEST_PERIOD, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+    # for the line2 toplogy
+    # traffic_matrix = TrafficMatrix(node)
+    # traffic_matrix.set(topology, node)
+    # request_queue = traffic_matrix.get_request_queue_tts(request_period=REQUEST_PERIOD, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+
+    # for bottleneck and AS topology, update the traffic patter in at half time
+    request_queue = []
+    traffic_matrix.set(topology, node, seed=0)
+    traffic_matrix.get_request_queue_tts(request_queue=request_queue, request_period=REQUEST_PERIOD, delta=DELTA, start_time=0,      end_time=time/2, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+    traffic_matrix.set(topology, node, seed=1)
+    traffic_matrix.get_request_queue_tts(request_queue=request_queue, request_period=REQUEST_PERIOD, delta=DELTA, start_time=time/2, end_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]

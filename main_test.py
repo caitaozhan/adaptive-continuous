@@ -468,7 +468,7 @@ def app_2_node_line_request2_queue():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_2()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=100, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=100, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -523,7 +523,7 @@ def app_5_node_line_request2_queue():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.line_5()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=10, memo_size=mem_size, fidelity=0.7, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=10, memo_size=mem_size, fidelity=0.7, entanglement_number=1)
     for request in request_queue[:]:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -576,7 +576,7 @@ def app_10_node_bottleneck_request2_queue():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.bottleneck_10()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -627,7 +627,7 @@ def app_20_node_bottleneck_request2_queue():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.bottleneck_20()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -680,7 +680,7 @@ def app_20_node_as_request2_queue():
     num_nodes = len(name_to_apps)
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.as_20()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=200, memo_size=1, fidelity=0.6, entanglement_number=1)
     for request in request_queue:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request
         app = name_to_apps[src_name]
@@ -732,7 +732,7 @@ def app_100_node_as_request2_queue():
     traffic_matrix = TrafficMatrix(num_nodes)
     traffic_matrix.as_100()
     # traffic_matrix.as_100_()
-    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, total_time=10, memo_size=1, fidelity=0.6, entanglement_number=1)
+    request_queue = traffic_matrix.get_request_queue_tts(request_period=1, end_time=10, memo_size=1, fidelity=0.6, entanglement_number=1)
     print(request_queue)
     for request in request_queue[:1]:
         id, src_name, dst_name, start_time, end_time, memo_size, fidelity, entanglement_number = request

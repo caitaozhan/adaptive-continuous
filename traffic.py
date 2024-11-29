@@ -14,10 +14,18 @@ class TrafficMatrix:
     '''
     def __init__(self, num_nodes: int):
         self.num_nodes = num_nodes
-        self.matrix = [[0 if i < j else None for j in range(num_nodes)] for i in range(num_nodes)]
+        self.matrix = None
+        self.set_matrix_to_zero()
 
-    def set(self, topology: str, nodes: int):
+    def set_matrix_to_zero(self):
+        self.matrix = [[0 if i < j else None for j in range(self.num_nodes)] for i in range(self.num_nodes)]
+
+    def set(self, topology: str, nodes: int, seed: int = None):
         '''set the traffix matrix for runner.py and main.py
+        Args:
+            topology (str): topology type
+            nodes (int): number of nodes
+            seed (int): a seed for traffic pattern
         '''
         if topology == 'as' and nodes == 20:
             self.as_20()
@@ -25,6 +33,8 @@ class TrafficMatrix:
             self.as_100()
         elif topology == 'line' and nodes == 2:
             self.line_2()
+        elif topology == 'bottleneck' and nodes == 20:
+            self.bottleneck_20(seed)
         else:
             raise Exception(f'{topology},{nodes} combination not supported')
 
@@ -51,17 +61,24 @@ class TrafficMatrix:
         self.matrix[3][9] = 0.2
         self.matrix[3][8] = 0.3
 
-    def bottleneck_20(self):
+    def bottleneck_20(self, seed: int):
         ''' For the bottleneck_20.json
             (7, 18) -- 25%
             (7, 19) -- 25%
             (8, 18) -- 25%
             (8, 19) -- 25%
         '''
-        self.matrix[7][18] = 0.25
-        self.matrix[7][19] = 0.25
-        self.matrix[8][18] = 0.25
-        self.matrix[8][19] = 0.25
+        self.set_matrix_to_zero()
+        if seed == 0:
+            self.matrix[0][11] = 0.25
+            self.matrix[0][12] = 0.25
+            self.matrix[1][11] = 0.25
+            self.matrix[1][12] = 0.25        
+        if seed == 1:
+            self.matrix[7][18] = 0.25
+            self.matrix[7][19] = 0.25
+            self.matrix[8][18] = 0.25
+            self.matrix[8][19] = 0.25
     
     def as_20(self):
         '''for autonomous system 20 nodes
@@ -132,15 +149,18 @@ class TrafficMatrix:
         return request_queue
 
 
-    def get_request_queue_tts(self, request_period: int, total_time: int, memo_size: int, fidelity: float, entanglement_number: int, seed: int = 0) -> list:
+    def get_request_queue_tts(self, request_queue: list, request_period: float, delta: float, start_time: float, end_time: float, memo_size: int, fidelity: float, entanglement_number: int, seed: int = 0) -> list:
         '''get a queue of requests, each request is represented by (src, dst, start_time, end_time, memo_size, fidelity, entanglement_number)
            the request are uniformly distributed, one after another
         
            This is for the time to serve metric
 
         Args:
+            queue: existing request queue. The new requests will be concatenated to this queue. Has impact on the request ID
             request_period: the time period (in seconds) for each request
-            total_time: the total time of all request
+            delta: time for EP pre-generation
+            start_time: the start time of the first request in the queue
+            end_time:   the end tme of the last request in the queue
             memo_size: the memory size for each request
             fidelity: the fidelity requirement for each request
             entanglement_number: the number of entanglement needed
@@ -148,27 +168,29 @@ class TrafficMatrix:
         Return:
             a list of requests, where each request is represented by a tuple (src name, dst name, start time, end time, memory size, fidelity)
         '''
+        assert delta < request_period
+
         src_dst_pairs, prob_list = self.matrix_to_prob_list()
         prob_accumulate = list(accumulate(prob_list))
         random.seed(seed)
 
-        delta = request_period / 10   # if request_period is 100ms, then the delta is 10ms, genearte some EPs with 10ms
-        assert request_period > delta
+        if request_queue:
+            request_id = request_queue[-1][0] + 1   # start from the ID from the last request of the paramater request_queue
+        else:
+            request_id = 0
 
-        request_id = 0
-        request_queue = []
-        cur_time = 0 # in seconds
-        while cur_time < total_time:
+        cur_time = start_time # in seconds
+        while cur_time < end_time:
             random_number = random.uniform(0, 1)
             index = bisect_left(prob_accumulate, random_number)
             src, dst = src_dst_pairs[index]
             src_name = f'router_{src}'
             dst_name = f'router_{dst}'
-            start_time = cur_time + delta
-            end_time = cur_time + request_period
-            if end_time <= total_time:
-                request_queue.append((request_id, src_name, dst_name, round(start_time * SECOND), round(end_time * SECOND), memo_size, fidelity, entanglement_number))
+            request_start_time = cur_time + delta
+            request_end_time = cur_time + request_period
+            if request_end_time <= end_time:
+                request_queue.append((request_id, src_name, dst_name, round(request_start_time * SECOND), round(request_end_time * SECOND), memo_size, fidelity, entanglement_number))
                 request_id += 1
-            cur_time = end_time
+            cur_time = request_end_time
 
         return request_queue
