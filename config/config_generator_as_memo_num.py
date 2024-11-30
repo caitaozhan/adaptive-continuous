@@ -25,9 +25,9 @@ random.seed(SEED)
 
 '''
 python config/config_generator_as_memo_num.py 20 0 1 1 10 1 0.0002 1 -d config -o as_20.json -s 10
-python config/draw_topo.py config/an_20.json -d config -f an_20
+python config/draw_topo.py config/as_20.json -d config -f as_20
 
-python config/config_generator_as_memo_num.py 100 0 1 1 10 1 0.0002 1 -d config -o as_100.json -s 200 -gf 0.99 -mf 0.99
+python config/config_generator_as_memo_num.py 200 0 1 1 10 1 0.0002 1 -d config -o as_200.json -s 110
 
 
 '''
@@ -130,14 +130,10 @@ def get_partition(graph, GROUP_NUM, node_memo_size):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('net_size', type=int,
-                    help="net_size (int) – Number of routers")
-parser.add_argument('seed', type=int,
-                    help="seed (int) – Indicator of random number generation state. ")
-parser.add_argument('group_n', type=int, help="group_n (int) - Number of "
-                                              "groups for parallel simulation")
-parser.add_argument('alpha', type=int,
-                    help="alpha for exponential distribution of flows")
+parser.add_argument('net_size', type=int, help="net_size (int) – Number of routers")
+parser.add_argument('seed', type=int, help="seed (int) – Indicator of random number generation state. ")
+parser.add_argument('group_n', type=int, help="group_n (int) - Number of groups for parallel simulation")
+parser.add_argument('alpha', type=int, help="alpha for exponential distribution of flows")
 parser = add_default_args(parser)
 args = parser.parse_args()
 
@@ -170,9 +166,15 @@ for src in graph.nodes:
 
 MAX_HOP = len(paths)
 TOTAL_FLOW_NUM = NET_SIZE
-FLOW_NUMS = [int(get_exp_dis_prob(i, i + 1, ALPHA) * TOTAL_FLOW_NUM) for i in
-             range(MAX_HOP)]
+# exponential distribution
+FLOW_NUMS = [int(get_exp_dis_prob(i, i + 1, ALPHA) * TOTAL_FLOW_NUM) for i in range(MAX_HOP)]
 FLOW_NUMS[-1] = TOTAL_FLOW_NUM - sum(FLOW_NUMS[:-1])
+
+# fixed hop
+# fixed_hop = 4
+# FLOW_NUMS = [0 for i in range(MAX_HOP)]
+# FLOW_NUMS[fixed_hop] = TOTAL_FLOW_NUM
+
 
 selected_paths = {}
 hops_counter = [0 for i in range(MAX_HOP)]
@@ -209,7 +211,7 @@ while unused_nodes:
     if unused_nodes:
         n2 = unused_nodes.pop()
     else:
-        samples = random.choice(list(range(NET_SIZE)), 2)
+        samples = random.choices(list(range(NET_SIZE)), k=2)
         if samples[0] != n1:
             n2 = samples[0]
         else:
@@ -256,12 +258,18 @@ output_dict[Topology.ALL_TEMPLATES] = \
         "adaptive_protocol": {
             "MemoryArray": {
                 "fidelity": 0.95,
-                "efficiency": 0.5,
-                "coherence_time": 1,
+                "efficiency": 0.6,
+                "coherence_time": 2,
                 "decoherence_errors": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333]
             },
             "adaptive_max_memory": 0,
-            "encoding_type": "single_heralded"
+            "encoding_type": "single_heralded",
+            "SingleHeraldedBSM": {
+                "detectors" :[
+                    {"efficiency": 0.95}, 
+                    {"efficiency": 0.95}
+                ]
+            }
         }
     }
 
@@ -332,15 +340,3 @@ for src in selected_paths:
             assert table[path[-1]] == path[i + 1]
         else:
             table[path[-1]] = path[i + 1]
-
-# visualization
-# r_f = lambda: random.randint(0,255)
-# colors = ['#%02X%02X%02X' % (r_f(),r_f(),r_f()) for _ in range(NET_SIZE)]
-# r_group = node_procs
-# color_map = [None] * NET_SIZE
-
-# for n in r_group:
-#     index = int(n.replace("router_", ""))
-#     color_map[index] = colors[r_group[n]]
-# nx.draw(graph, node_color=color_map)
-# plt.show()

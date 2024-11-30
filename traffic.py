@@ -6,7 +6,7 @@ from itertools import accumulate
 import random
 from bisect import bisect_left
 
-from sequence.constants import SECOND
+from sequence.constants import SECOND, EPSILON
 
 
 class TrafficMatrix:
@@ -31,6 +31,8 @@ class TrafficMatrix:
             self.as_20()
         elif topology == 'as' and nodes == 100:
             self.as_100()
+        elif topology == 'as' and nodes == 200:
+            self.as_200(seed)
         elif topology == 'line' and nodes == 2:
             self.line_2()
         elif topology == 'bottleneck' and nodes == 20:
@@ -97,6 +99,23 @@ class TrafficMatrix:
         self.matrix[48][54] = 1/6
         self.matrix[73][88] = 1/6
         self.matrix[53][85] = 1/6
+
+
+    def as_200(self, seed):
+        '''for autonomous system 100 nodes
+        '''
+        self.set_matrix_to_zero()
+        if seed == 0:
+            self.matrix[99][50]   = 1/4
+            self.matrix[148][154] = 1/4
+            self.matrix[189][49]  = 1/4
+            self.matrix[186][98]  = 1/4
+
+        if seed == 1:
+            self.matrix[176][195] = 1/4
+            self.matrix[199][181] = 1/4
+            self.matrix[79][82]   = 1/4
+            self.matrix[94][160]  = 1/4
 
 
     def matrix_to_prob_list(self) -> Tuple[List]:
@@ -188,7 +207,7 @@ class TrafficMatrix:
             dst_name = f'router_{dst}'
             request_start_time = cur_time + delta
             request_end_time = cur_time + request_period
-            if request_end_time <= end_time:
+            if request_end_time <= end_time + EPSILON:
                 request_queue.append((request_id, src_name, dst_name, round(request_start_time * SECOND), round(request_end_time * SECOND), memo_size, fidelity, entanglement_number))
                 request_id += 1
             cur_time = request_end_time

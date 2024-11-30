@@ -313,25 +313,23 @@ def main_11_28_24():
     tasks = []
 
     command = ['python', 'main.py']
-    base_args = ["-tp", "bottleneck", "-n", "20", "-t", "11", "-d", "log/11.28.24.bottleneck20"]
+    base_args = ["-tp", "bottleneck", "-n", "20", "-t", "11", "-d", "log/11.29.24.bottleneck20"]
 
-    memory_adaptive = [0, 5]
+    memory_adaptive = [0]
     seed = list(range(20))
 
     for ma in memory_adaptive:
         if ma == 0:
             for s in seed:
                 args = set_memory_adaptive(base_args, ma)
-                args = set_node_seed(args, s)
+                args = set_queue_seed(args, s)
                 tasks.append(command + args)
         else:
-            strategy = "freshest"
             for update in [False, True]:
                 for s in seed:
                     args = set_memory_adaptive(base_args, ma)
-                    args = set_node_seed(args, s)
+                    args = set_queue_seed(args, s)
                     args = set_purify(args)
-                    args = set_strategy(args, strategy)
                     if update:
                         args = set_update_prob(args)
                     tasks.append(command + args)
@@ -354,12 +352,12 @@ def main_11_28_24():
             ps = new_ps
 
 
-# for 100 node as topology
+# for 200 node as topology
 def main_11_29_24():
     tasks = []
 
     command = ['python', 'main.py']
-    base_args = ["-tp", "as", "-n", "100", "-t", "207", "-d", "log/11.8.24.1s"]
+    base_args = ["-tp", "as", "-n", "200", "-t", "21", "-d", "log/11.29.24.as200"]
 
     memory_adaptive = [0, 5]
     seed = list(range(20))
@@ -372,15 +370,13 @@ def main_11_29_24():
                 tasks.append(command + args)
         else:
             for update in [False, True]:
-                for pf in [False, True]:
-                    for s in seed:
-                        args = set_queue_seed(base_args, s)
-                        if update:
-                            args = set_update_prob(args)
-                        if pf:
-                            args = set_purify(args)
-                        args = set_memory_adaptive(args, ma)
-                        tasks.append(command + args)
+                for s in seed:
+                    args = set_memory_adaptive(base_args, ma)
+                    args = set_queue_seed(args, s)
+                    args = set_purify(args)
+                    if update:
+                        args = set_update_prob(args)
+                    tasks.append(command + args)
 
     parallel = 8
     ps = []       # processes current running
@@ -402,5 +398,6 @@ def main_11_29_24():
 
 if __name__ == '__main__':
     # main_11_27_24()
-    main_11_28_24()
+    # main_11_28_24()
+    main_11_29_24()
 
