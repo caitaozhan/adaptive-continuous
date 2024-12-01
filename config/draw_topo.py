@@ -57,7 +57,7 @@ for node_type in node_types:
                 g.node(node.name, shape='rectangle')
     else:
         for node in topo.get_nodes_by_type(node_type):
-            g.node(node.name)
+            g.node(node.name, label='', style='filled')
 
 if draw_middle:
     # draw the middle BSM node
@@ -73,7 +73,7 @@ else:
     qconnections = set()
     for bsm, nodes in bsm_to_node.items():
         assert len(nodes) == 2, f'{bsm} connects to {len(nodes)} number of nodes (should be 2)'
-        g.edge(nodes[0], nodes[1], color='blue')
+        g.edge(nodes[0], nodes[1], color='blue', penwidth='2')
 
 
 g.view(directory=directory, filename=filename)
