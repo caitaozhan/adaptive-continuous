@@ -357,7 +357,7 @@ def main_11_29_24():
     tasks = []
 
     command = ['python', 'main.py']
-    base_args = ["-tp", "as", "-n", "200", "-t", "21", "-d", "log/11.29.24.as200"]
+    base_args = ["-tp", "as", "-n", "200", "-t", "21", "-d", "log/12.15.24.as200"]
 
     memory_adaptive = [0, 5]
     seed = list(range(20))

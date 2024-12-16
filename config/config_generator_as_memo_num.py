@@ -27,7 +27,7 @@ random.seed(SEED)
 python config/config_generator_as_memo_num.py 20 0 1 1 10 1 0.0002 1 -d config -o as_20.json -s 10
 python config/draw_topo.py config/as_20.json -d config -f as_20
 
-python config/config_generator_as_memo_num.py 200 0 1 1 10 1 0.0002 1 -d config -o as_200.json -s 110
+python config/config_generator_as_memo_num.py 200 0 1 1 10 10 0.0002 1 -d config -o as_200.json -s 110
 
 
 '''

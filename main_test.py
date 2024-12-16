@@ -27,7 +27,7 @@ def linear_entanglement_generation(verbose=False):
     # level = logging.DEBUG
     # logging.basicConfig(level=level, filename='', filemode='w')
     
-    network_config = 'config/line_2.json'
+    network_config = 'config/line_2_bk.json'
     # network_config = 'config/random_5.json'
     network_topo = RouterNetTopo(network_config)
     tl = network_topo.get_timeline()
@@ -756,11 +756,11 @@ def app_100_node_as_request2_queue():
 
 if __name__ == '__main__':
     verbose = True
-    # linear_entanglement_generation(verbose)
+    linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
     # app_2_node_linear_adaptive(verbose)
-    app_2_node_line_request2_queue()
+    # app_2_node_line_request2_queue()
 
     # app_5_node_linear_adaptive(verbose)
     # app_5_node_line_request2_queue()

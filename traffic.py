@@ -81,6 +81,8 @@ class TrafficMatrix:
             self.matrix[7][19] = 0.25
             self.matrix[8][18] = 0.25
             self.matrix[8][19] = 0.25
+        if seed == 2:
+            self.matrix[0][11] = 1
     
     def as_20(self):
         '''for autonomous system 20 nodes
@@ -110,12 +112,14 @@ class TrafficMatrix:
             self.matrix[148][154] = 1/4
             self.matrix[189][49]  = 1/4
             self.matrix[186][98]  = 1/4
-
         if seed == 1:
             self.matrix[176][195] = 1/4
             self.matrix[199][181] = 1/4
             self.matrix[79][82]   = 1/4
             self.matrix[94][160]  = 1/4
+        if seed == 2:
+            self.matrix[99][50]   = 1
+            
 
 
     def matrix_to_prob_list(self) -> Tuple[List]:

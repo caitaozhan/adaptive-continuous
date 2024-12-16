@@ -76,14 +76,14 @@ def main():
         bsm_node.set_seed(bsm_node.get_seed() + node_seed)
 
     traffic_matrix = TrafficMatrix(node)
+    request_queue = []
     
     # for the line2 toplogy
     # traffic_matrix = TrafficMatrix(node)
     # traffic_matrix.set(topology, node)
-    # request_queue = traffic_matrix.get_request_queue_tts(request_period=REQUEST_PERIOD, total_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
+    # request_queue = traffic_matrix.get_request_queue_tts(request_queue=request_queue, request_period=REQUEST_PERIOD, delta=DELTA, start_time=0, end_time=time, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
 
     # for bottleneck and AS topology, update the traffic patter in at half time
-    request_queue = []
     traffic_matrix.set(topology, node, seed=0)
     traffic_matrix.get_request_queue_tts(request_queue=request_queue, request_period=REQUEST_PERIOD, delta=DELTA, start_time=0,      end_time=time/2, memo_size=1, fidelity=0.01, entanglement_number=1, seed=queue_seed)
     traffic_matrix.set(topology, node, seed=1)
