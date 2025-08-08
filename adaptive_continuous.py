@@ -219,14 +219,14 @@ class AdaptiveContinuousProtocol(Protocol):
         return neighbor
 
 
-    def received_message(self, src: str, msg: ACMsgType) -> None:
+    def received_message(self, src: str, msg: AdaptiveContinuousMessage) -> None:
         '''override Protocol.received_message, method to receive AC Messages.
 
         Message come in 2 types, as detailed in the `ACMsgType` class
 
         Args:
             scr (str): name of the node that sent the message
-            msg (ACMsgType): message received
+            msg (AdaptiveContinuousMessage): message received
         '''
         log.logger.debug('{} receive message from {}: {}'.format(self.owner.name, src, msg))
 
