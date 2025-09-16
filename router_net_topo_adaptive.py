@@ -47,7 +47,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             self.nodes[node_type].append(node_obj)
 
         if self.encoding_type == "single_heralded":
-            self.tl.set_quantum_manager(BELL_DIAGONAL_STATE_FORMALISM)
+            self.tl.quantum_manager.set_global_manager_formalism(BELL_DIAGONAL_STATE_FORMALISM)
 
 
     def _generate_forwarding_table(self, config: dict):

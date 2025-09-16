@@ -3,8 +3,6 @@ Implement the paper titled "Adaptive, Continuous Entanglement Generation for Qua
 in SeQUeNCe and conduct experiments with a large number of nodes.
 '''
 
-import logging
-import argparse
 from collections import defaultdict
 import numpy as np
 from sequence.topology.router_net_topo import RouterNetTopo
@@ -756,7 +754,7 @@ def app_100_node_as_request2_queue():
 
 if __name__ == '__main__':
     verbose = True
-    linear_entanglement_generation(verbose)
+    # linear_entanglement_generation(verbose)
     # linear_swapping(verbose)
     # linear_adaptive(verbose)
     # app_2_node_linear_adaptive(verbose)
@@ -768,7 +766,7 @@ if __name__ == '__main__':
     # app_5_node_star_adaptive(verbose)
     # app_10_node_bottleneck_adaptive(verbose)
     # app_10_node_bottleneck_request_queue()
-    # app_10_node_bottleneck_request2_queue()
+    app_10_node_bottleneck_request2_queue()
     # app_20_node_as_request2_queue()
     # app_100_node_as_request2_queue()
 

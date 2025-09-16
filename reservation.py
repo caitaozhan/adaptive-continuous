@@ -15,7 +15,7 @@ from generation import EntanglementGenerationAadaptive, ShEntanglementGeneration
 from swapping import EntanglementSwappingA_bds, EntanglementSwappingB_bds
 from sequence.entanglement_management.swapping import EntanglementSwappingA, EntanglementSwappingB
 from purification import BBPSSW_bds
-from sequence.entanglement_management.purification import BBPSSW
+from sequence.entanglement_management.purification.bbpssw_circuit import BBPSSWCircuit
 
 if TYPE_CHECKING:
     from node import QuantumRouterAdaptive
@@ -90,14 +90,14 @@ def eg_req_func_adaptive(protocols: List["EntanglementProtocol"], args: Argument
 
 # 2. entanglement purification #
 
-def ep_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSW | BBPSSW_bds, List[str], List["ep_req_func1_adaptive"], List[Dict]]:
+def ep_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSWCircuit | BBPSSW_bds, List[str], List["ep_req_func1_adaptive"], List[Dict]]:
     """Action function used by BBPSSW protocol on nodes except the initiator node
     """
     encoding_type=args["encoding_type"]
     memories = [info.memory for info in memories_info]
     if encoding_type == "single_atom":
         name = "EP.%s.%s" % (memories[0].name, memories[1].name)
-        protocol = BBPSSW(None, name, memories[0], memories[1])
+        protocol = BBPSSWCircuit(None, name, memories[0], memories[1])
     elif encoding_type == "single_heralded":
         name = "EP_bds.%s.%s" % (memories[0].name, memories[1].name)
         protocol = BBPSSW_bds(None, name, memories[0], memories[1])
@@ -108,21 +108,21 @@ def ep_rule_action1_adaptive(memories_info: List["MemoryInfo"], args: Arguments)
     return protocol, dsts, req_funcs, req_args
 
 
-def ep_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSW | BBPSSW_bds, List[None], List[None], List[None]]:
+def ep_rule_action2_adaptive(memories_info: List["MemoryInfo"], args: Arguments) -> Tuple[BBPSSWCircuit | BBPSSW_bds, List[None], List[None], List[None]]:
     """Action function used by BBPSSW protocol on nodes except the responder node
     """
     encoding_type = args['encoding_type']
     memories = [info.memory for info in memories_info]
     if encoding_type == "single_atom":
         name = "EP.%s" % memories[0].name
-        protocol = BBPSSW(None, name, memories[0], None)
+        protocol = BBPSSWCircuit(None, name, memories[0], None)
     elif encoding_type == "single_heralded":
         name = "EP_bds.%s" % memories[0].name
         protocol = BBPSSW_bds(None, name, memories[0], None)
     return protocol, [None], [None], [None]
 
 
-def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSW | BBPSSW_bds:
+def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSWCircuit | BBPSSW_bds:
     """Function used by `ep_rule_action1` for selecting purification protocols on the remote node
        Will "combine" two BBPSSW into one BBPSSW
 
@@ -137,7 +137,7 @@ def ep_req_func1_adaptive(protocols, args: Arguments) -> BBPSSW | BBPSSW_bds:
 
     _protocols = []
     for protocol in protocols:
-        if not (isinstance(protocol, BBPSSW) or isinstance(protocol, BBPSSW_bds)):
+        if not (isinstance(protocol, BBPSSWCircuit) or isinstance(protocol, BBPSSW_bds)):
             continue
 
         if protocol.kept_memo.name == remote0:
