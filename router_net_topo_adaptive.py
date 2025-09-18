@@ -4,9 +4,8 @@
 from networkx import Graph, single_source_dijkstra, exception
 from sequence.topology.topology import Topology as Topo
 from sequence.topology.router_net_topo import RouterNetTopo
-from sequence.kernel.timeline import Timeline
-from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
-from sequence.constants import SPEED_OF_LIGHT, MICROSECOND
+from sequence.kernel.quantum_manager import QuantumManager
+from sequence.constants import SPEED_OF_LIGHT, MICROSECOND, BELL_DIAGONAL_STATE_FORMALISM
 
 from node import QuantumRouterAdaptive, BSMNodeAdaptive
 
@@ -29,7 +28,9 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             component_templates = self.templates.get(template_name, {})
             if self.encoding_type is None:
                 self.encoding_type = component_templates.get('encoding_type', 'single_atom')
-
+                if self.encoding_type == "single_heralded":
+                    QuantumManager.set_global_manager_formalism(BELL_DIAGONAL_STATE_FORMALISM)
+                    self.tl.quantum_manager = QuantumManager.create(truncation=1)
             if node_type == self.BSM_NODE:
                 others = self.bsm_to_router_map[name]
                 seed = node.get(self.SEED, 0)
@@ -46,8 +47,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
             node_obj.set_seed(seed)
             self.nodes[node_type].append(node_obj)
 
-        if self.encoding_type == "single_heralded":
-            self.tl.quantum_manager.set_global_manager_formalism(BELL_DIAGONAL_STATE_FORMALISM)
+
 
 
     def _generate_forwarding_table(self, config: dict):
