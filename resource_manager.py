@@ -511,22 +511,6 @@ class ResourceManagerAdaptive(ResourceManager):
         for rule in rules:
             rule.set_reservation(reservation)
         
-        return rules
-
-
-    def load_rules_adaptive(self, rules: List[Rule], reservation: ReservationAdaptive):
-        """Method to add AC protocol created rules (EntanglementGeneration only) to resource manager.
-
-        This method will schedule the resource manager to load all rules at the reservation start time.
-        The rules will be set to expire at the reservation end time.
-
-        Args:
-            rules (List[Rules]): rules to add.
-            reservation (Reservation): reservation that created the rules.
-        """
-
-        self.accepted_reservations.append(reservation)
-
         for rule in rules:
             process = Process(self.owner.resource_manager, "load", [rule])
             event = Event(reservation.start_time, process, self.owner.timeline.schedule_counter)
