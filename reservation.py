@@ -90,11 +90,10 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
             path = [qcap.node for qcap in msg.qcaps]
             if self.schedule(msg.reservation):   # schedule success
                 if self.owner.name == msg.reservation.responder: # this node is the responder
-                    rules = self.create_rules_request(path, reservation=msg.reservation)
-                    self.load_rules(rules, msg.reservation)
+                    self.accepted_reservations.append(msg.reservation)
                     msg.reservation.set_path(path)
                     new_msg = ResourceReservationMessage(RSVPMsgType.APPROVE, self.name, msg.reservation, path=path)
-                    self._pop(msg=msg)
+                    self._pop(msg=new_msg)
                     self._push(dst=None, msg=new_msg, next_hop=src)
                 else:                                            # this node is an intermediate node (not responder)
                     self._push(dst=msg.reservation.responder, msg=msg)
@@ -110,11 +109,9 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 next_hop = self.next_hop_when_tracing_back(msg.path)
                 self._push(dst=None, msg=msg, next_hop=next_hop)
         elif msg.msg_type == RSVPMsgType.APPROVE:
-            rules = self.create_rules_request(msg.path, msg.reservation)
-            self.load_rules(rules, msg.reservation)
-            if msg.reservation.initiator == self.owner.name:
-                self._pop(msg=msg)
-            else:
+            self.accepted_reservations.append(msg.reservation)
+            self._pop(msg=msg)
+            if msg.reservation.initiator != self.owner.name:
                 next_hop = self.next_hop_when_tracing_back(msg.path)
                 self._push(dst=None, msg=msg, next_hop=next_hop)
         else:
