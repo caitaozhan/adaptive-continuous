@@ -465,6 +465,28 @@ class ResourceManagerAdaptive(ResourceManager):
         for rule in rule_to_expire:
             self.expire(rule)
 
+    def generate_load_rules(self, path: list[str], reservation: Reservation, timecards: list[MemoryTimeCard], memory_array_name: str):
+        """Override parent to delegate rule creation to the adaptive RSVP.
+        """
+        rules = self.create_rules_request(path, reservation, timecards)
+
+        for rule in rules:
+            process = Process(self.owner.resource_manager, "load", [rule])
+            event = Event(reservation.start_time, process, self.owner.timeline.schedule_counter)
+            self.owner.timeline.schedule(event)
+
+            process = Process(self.owner.resource_manager, "expire", [rule])
+            event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
+            self.owner.timeline.schedule(event)
+
+        for card in timecards:
+            if reservation in card.reservations:
+                process = Process(self.owner.resource_manager, "update",
+                                    [None, self.owner.components[memory_array_name][card.memory_index], "RAW"])
+                event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
+                self.owner.timeline.schedule(event)
+
+
     def create_rules_adaptive(self, path: list, reservation: ReservationAdaptive, timecards: list[MemoryTimeCard]) -> List["Rule"]:
         """Method to create rules for entanglement generation (only) for a successful AC protocol's request.
 
