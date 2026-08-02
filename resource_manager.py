@@ -623,14 +623,14 @@ class ResourceManagerAdaptive(ResourceManager):
         if index == 0:                 # initiator
             condition_args = {"memory_indices": memory_indices, "target_remote": path[-1], "fidelity": reservation.fidelity}
             action_args = {"encoding_type": "single_heralded"}
-            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB1, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB2, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
         elif index == len(path) - 1:   # responder
             action_args = {"encoding_type": "single_heralded"}
             condition_args = {"memory_indices": memory_indices, "target_remote": path[0], "fidelity": reservation.fidelity}
-            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB1, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB2, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
@@ -652,7 +652,7 @@ class ResourceManagerAdaptive(ResourceManager):
             priority += 1
 
             action_args = {"encoding_type": "single_heralded"}
-            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB2, action_args, condition_args)
+            rule = Rule(priority, es_rule_actionB_adaptive, es_rule_conditionB1, action_args, condition_args)
             rules.append(rule)
             priority += 1
 
