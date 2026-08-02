@@ -188,7 +188,7 @@ class AdaptiveContinuousProtocol(Protocol):
         '''initialize the probability table computed from the static routing protocols' forwarding table
         '''
         probability_table = {}
-        forwarding_table = self.owner.network_manager.protocol_stack[0].get_forwarding_table()
+        forwarding_table = self.owner.network_manager.get_forwarding_table()
         neighbors = []
         for dst, next_hop in forwarding_table.items():
             if dst == next_hop:  # it is a neighbor when the destination equals the next hop in the forwarding table
@@ -240,8 +240,8 @@ class AdaptiveContinuousProtocol(Protocol):
                     log.logger.debug(f'{self.owner.name} adaptive_memory_used is increased from {self.adaptive_memory_used} to {self.adaptive_memory_used + 1}')
                     self.adaptive_memory_used += 1
                     path = [src, self.owner.name]  # path only has two nodes
-                    rules = self.resource_reservation.create_rules_adaptive(path, reservation)
-                    self.resource_reservation.load_rules_adaptive(rules, reservation)
+                    resource_manager = self.get_resource_manager()
+                    resource_manager.create_rules_adaptive(path, reservation, self.resource_reservation.timecards)
                     reservation.set_path(path)
                     new_msg = AdaptiveContinuousMessage(ACMsgType.RESPOND, msg.reservation, answer=True, path=path)
                 else:                                                  # no available quantum memory
@@ -255,8 +255,8 @@ class AdaptiveContinuousProtocol(Protocol):
                 log.logger.debug(f'{self.owner.name} not going to establish entanglement link {self.owner.name}-{src}; adaptive_memory_used is decreased from {self.adaptive_memory_used} to {self.adaptive_memory_used - 1}')
                 self.adaptive_memory_used -= 1
             else:                             # neighbor has available memory
-                rules = self.resource_reservation.create_rules_adaptive(msg.path, msg.reservation)
-                self.resource_reservation.load_rules_adaptive(rules, msg.reservation)
+                resource_manager = self.get_resource_manager()
+                resource_manager.create_rules_adaptive(msg.path, msg.reservation, self.resource_reservation.timecards)
                 log.logger.info(f'{self.owner.name} attempting to establish entanglement link {self.owner.name}-{src}')
             self.start_delay(delay = self.delay_remote_response)
         
