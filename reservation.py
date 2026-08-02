@@ -3,11 +3,10 @@
 
 from typing import TYPE_CHECKING, List, Tuple, Dict, Any
 from sequence.network_management.reservation import Reservation
-from sequence.network_management.rsvp import RSVPMsgType, RSVPProtocol as ResourceReservationProtocol,RSVPMessage as ResourceReservationMessage, QCap
-from sequence.resource_management.rule_manager import Rule
-# from sequence.network_management.reservation import 
+from sequence.network_management.rsvp import RSVPMsgType, RSVPProtocol, RSVPMessage, QCap
 from sequence.kernel.event import Event
 from sequence.kernel.process import Process
+from sequence.resource_management.rule_manager import Rule
 from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.resource_management.rule_manager import Arguments
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol

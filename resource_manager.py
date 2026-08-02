@@ -3,19 +3,19 @@
 
 from typing import TYPE_CHECKING, Optional, List, Dict, Any, Tuple
 
-from sequence.resource_management.resource_manager import ResourceManager
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 from sequence.entanglement_management.purification.bbpssw_circuit import BBPSSWCircuit
 from sequence.entanglement_management.swapping import EntanglementSwappingA, EntanglementSwappingB
 from sequence.components.memory import Memory
-from sequence.resource_management.memory_manager import MemoryInfo
 from sequence.utils import log
 from sequence.network_management.reservation import Reservation
 from sequence.network_management.memory_timecard import MemoryTimeCard
-from sequence.resource_management.rule_manager import Arguments
-from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
 from sequence.kernel.process import Process
 from sequence.kernel.event import Event
+from sequence.resource_management.resource_manager import ResourceManager
+from sequence.resource_management.memory_manager import MemoryInfo
+from sequence.resource_management.rule_manager import Arguments
+from sequence.resource_management.resource_manager import RequestConditionFunc, ResourceManagerMsgType, ResourceManagerMessage
 from sequence.resource_management.rule_manager import Rule
 from sequence.resource_management.action_condition_set import eg_rule_condition, ep_rule_condition_request as ep_rule_condition1, ep_rule_condition_await as ep_rule_condition2, es_rule_condition_B as es_rule_conditionB1, es_rule_condition_A as es_rule_conditionA, es_rule_condition_B_end as es_rule_conditionB2
 
