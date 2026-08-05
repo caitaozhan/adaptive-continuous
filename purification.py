@@ -15,7 +15,7 @@ from sequence.topology.node import Node
 from sequence.message import Message
 from sequence.entanglement_management.entanglement_protocol import EntanglementProtocol
 from sequence.utils import log
-from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
+from sequence.constants import BELL_DIAGONAL_STATE_FORMALISM
 
 
 class BBPSSWMsgType(Enum):
@@ -242,7 +242,7 @@ class BBPSSW_bds(EntanglementProtocol):
             float:
         """
 
-        assert self.owner.timeline.quantum_manager.formalism == BELL_DIAGONAL_STATE_FORMALISM, \
+        assert self.owner.timeline.quantum_manager.get_active_formalism() == BELL_DIAGONAL_STATE_FORMALISM, \
             "Input states should be Bell diagonal states."
 
         kept_input_state = self.owner.timeline.quantum_manager.get(self.kept_memo.qstate_key)

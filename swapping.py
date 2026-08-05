@@ -18,7 +18,7 @@ from sequence.components.memory import Memory
 from sequence.utils import log
 from sequence.entanglement_management.swapping import SwappingMsgType, EntanglementSwappingMessage
 from sequence.message import Message
-from sequence.kernel.quantum_manager import BELL_DIAGONAL_STATE_FORMALISM
+from sequence.constants import BELL_DIAGONAL_STATE_FORMALISM
 
 
 class EntanglementSwappingA_bds(EntanglementProtocol):

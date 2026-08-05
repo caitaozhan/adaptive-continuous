@@ -30,7 +30,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
                 self.encoding_type = component_templates.get('encoding_type', 'single_atom')
                 if self.encoding_type == "single_heralded":
                     QuantumManager.set_global_manager_formalism(BELL_DIAGONAL_STATE_FORMALISM)
-                    self.tl.quantum_manager = QuantumManager.create(truncation=1)
+                    self.tl.quantum_manager = QuantumManager.create()
             if node_type == self.BSM_NODE:
                 others = self.bsm_to_router_map[name]
                 seed = node.get(self.SEED, 0)
@@ -98,7 +98,7 @@ class RouterNetTopoAdaptive(RouterNetTopo):
                     next_hop = path[1]
                     # routing protocol locates at the bottom of the stack
                     routing_protocol = src.network_manager.routing_protocol
-                    routing_protocol.add_forwarding_rule(dst_name, next_hop)
+                    routing_protocol.update_forwarding_rule(dst_name, next_hop)
                 except exception.NetworkXNoPath:
                     pass
         
