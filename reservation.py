@@ -54,7 +54,7 @@ class ReservationAdaptive(Reservation):
 
 
 
-class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
+class ResourceReservationProtocolAdaptive(RSVPProtocol):
     '''ReservationProtocol for node resources customized for adaptive-continuous protocol
     '''
 
@@ -62,7 +62,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
         super().__init__(owner, name, memory_array_name)
 
 
-    def pop(self, src: str, msg: "ResourceReservationMessage"):
+    def pop(self, src: str, msg: "RSVPMessage"):
         """Method to receive messages from lower protocols.
 
         Messages may be of 3 types, causing different network manager behavior:
@@ -73,7 +73,7 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
 
         Args:
             src (str): source node of the message.
-            msg (ResourceReservationMessage): message received.
+            msg (RSVPMessage): message received.
         
         Side Effects:
             May push/pop to lower/upper attached protocols (or network manager).
@@ -91,13 +91,13 @@ class ResourceReservationProtocolAdaptive(ResourceReservationProtocol):
                 if self.owner.name == msg.reservation.responder: # this node is the responder
                     self.accepted_reservations.append(msg.reservation)
                     msg.reservation.set_path(path)
-                    new_msg = ResourceReservationMessage(RSVPMsgType.APPROVE, self.name, msg.reservation, path=path)
+                    new_msg = RSVPMessage(RSVPMsgType.APPROVE, self.name, msg.reservation, path=path)
                     self._pop(msg=new_msg)
                     self._push(dst=None, msg=new_msg, next_hop=src)
                 else:                                            # this node is an intermediate node (not responder)
                     self._push(dst=msg.reservation.responder, msg=msg)
             else:                                # schedule failed
-                new_msg = ResourceReservationMessage(RSVPMsgType.REJECT, self.name, msg.reservation, path=path)
+                new_msg = RSVPMessage(RSVPMsgType.REJECT, self.name, msg.reservation, path=path)
                 self._push(dst=None, msg=new_msg, next_hop=src)
         elif msg.msg_type == RSVPMsgType.REJECT:
             for card in self.timecards:
