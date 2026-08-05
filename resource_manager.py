@@ -542,13 +542,14 @@ class ResourceManagerAdaptive(ResourceManager):
             event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
             self.owner.timeline.schedule(event)
 
+        memo_arr = self.owner.components[self.owner.memo_arr_name]
         for card in timecards:
             if reservation in card.reservations:
-                process = Process(self.owner.resource_manager, "update", [None, self.memo_arr[card.memory_index], "RAW"]) # update memory to RAW
+                process = Process(self.owner.resource_manager, "update", [None, memo_arr[card.memory_index], "RAW"]) # update memory to RAW
                 event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
                 self.owner.timeline.schedule(event)
 
-                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [self.memo_arr[card.memory_index]])
+                process = Process(self.owner.adaptive_continuous, "adaptive_memory_used_minus_one", [memo_arr[card.memory_index]])
                 event = Event(reservation.end_time, process, self.owner.timeline.schedule_counter)
                 self.owner.timeline.schedule(event)
 
