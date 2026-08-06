@@ -14,7 +14,7 @@ Optional Args:
     -o --output (str): name of the output file (default random.json).
     -s --stop (float): simulation stop time (in s) (default infinity).
 
-python config/generate_config_random.py 10 10 10 0.0002 1 -o random_10.json -s 10
+python config/config_generator_random.py 10 10 10 0.0002 1 -o random_10.json -s 10
 """
 
 import argparse
