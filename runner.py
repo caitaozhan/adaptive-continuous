@@ -397,8 +397,7 @@ def main_11_29_24():
 
 
 # for 20 node bottleneck topology
-def main_():
-
+def main_08_06_26():
     tasks = []
 
     command = ['python', 'main.py']
@@ -422,6 +421,54 @@ def main_():
                     if update:
                         args = set_update_prob(args)
                     tasks.append(command + args)
+
+    parallel = 8
+    ps = []       # processes current running
+    while len(tasks) > 0 or len(ps) > 0:
+        if len(ps) < parallel and len(tasks) > 0:
+            task = tasks.pop(0)
+            print(task, f'{len(tasks)} still in queue')
+            ps.append(Popen(task, stdout=PIPE, stderr=PIPE))
+        else:
+            time.sleep(0.05)
+            new_ps = []
+            for p in ps:
+                if p.poll() is None:
+                    new_ps.append(p)
+                else:
+                    get_output(p)
+            ps = new_ps
+
+
+# for 2 node line topology
+def main_08_06_26_line2():
+
+    tasks = []
+
+    command = ['python', 'main.py']
+    base_args = ["-tp", "line", "-n", "2", "-t", "10.7", "-d", "log/08.06.26.line2"]
+
+    memory_adaptive = [0, 5]
+    seed = list(range(20))
+
+    for ma in memory_adaptive:
+        if ma == 0:
+            for s in seed:
+                args = set_memory_adaptive(base_args, ma)
+                args = set_node_seed(args, s)
+                tasks.append(command + args)
+        else:
+            for strategy in ['random', 'freshest']:
+                for pf in [False, True]:
+                    if strategy == 'random' and pf == True:
+                        continue
+                    for s in seed:
+                        args = set_strategy(base_args, strategy)
+                        args = set_memory_adaptive(args, ma)
+                        args = set_node_seed(args, s)
+                        if pf:
+                            args = set_purify(args)
+                        tasks.append(command + args)
 
     parallel = 8
     ps = []       # processes current running
