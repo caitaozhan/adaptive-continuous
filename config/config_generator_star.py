@@ -11,127 +11,112 @@ Args:
     cc_delay (float): classical channel delay (in ms).
 
 Optional Args:
-    -d --directory (str): name of the output directory (default tmp)
-    -o --output (str): name of the output file (default out.json).
+    -d --directory (str): name of the output directory (default config).
+    -o --output (str): name of the output file (default star.json).
     -s --stop (float): simulation stop time (in s) (default infinity).
-    -p --parallel: sets simulation as parallel and requires addition args:
-        server ip (str): IP address of quantum manager server.
-        server port (int): port quantum manager server is attached to.
-        num. processes (int): number of processes to use for simulation.
-        sync/async (bool): denotes if timelines should be synchronous (true) or not (false).
-        lookahead (int): simulation lookahead time for timelines (in ps).
-    -n --nodes (str): path to csv file providing process information for nodes.
+
+python config/config_generator_star.py 5 20 10 1 0.0002 1 -o star_5.json -s 10
 """
 
 import argparse
 import json
 import os
 
-from sequence.utils.config_generator import add_default_args, get_node_csv, generate_node_procs, generate_nodes, generate_classical, final_config, router_name_func
+from sequence.constants import SECOND
 from sequence.topology.topology import Topology
 from sequence.topology.router_net_topo import RouterNetTopo
 
 
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('star_size', type=int, help='number of non-center network nodes')
+    parser.add_argument('memo_size_center', type=int, help='number of memories on center node')
+    parser.add_argument('memo_size', type=int, help='number of memories per node')
+    parser.add_argument('qc_length', type=float, help='distance between nodes (in km)')
+    parser.add_argument('qc_atten', type=float, help='quantum channel attenuation (in dB/m)')
+    parser.add_argument('cc_delay', type=float, help='classical channel delay (in ms)')
+    parser.add_argument('-d', '--directory', type=str, default='config', help='name of output directory')
+    parser.add_argument('-o', '--output', type=str, default='star.json', help='name of output config file')
+    parser.add_argument('-s', '--stop', type=float, default=float('inf'), help='stop time (in s)')
+    args = parser.parse_args()
 
-# parse args
-parser = argparse.ArgumentParser()
-parser.add_argument('star_size', type=int, help='number of non-center network nodes')
-parser.add_argument('memo_size_center', type=int, help='number of memories on center node')
-parser = add_default_args(parser)
-args = parser.parse_args()
-
-output_dict = {}
-
-# templates
-output_dict[Topology.ALL_TEMPLATES] = \
-    {
-        "perfect_memo": {
-            "MemoryArray": {
-                "fidelity": 1.0,
-                "efficiency": 1.0
-            }
-        },
-        "adaptive_protocol": {
+    templates = {
+        "router_template": {
             "MemoryArray": {
                 "fidelity": 0.98,
                 "efficiency": 0.5
             },
             "adaptive_max_memory": 2
+        },
+        "bsm_template": {
+            "encoding_type": "single_heralded",
+            "SingleHeraldedBSM": {
+                "detectors": [
+                    {"efficiency": 0.95},
+                    {"efficiency": 0.95}
+                ]
+            }
         }
     }
 
-# get csv file (if present) and node names
-if args.nodes:
-    node_procs = get_node_csv(args.nodes)
-    # assume center node is last listed
-    center_name = list(node_procs.keys())[-1]
-else:
-    node_procs = generate_node_procs(args.parallel, args.star_size+1, router_name_func)
-    # rename center router
     center_name = "router_center"
-    proc = node_procs[router_name_func(args.star_size)]
-    del node_procs[router_name_func(args.star_size)]
-    node_procs[center_name] = proc
-router_names = list(node_procs.keys())
+    router_names = [f"router_{i}" for i in range(args.star_size)] + [center_name]
 
-# generate nodes, with middle having different num
-template = 'adaptive_protocol'
-nodes = generate_nodes(node_procs, router_names, args.memo_size, template)
-for node in nodes:
-    if node[Topology.NAME] == center_name:
-        node[RouterNetTopo.MEMO_ARRAY_SIZE] = args.memo_size_center
-        break
+    nodes = []
+    for i, name in enumerate(router_names):
+        config = {Topology.NAME: name,
+                  Topology.TYPE: RouterNetTopo.QUANTUM_ROUTER,
+                  Topology.SEED: i,
+                  RouterNetTopo.MEMO_ARRAY_SIZE: args.memo_size,
+                  RouterNetTopo.TEMPLATE: "router_template"}
+        if name == center_name:
+            config[RouterNetTopo.MEMO_ARRAY_SIZE] = args.memo_size_center
+        nodes.append(config)
 
-# generate quantum links
-qchannels = []
-cchannels = []
-bsm_names = ["BSM_" + str(i) for i in range(args.star_size)]
-bsm_nodes = [{Topology.NAME: bsm_name,
-              Topology.TYPE: RouterNetTopo.BSM_NODE,
-              Topology.SEED: i}
-              for i, bsm_name in enumerate(bsm_names)]
-if args.parallel:
-    for i in range(args.star_size):
-        bsm_nodes[i][RouterNetTopo.GROUP] = nodes[i][RouterNetTopo.GROUP]
+    bsm_names = [f"BSM_{i}" for i in range(args.star_size)]
+    bsm_nodes = [{Topology.NAME: bsm_name,
+                  Topology.TYPE: RouterNetTopo.BSM_NODE,
+                  Topology.SEED: i,
+                  RouterNetTopo.TEMPLATE: "bsm_template"}
+                 for i, bsm_name in enumerate(bsm_names)]
 
-for node_name, bsm_name in zip(router_names, bsm_names):
-    # qchannels
-    qchannels.append({Topology.SRC: node_name,
-                      Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
-                      Topology.ATTENUATION: args.qc_atten})
-    qchannels.append({Topology.SRC: center_name,
-                      Topology.DST: bsm_name,
-                      Topology.DISTANCE: args.qc_length * 500,
-                      Topology.ATTENUATION: args.qc_atten})
-    # cchannels
-    cchannels.append({Topology.SRC: node_name,
-                      Topology.DST: bsm_name,
-                      Topology.DELAY: args.cc_delay * 1e9})
-    cchannels.append({Topology.SRC: center_name,
-                      Topology.DST: bsm_name,
-                      Topology.DELAY: args.cc_delay * 1e9})
-    cchannels.append({Topology.SRC: bsm_name,
-                      Topology.DST: node_name,
-                      Topology.DELAY: args.cc_delay * 1e9})
-    cchannels.append({Topology.SRC: bsm_name,
-                      Topology.DST: center_name,
-                      Topology.DELAY: args.cc_delay * 1e9})
+    qchannels = []
+    cchannels = []
+    for node_name, bsm_name in zip(router_names[:-1], bsm_names):
+        qchannels.append({Topology.SRC: node_name,
+                          Topology.DST: bsm_name,
+                          Topology.DISTANCE: args.qc_length * 500,
+                          Topology.ATTENUATION: args.qc_atten})
+        qchannels.append({Topology.SRC: center_name,
+                          Topology.DST: bsm_name,
+                          Topology.DISTANCE: args.qc_length * 500,
+                          Topology.ATTENUATION: args.qc_atten})
+        for node in [node_name, center_name]:
+            cchannels.append({Topology.SRC: node,
+                              Topology.DST: bsm_name,
+                              Topology.DELAY: args.cc_delay * 1e9})
+            cchannels.append({Topology.SRC: bsm_name,
+                              Topology.DST: node,
+                              Topology.DELAY: args.cc_delay * 1e9})
 
-output_dict[Topology.ALL_NODE] = nodes + bsm_nodes
-output_dict[Topology.ALL_Q_CHANNEL] = qchannels
+    for node1 in router_names:
+        for node2 in router_names:
+            if node1 == node2:
+                continue
+            cchannels.append({Topology.SRC: node1,
+                              Topology.DST: node2,
+                              Topology.DELAY: args.cc_delay * 1e9})
 
-# generate classical links
-router_cchannels = generate_classical(router_names, args.cc_delay)
-cchannels += router_cchannels
-output_dict[Topology.ALL_C_CHANNEL] = cchannels
+    output_dict = {Topology.ALL_TEMPLATES: templates,
+                   Topology.ALL_NODE: nodes + bsm_nodes,
+                   Topology.ALL_Q_CHANNEL: qchannels,
+                   Topology.ALL_C_CHANNEL: cchannels,
+                   Topology.STOP_TIME: int(args.stop * SECOND)}
 
-# write other config options to output dictionary
-final_config(output_dict, args)
+    path = os.path.join(args.directory, args.output)
+    with open(path, 'w') as f:
+        json.dump(output_dict, f, indent=4)
 
-# write final json
-path = os.path.join(args.directory, args.output)
-output_file = open(path, 'w')
-json.dump(output_dict, output_file, indent=4)
 
-# python config/config_generator_star.py 5 20 10 1 0.0002 1 -d config -o star_5.json -s 10
+if __name__ == '__main__':
+    main()
