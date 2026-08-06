@@ -396,6 +396,50 @@ def main_11_29_24():
             ps = new_ps
 
 
+# for 20 node bottleneck topology
+def main_():
+
+    tasks = []
+
+    command = ['python', 'main.py']
+    base_args = ["-tp", "bottleneck", "-n", "20", "-t", "11", "-d", "log/08.06.26.bottleneck20"]
+
+    memory_adaptive = [0]
+    seed = list(range(20))
+
+    for ma in memory_adaptive:
+        if ma == 0:
+            for s in seed:
+                args = set_memory_adaptive(base_args, ma)
+                args = set_queue_seed(args, s)
+                tasks.append(command + args)
+        else:
+            for update in [False, True]:
+                for s in seed:
+                    args = set_memory_adaptive(base_args, ma)
+                    args = set_queue_seed(args, s)
+                    args = set_purify(args)
+                    if update:
+                        args = set_update_prob(args)
+                    tasks.append(command + args)
+
+    parallel = 8
+    ps = []       # processes current running
+    while len(tasks) > 0 or len(ps) > 0:
+        if len(ps) < parallel and len(tasks) > 0:
+            task = tasks.pop(0)
+            print(task, f'{len(tasks)} still in queue')
+            ps.append(Popen(task, stdout=PIPE, stderr=PIPE))
+        else:
+            time.sleep(0.05)
+            new_ps = []
+            for p in ps:
+                if p.poll() is None:
+                    new_ps.append(p)
+                else:
+                    get_output(p)
+            ps = new_ps
+
 if __name__ == '__main__':
     # main_11_27_24()
     # main_11_28_24()
