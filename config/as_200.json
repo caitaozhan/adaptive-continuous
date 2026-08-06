@@ -1,12 +1,6 @@
 {
     "templates": {
-        "perfect_memo": {
-            "MemoryArray": {
-                "fidelity": 1.0,
-                "efficiency": 1.0
-            }
-        },
-        "adaptive_protocol": {
+        "router_template": {
             "MemoryArray": {
                 "fidelity": 0.95,
                 "efficiency": 0.6,
@@ -17,7 +11,9 @@
                     0.3333333333333333
                 ]
             },
-            "adaptive_max_memory": 0,
+            "adaptive_max_memory": 0
+        },
+        "bsm_template": {
             "encoding_type": "single_heralded",
             "SingleHeraldedBSM": {
                 "detectors": [
@@ -37,3304 +33,3104 @@
             "type": "QuantumRouter",
             "seed": 0,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_1",
             "type": "QuantumRouter",
             "seed": 1,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_2",
             "type": "QuantumRouter",
             "seed": 2,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_3",
             "type": "QuantumRouter",
             "seed": 3,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_4",
             "type": "QuantumRouter",
             "seed": 4,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_5",
             "type": "QuantumRouter",
             "seed": 5,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_6",
             "type": "QuantumRouter",
             "seed": 6,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_7",
             "type": "QuantumRouter",
             "seed": 7,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_8",
             "type": "QuantumRouter",
             "seed": 8,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_9",
             "type": "QuantumRouter",
             "seed": 9,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_10",
             "type": "QuantumRouter",
             "seed": 10,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_11",
             "type": "QuantumRouter",
             "seed": 11,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_12",
             "type": "QuantumRouter",
             "seed": 12,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_13",
             "type": "QuantumRouter",
             "seed": 13,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_14",
             "type": "QuantumRouter",
             "seed": 14,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_15",
             "type": "QuantumRouter",
             "seed": 15,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_16",
             "type": "QuantumRouter",
             "seed": 16,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_17",
             "type": "QuantumRouter",
             "seed": 17,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_18",
             "type": "QuantumRouter",
             "seed": 18,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_19",
             "type": "QuantumRouter",
             "seed": 19,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_20",
             "type": "QuantumRouter",
             "seed": 20,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_21",
             "type": "QuantumRouter",
             "seed": 21,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_22",
             "type": "QuantumRouter",
             "seed": 22,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_23",
             "type": "QuantumRouter",
             "seed": 23,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_24",
             "type": "QuantumRouter",
             "seed": 24,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_25",
             "type": "QuantumRouter",
             "seed": 25,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_26",
             "type": "QuantumRouter",
             "seed": 26,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_27",
             "type": "QuantumRouter",
             "seed": 27,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_28",
             "type": "QuantumRouter",
             "seed": 28,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_29",
             "type": "QuantumRouter",
             "seed": 29,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_30",
             "type": "QuantumRouter",
             "seed": 30,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_31",
             "type": "QuantumRouter",
             "seed": 31,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_32",
             "type": "QuantumRouter",
             "seed": 32,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_33",
             "type": "QuantumRouter",
             "seed": 33,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_34",
             "type": "QuantumRouter",
             "seed": 34,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_35",
             "type": "QuantumRouter",
             "seed": 35,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_36",
             "type": "QuantumRouter",
             "seed": 36,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_37",
             "type": "QuantumRouter",
             "seed": 37,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_38",
             "type": "QuantumRouter",
             "seed": 38,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_39",
             "type": "QuantumRouter",
             "seed": 39,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_40",
             "type": "QuantumRouter",
             "seed": 40,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_41",
             "type": "QuantumRouter",
             "seed": 41,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_42",
             "type": "QuantumRouter",
             "seed": 42,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_43",
             "type": "QuantumRouter",
             "seed": 43,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_44",
             "type": "QuantumRouter",
             "seed": 44,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_45",
             "type": "QuantumRouter",
             "seed": 45,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_46",
             "type": "QuantumRouter",
             "seed": 46,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_47",
             "type": "QuantumRouter",
             "seed": 47,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_48",
             "type": "QuantumRouter",
             "seed": 48,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_49",
             "type": "QuantumRouter",
             "seed": 49,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_50",
             "type": "QuantumRouter",
             "seed": 50,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_51",
             "type": "QuantumRouter",
             "seed": 51,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_52",
             "type": "QuantumRouter",
             "seed": 52,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_53",
             "type": "QuantumRouter",
             "seed": 53,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_54",
             "type": "QuantumRouter",
             "seed": 54,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_55",
             "type": "QuantumRouter",
             "seed": 55,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_56",
             "type": "QuantumRouter",
             "seed": 56,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_57",
             "type": "QuantumRouter",
             "seed": 57,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_58",
             "type": "QuantumRouter",
             "seed": 58,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_59",
             "type": "QuantumRouter",
             "seed": 59,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_60",
             "type": "QuantumRouter",
             "seed": 60,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_61",
             "type": "QuantumRouter",
             "seed": 61,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_62",
             "type": "QuantumRouter",
             "seed": 62,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_63",
             "type": "QuantumRouter",
             "seed": 63,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_64",
             "type": "QuantumRouter",
             "seed": 64,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_65",
             "type": "QuantumRouter",
             "seed": 65,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_66",
             "type": "QuantumRouter",
             "seed": 66,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_67",
             "type": "QuantumRouter",
             "seed": 67,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_68",
             "type": "QuantumRouter",
             "seed": 68,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_69",
             "type": "QuantumRouter",
             "seed": 69,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_70",
             "type": "QuantumRouter",
             "seed": 70,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_71",
             "type": "QuantumRouter",
             "seed": 71,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_72",
             "type": "QuantumRouter",
             "seed": 72,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_73",
             "type": "QuantumRouter",
             "seed": 73,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_74",
             "type": "QuantumRouter",
             "seed": 74,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_75",
             "type": "QuantumRouter",
             "seed": 75,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_76",
             "type": "QuantumRouter",
             "seed": 76,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_77",
             "type": "QuantumRouter",
             "seed": 77,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_78",
             "type": "QuantumRouter",
             "seed": 78,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_79",
             "type": "QuantumRouter",
             "seed": 79,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_80",
             "type": "QuantumRouter",
             "seed": 80,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_81",
             "type": "QuantumRouter",
             "seed": 81,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_82",
             "type": "QuantumRouter",
             "seed": 82,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_83",
             "type": "QuantumRouter",
             "seed": 83,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_84",
             "type": "QuantumRouter",
             "seed": 84,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_85",
             "type": "QuantumRouter",
             "seed": 85,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_86",
             "type": "QuantumRouter",
             "seed": 86,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_87",
             "type": "QuantumRouter",
             "seed": 87,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_88",
             "type": "QuantumRouter",
             "seed": 88,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_89",
             "type": "QuantumRouter",
             "seed": 89,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_90",
             "type": "QuantumRouter",
             "seed": 90,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_91",
             "type": "QuantumRouter",
             "seed": 91,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_92",
             "type": "QuantumRouter",
             "seed": 92,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_93",
             "type": "QuantumRouter",
             "seed": 93,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_94",
             "type": "QuantumRouter",
             "seed": 94,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_95",
             "type": "QuantumRouter",
             "seed": 95,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_96",
             "type": "QuantumRouter",
             "seed": 96,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_97",
             "type": "QuantumRouter",
             "seed": 97,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_98",
             "type": "QuantumRouter",
             "seed": 98,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_99",
             "type": "QuantumRouter",
             "seed": 99,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_100",
             "type": "QuantumRouter",
             "seed": 100,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_101",
             "type": "QuantumRouter",
             "seed": 101,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_102",
             "type": "QuantumRouter",
             "seed": 102,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_103",
             "type": "QuantumRouter",
             "seed": 103,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_104",
             "type": "QuantumRouter",
             "seed": 104,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_105",
             "type": "QuantumRouter",
             "seed": 105,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_106",
             "type": "QuantumRouter",
             "seed": 106,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_107",
             "type": "QuantumRouter",
             "seed": 107,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_108",
             "type": "QuantumRouter",
             "seed": 108,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_109",
             "type": "QuantumRouter",
             "seed": 109,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_110",
             "type": "QuantumRouter",
             "seed": 110,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_111",
             "type": "QuantumRouter",
             "seed": 111,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_112",
             "type": "QuantumRouter",
             "seed": 112,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_113",
             "type": "QuantumRouter",
             "seed": 113,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_114",
             "type": "QuantumRouter",
             "seed": 114,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_115",
             "type": "QuantumRouter",
             "seed": 115,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_116",
             "type": "QuantumRouter",
             "seed": 116,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_117",
             "type": "QuantumRouter",
             "seed": 117,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_118",
             "type": "QuantumRouter",
             "seed": 118,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_119",
             "type": "QuantumRouter",
             "seed": 119,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_120",
             "type": "QuantumRouter",
             "seed": 120,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_121",
             "type": "QuantumRouter",
             "seed": 121,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_122",
             "type": "QuantumRouter",
             "seed": 122,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_123",
             "type": "QuantumRouter",
             "seed": 123,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_124",
             "type": "QuantumRouter",
             "seed": 124,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_125",
             "type": "QuantumRouter",
             "seed": 125,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_126",
             "type": "QuantumRouter",
             "seed": 126,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_127",
             "type": "QuantumRouter",
             "seed": 127,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_128",
             "type": "QuantumRouter",
             "seed": 128,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_129",
             "type": "QuantumRouter",
             "seed": 129,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_130",
             "type": "QuantumRouter",
             "seed": 130,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_131",
             "type": "QuantumRouter",
             "seed": 131,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_132",
             "type": "QuantumRouter",
             "seed": 132,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_133",
             "type": "QuantumRouter",
             "seed": 133,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_134",
             "type": "QuantumRouter",
             "seed": 134,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_135",
             "type": "QuantumRouter",
             "seed": 135,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_136",
             "type": "QuantumRouter",
             "seed": 136,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_137",
             "type": "QuantumRouter",
             "seed": 137,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_138",
             "type": "QuantumRouter",
             "seed": 138,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_139",
             "type": "QuantumRouter",
             "seed": 139,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_140",
             "type": "QuantumRouter",
             "seed": 140,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_141",
             "type": "QuantumRouter",
             "seed": 141,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_142",
             "type": "QuantumRouter",
             "seed": 142,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_143",
             "type": "QuantumRouter",
             "seed": 143,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_144",
             "type": "QuantumRouter",
             "seed": 144,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_145",
             "type": "QuantumRouter",
             "seed": 145,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_146",
             "type": "QuantumRouter",
             "seed": 146,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_147",
             "type": "QuantumRouter",
             "seed": 147,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_148",
             "type": "QuantumRouter",
             "seed": 148,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_149",
             "type": "QuantumRouter",
             "seed": 149,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_150",
             "type": "QuantumRouter",
             "seed": 150,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_151",
             "type": "QuantumRouter",
             "seed": 151,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_152",
             "type": "QuantumRouter",
             "seed": 152,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_153",
             "type": "QuantumRouter",
             "seed": 153,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_154",
             "type": "QuantumRouter",
             "seed": 154,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_155",
             "type": "QuantumRouter",
             "seed": 155,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_156",
             "type": "QuantumRouter",
             "seed": 156,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_157",
             "type": "QuantumRouter",
             "seed": 157,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_158",
             "type": "QuantumRouter",
             "seed": 158,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_159",
             "type": "QuantumRouter",
             "seed": 159,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_160",
             "type": "QuantumRouter",
             "seed": 160,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_161",
             "type": "QuantumRouter",
             "seed": 161,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_162",
             "type": "QuantumRouter",
             "seed": 162,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_163",
             "type": "QuantumRouter",
             "seed": 163,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_164",
             "type": "QuantumRouter",
             "seed": 164,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_165",
             "type": "QuantumRouter",
             "seed": 165,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_166",
             "type": "QuantumRouter",
             "seed": 166,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_167",
             "type": "QuantumRouter",
             "seed": 167,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_168",
             "type": "QuantumRouter",
             "seed": 168,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_169",
             "type": "QuantumRouter",
             "seed": 169,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_170",
             "type": "QuantumRouter",
             "seed": 170,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_171",
             "type": "QuantumRouter",
             "seed": 171,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_172",
             "type": "QuantumRouter",
             "seed": 172,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_173",
             "type": "QuantumRouter",
             "seed": 173,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_174",
             "type": "QuantumRouter",
             "seed": 174,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_175",
             "type": "QuantumRouter",
             "seed": 175,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_176",
             "type": "QuantumRouter",
             "seed": 176,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_177",
             "type": "QuantumRouter",
             "seed": 177,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_178",
             "type": "QuantumRouter",
             "seed": 178,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_179",
             "type": "QuantumRouter",
             "seed": 179,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_180",
             "type": "QuantumRouter",
             "seed": 180,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_181",
             "type": "QuantumRouter",
             "seed": 181,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_182",
             "type": "QuantumRouter",
             "seed": 182,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_183",
             "type": "QuantumRouter",
             "seed": 183,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_184",
             "type": "QuantumRouter",
             "seed": 184,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_185",
             "type": "QuantumRouter",
             "seed": 185,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_186",
             "type": "QuantumRouter",
             "seed": 186,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_187",
             "type": "QuantumRouter",
             "seed": 187,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_188",
             "type": "QuantumRouter",
             "seed": 188,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_189",
             "type": "QuantumRouter",
             "seed": 189,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_190",
             "type": "QuantumRouter",
             "seed": 190,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_191",
             "type": "QuantumRouter",
             "seed": 191,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_192",
             "type": "QuantumRouter",
             "seed": 192,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_193",
             "type": "QuantumRouter",
             "seed": 193,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_194",
             "type": "QuantumRouter",
             "seed": 194,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_195",
             "type": "QuantumRouter",
             "seed": 195,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_196",
             "type": "QuantumRouter",
             "seed": 196,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_197",
             "type": "QuantumRouter",
             "seed": 197,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_198",
             "type": "QuantumRouter",
             "seed": 198,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "router_199",
             "type": "QuantumRouter",
             "seed": 199,
             "memo_size": 10,
-            "group": 0,
-            "template": "adaptive_protocol"
+            "template": "router_template"
         },
         {
             "name": "BSM_router_0_router_1",
             "type": "BSMNode",
             "seed": 0,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_2",
             "type": "BSMNode",
             "seed": 1,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_3",
             "type": "BSMNode",
             "seed": 2,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_4",
             "type": "BSMNode",
             "seed": 3,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_5",
             "type": "BSMNode",
             "seed": 4,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_7",
             "type": "BSMNode",
             "seed": 5,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_8",
             "type": "BSMNode",
             "seed": 6,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_10",
             "type": "BSMNode",
             "seed": 7,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_20",
             "type": "BSMNode",
             "seed": 8,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_21",
             "type": "BSMNode",
             "seed": 9,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_23",
             "type": "BSMNode",
             "seed": 10,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_37",
             "type": "BSMNode",
             "seed": 11,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_41",
             "type": "BSMNode",
             "seed": 12,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_44",
             "type": "BSMNode",
             "seed": 13,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_63",
             "type": "BSMNode",
             "seed": 14,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_71",
             "type": "BSMNode",
             "seed": 15,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_123",
             "type": "BSMNode",
             "seed": 16,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_175",
             "type": "BSMNode",
             "seed": 17,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_184",
             "type": "BSMNode",
             "seed": 18,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_0_router_196",
             "type": "BSMNode",
             "seed": 19,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_2",
             "type": "BSMNode",
             "seed": 20,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_3",
             "type": "BSMNode",
             "seed": 21,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_4",
             "type": "BSMNode",
             "seed": 22,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_5",
             "type": "BSMNode",
             "seed": 23,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_7",
             "type": "BSMNode",
             "seed": 24,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_8",
             "type": "BSMNode",
             "seed": 25,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_15",
             "type": "BSMNode",
             "seed": 26,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_35",
             "type": "BSMNode",
             "seed": 27,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_40",
             "type": "BSMNode",
             "seed": 28,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_77",
             "type": "BSMNode",
             "seed": 29,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_95",
             "type": "BSMNode",
             "seed": 30,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_118",
             "type": "BSMNode",
             "seed": 31,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_143",
             "type": "BSMNode",
             "seed": 32,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_1_router_191",
             "type": "BSMNode",
             "seed": 33,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_3",
             "type": "BSMNode",
             "seed": 34,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_4",
             "type": "BSMNode",
             "seed": 35,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_5",
             "type": "BSMNode",
             "seed": 36,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_6",
             "type": "BSMNode",
             "seed": 37,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_9",
             "type": "BSMNode",
             "seed": 38,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_10",
             "type": "BSMNode",
             "seed": 39,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_18",
             "type": "BSMNode",
             "seed": 40,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_23",
             "type": "BSMNode",
             "seed": 41,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_26",
             "type": "BSMNode",
             "seed": 42,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_32",
             "type": "BSMNode",
             "seed": 43,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_41",
             "type": "BSMNode",
             "seed": 44,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_42",
             "type": "BSMNode",
             "seed": 45,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_43",
             "type": "BSMNode",
             "seed": 46,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_48",
             "type": "BSMNode",
             "seed": 47,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_83",
             "type": "BSMNode",
             "seed": 48,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_179",
             "type": "BSMNode",
             "seed": 49,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_2_router_197",
             "type": "BSMNode",
             "seed": 50,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_4",
             "type": "BSMNode",
             "seed": 51,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_5",
             "type": "BSMNode",
             "seed": 52,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_9",
             "type": "BSMNode",
             "seed": 53,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_34",
             "type": "BSMNode",
             "seed": 54,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_37",
             "type": "BSMNode",
             "seed": 55,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_40",
             "type": "BSMNode",
             "seed": 56,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_64",
             "type": "BSMNode",
             "seed": 57,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_3_router_75",
             "type": "BSMNode",
             "seed": 58,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_4_router_5",
             "type": "BSMNode",
             "seed": 59,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_4_router_34",
             "type": "BSMNode",
             "seed": 60,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_4_router_43",
             "type": "BSMNode",
             "seed": 61,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_4_router_137",
             "type": "BSMNode",
             "seed": 62,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_5_router_7",
             "type": "BSMNode",
             "seed": 63,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_5_router_12",
             "type": "BSMNode",
             "seed": 64,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_5_router_147",
             "type": "BSMNode",
             "seed": 65,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_5_router_152",
             "type": "BSMNode",
             "seed": 66,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_5_router_169",
             "type": "BSMNode",
             "seed": 67,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_8",
             "type": "BSMNode",
             "seed": 68,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_11",
             "type": "BSMNode",
             "seed": 69,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_12",
             "type": "BSMNode",
             "seed": 70,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_13",
             "type": "BSMNode",
             "seed": 71,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_55",
             "type": "BSMNode",
             "seed": 72,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_121",
             "type": "BSMNode",
             "seed": 73,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_6_router_154",
             "type": "BSMNode",
             "seed": 74,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_8",
             "type": "BSMNode",
             "seed": 75,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_14",
             "type": "BSMNode",
             "seed": 76,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_62",
             "type": "BSMNode",
             "seed": 77,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_65",
             "type": "BSMNode",
             "seed": 78,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_67",
             "type": "BSMNode",
             "seed": 79,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_103",
             "type": "BSMNode",
             "seed": 80,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_119",
             "type": "BSMNode",
             "seed": 81,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_128",
             "type": "BSMNode",
             "seed": 82,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_195",
             "type": "BSMNode",
             "seed": 83,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_7_router_199",
             "type": "BSMNode",
             "seed": 84,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_12",
             "type": "BSMNode",
             "seed": 85,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_13",
             "type": "BSMNode",
             "seed": 86,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_15",
             "type": "BSMNode",
             "seed": 87,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_16",
             "type": "BSMNode",
             "seed": 88,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_17",
             "type": "BSMNode",
             "seed": 89,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_18",
             "type": "BSMNode",
             "seed": 90,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_19",
             "type": "BSMNode",
             "seed": 91,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_21",
             "type": "BSMNode",
             "seed": 92,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_35",
             "type": "BSMNode",
             "seed": 93,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_43",
             "type": "BSMNode",
             "seed": 94,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_78",
             "type": "BSMNode",
             "seed": 95,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_87",
             "type": "BSMNode",
             "seed": 96,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_93",
             "type": "BSMNode",
             "seed": 97,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_102",
             "type": "BSMNode",
             "seed": 98,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_126",
             "type": "BSMNode",
             "seed": 99,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_131",
             "type": "BSMNode",
             "seed": 100,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_134",
             "type": "BSMNode",
             "seed": 101,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_144",
             "type": "BSMNode",
             "seed": 102,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_164",
             "type": "BSMNode",
             "seed": 103,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_171",
             "type": "BSMNode",
             "seed": 104,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_8_router_178",
             "type": "BSMNode",
             "seed": 105,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_11",
             "type": "BSMNode",
             "seed": 106,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_14",
             "type": "BSMNode",
             "seed": 107,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_15",
             "type": "BSMNode",
             "seed": 108,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_16",
             "type": "BSMNode",
             "seed": 109,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_21",
             "type": "BSMNode",
             "seed": 110,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_24",
             "type": "BSMNode",
             "seed": 111,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_69",
             "type": "BSMNode",
             "seed": 112,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_81",
             "type": "BSMNode",
             "seed": 113,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_85",
             "type": "BSMNode",
             "seed": 114,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_90",
             "type": "BSMNode",
             "seed": 115,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_91",
             "type": "BSMNode",
             "seed": 116,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_99",
             "type": "BSMNode",
             "seed": 117,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_115",
             "type": "BSMNode",
             "seed": 118,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_120",
             "type": "BSMNode",
             "seed": 119,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_125",
             "type": "BSMNode",
             "seed": 120,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_130",
             "type": "BSMNode",
             "seed": 121,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_138",
             "type": "BSMNode",
             "seed": 122,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_155",
             "type": "BSMNode",
             "seed": 123,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_168",
             "type": "BSMNode",
             "seed": 124,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_172",
             "type": "BSMNode",
             "seed": 125,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_173",
             "type": "BSMNode",
             "seed": 126,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_185",
             "type": "BSMNode",
             "seed": 127,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_9_router_193",
             "type": "BSMNode",
             "seed": 128,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_15",
             "type": "BSMNode",
             "seed": 129,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_18",
             "type": "BSMNode",
             "seed": 130,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_21",
             "type": "BSMNode",
             "seed": 131,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_25",
             "type": "BSMNode",
             "seed": 132,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_27",
             "type": "BSMNode",
             "seed": 133,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_29",
             "type": "BSMNode",
             "seed": 134,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_98",
             "type": "BSMNode",
             "seed": 135,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_10_router_187",
             "type": "BSMNode",
             "seed": 136,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_11_router_176",
             "type": "BSMNode",
             "seed": 137,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_11_router_198",
             "type": "BSMNode",
             "seed": 138,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_13",
             "type": "BSMNode",
             "seed": 139,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_15",
             "type": "BSMNode",
             "seed": 140,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_16",
             "type": "BSMNode",
             "seed": 141,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_17",
             "type": "BSMNode",
             "seed": 142,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_45",
             "type": "BSMNode",
             "seed": 143,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_80",
             "type": "BSMNode",
             "seed": 144,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_12_router_141",
             "type": "BSMNode",
             "seed": 145,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_13_router_24",
             "type": "BSMNode",
             "seed": 146,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_13_router_37",
             "type": "BSMNode",
             "seed": 147,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_14_router_17",
             "type": "BSMNode",
             "seed": 148,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_14_router_22",
             "type": "BSMNode",
             "seed": 149,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_14_router_24",
             "type": "BSMNode",
             "seed": 150,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_14_router_35",
             "type": "BSMNode",
             "seed": 151,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_14_router_43",
             "type": "BSMNode",
             "seed": 152,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_17",
             "type": "BSMNode",
             "seed": 153,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_18",
             "type": "BSMNode",
             "seed": 154,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_22",
             "type": "BSMNode",
             "seed": 155,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_27",
             "type": "BSMNode",
             "seed": 156,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_28",
             "type": "BSMNode",
             "seed": 157,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_29",
             "type": "BSMNode",
             "seed": 158,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_34",
             "type": "BSMNode",
             "seed": 159,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_35",
             "type": "BSMNode",
             "seed": 160,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_42",
             "type": "BSMNode",
             "seed": 161,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_96",
             "type": "BSMNode",
             "seed": 162,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_100",
             "type": "BSMNode",
             "seed": 163,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_133",
             "type": "BSMNode",
             "seed": 164,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_15_router_166",
             "type": "BSMNode",
             "seed": 165,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_17",
             "type": "BSMNode",
             "seed": 166,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_19",
             "type": "BSMNode",
             "seed": 167,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_20",
             "type": "BSMNode",
             "seed": 168,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_22",
             "type": "BSMNode",
             "seed": 169,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_26",
             "type": "BSMNode",
             "seed": 170,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_28",
             "type": "BSMNode",
             "seed": 171,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_32",
             "type": "BSMNode",
             "seed": 172,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_34",
             "type": "BSMNode",
             "seed": 173,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_39",
             "type": "BSMNode",
             "seed": 174,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_41",
             "type": "BSMNode",
             "seed": 175,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_44",
             "type": "BSMNode",
             "seed": 176,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_46",
             "type": "BSMNode",
             "seed": 177,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_54",
             "type": "BSMNode",
             "seed": 178,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_61",
             "type": "BSMNode",
             "seed": 179,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_66",
             "type": "BSMNode",
             "seed": 180,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_76",
             "type": "BSMNode",
             "seed": 181,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_84",
             "type": "BSMNode",
             "seed": 182,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_88",
             "type": "BSMNode",
             "seed": 183,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_92",
             "type": "BSMNode",
             "seed": 184,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_97",
             "type": "BSMNode",
             "seed": 185,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_101",
             "type": "BSMNode",
             "seed": 186,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_107",
             "type": "BSMNode",
             "seed": 187,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_109",
             "type": "BSMNode",
             "seed": 188,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_111",
             "type": "BSMNode",
             "seed": 189,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_112",
             "type": "BSMNode",
             "seed": 190,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_127",
             "type": "BSMNode",
             "seed": 191,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_132",
             "type": "BSMNode",
             "seed": 192,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_135",
             "type": "BSMNode",
             "seed": 193,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_136",
             "type": "BSMNode",
             "seed": 194,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_140",
             "type": "BSMNode",
             "seed": 195,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_142",
             "type": "BSMNode",
             "seed": 196,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_145",
             "type": "BSMNode",
             "seed": 197,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_150",
             "type": "BSMNode",
             "seed": 198,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_153",
             "type": "BSMNode",
             "seed": 199,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_156",
             "type": "BSMNode",
             "seed": 200,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_161",
             "type": "BSMNode",
             "seed": 201,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_165",
             "type": "BSMNode",
             "seed": 202,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_170",
             "type": "BSMNode",
             "seed": 203,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_177",
             "type": "BSMNode",
             "seed": 204,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_182",
             "type": "BSMNode",
             "seed": 205,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_186",
             "type": "BSMNode",
             "seed": 206,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_190",
             "type": "BSMNode",
             "seed": 207,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_16_router_192",
             "type": "BSMNode",
             "seed": 208,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_17_router_22",
             "type": "BSMNode",
             "seed": 209,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_17_router_30",
             "type": "BSMNode",
             "seed": 210,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_17_router_39",
             "type": "BSMNode",
             "seed": 211,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_17_router_89",
             "type": "BSMNode",
             "seed": 212,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_17_router_194",
             "type": "BSMNode",
             "seed": 213,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_18_router_33",
             "type": "BSMNode",
             "seed": 214,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_20_router_30",
             "type": "BSMNode",
             "seed": 215,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_20_router_73",
             "type": "BSMNode",
             "seed": 216,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_20_router_158",
             "type": "BSMNode",
             "seed": 217,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_20_router_189",
             "type": "BSMNode",
             "seed": 218,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_21_router_27",
             "type": "BSMNode",
             "seed": 219,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_21_router_29",
             "type": "BSMNode",
             "seed": 220,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_21_router_151",
             "type": "BSMNode",
             "seed": 221,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_22_router_23",
             "type": "BSMNode",
             "seed": 222,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_22_router_33",
             "type": "BSMNode",
             "seed": 223,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_22_router_60",
             "type": "BSMNode",
             "seed": 224,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_22_router_148",
             "type": "BSMNode",
             "seed": 225,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_22_router_183",
             "type": "BSMNode",
             "seed": 226,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_31",
             "type": "BSMNode",
             "seed": 227,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_33",
             "type": "BSMNode",
             "seed": 228,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_37",
             "type": "BSMNode",
             "seed": 229,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_40",
             "type": "BSMNode",
             "seed": 230,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_45",
             "type": "BSMNode",
             "seed": 231,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_51",
             "type": "BSMNode",
             "seed": 232,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_52",
             "type": "BSMNode",
             "seed": 233,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_53",
             "type": "BSMNode",
             "seed": 234,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_56",
             "type": "BSMNode",
             "seed": 235,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_57",
             "type": "BSMNode",
             "seed": 236,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_70",
             "type": "BSMNode",
             "seed": 237,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_72",
             "type": "BSMNode",
             "seed": 238,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_94",
             "type": "BSMNode",
             "seed": 239,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_108",
             "type": "BSMNode",
             "seed": 240,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_114",
             "type": "BSMNode",
             "seed": 241,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_139",
             "type": "BSMNode",
             "seed": 242,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_146",
             "type": "BSMNode",
             "seed": 243,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_180",
             "type": "BSMNode",
             "seed": 244,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_23_router_188",
             "type": "BSMNode",
             "seed": 245,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_26",
             "type": "BSMNode",
             "seed": 246,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_38",
             "type": "BSMNode",
             "seed": 247,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_39",
             "type": "BSMNode",
             "seed": 248,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_47",
             "type": "BSMNode",
             "seed": 249,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_74",
             "type": "BSMNode",
             "seed": 250,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_86",
             "type": "BSMNode",
             "seed": 251,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_88",
             "type": "BSMNode",
             "seed": 252,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_105",
             "type": "BSMNode",
             "seed": 253,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_110",
             "type": "BSMNode",
             "seed": 254,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_113",
             "type": "BSMNode",
             "seed": 255,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_117",
             "type": "BSMNode",
             "seed": 256,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_122",
             "type": "BSMNode",
             "seed": 257,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_124",
             "type": "BSMNode",
             "seed": 258,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_157",
             "type": "BSMNode",
             "seed": 259,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_159",
             "type": "BSMNode",
             "seed": 260,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_24_router_174",
             "type": "BSMNode",
             "seed": 261,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_27_router_59",
             "type": "BSMNode",
             "seed": 262,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_31",
             "type": "BSMNode",
             "seed": 263,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_32",
             "type": "BSMNode",
             "seed": 264,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_34",
             "type": "BSMNode",
             "seed": 265,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_35",
             "type": "BSMNode",
             "seed": 266,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_82",
             "type": "BSMNode",
             "seed": 267,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_28_router_106",
             "type": "BSMNode",
             "seed": 268,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_29_router_58",
             "type": "BSMNode",
             "seed": 269,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_29_router_104",
             "type": "BSMNode",
             "seed": 270,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_29_router_160",
             "type": "BSMNode",
             "seed": 271,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_30_router_50",
             "type": "BSMNode",
             "seed": 272,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_30_router_79",
             "type": "BSMNode",
             "seed": 273,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_30_router_149",
             "type": "BSMNode",
             "seed": 274,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_30_router_162",
             "type": "BSMNode",
             "seed": 275,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_30_router_167",
             "type": "BSMNode",
             "seed": 276,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_31_router_68",
             "type": "BSMNode",
             "seed": 277,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_32_router_36",
             "type": "BSMNode",
             "seed": 278,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_32_router_129",
             "type": "BSMNode",
             "seed": 279,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_32_router_163",
             "type": "BSMNode",
             "seed": 280,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_32_router_181",
             "type": "BSMNode",
             "seed": 281,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_33_router_116",
             "type": "BSMNode",
             "seed": 282,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         },
         {
             "name": "BSM_router_35_router_49",
             "type": "BSMNode",
             "seed": 283,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         }
     ],
     "qchannels": [
@@ -211429,6 +211225,6 @@
             "delay": 1000000000.0
         }
     ],
-    "stop_time": 110000000000000.0,
-    "is_parallel": false
+    "stop_time": 110000000000000,
+    "formalism": "bell_diagonal"
 }

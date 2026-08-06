@@ -1,12 +1,6 @@
 {
     "templates": {
-        "perfect_memo": {
-            "MemoryArray": {
-                "fidelity": 1.0,
-                "efficiency": 1.0
-            }
-        },
-        "adaptive_protocol": {
+        "router_template": {
             "MemoryArray": {
                 "fidelity": 0.95,
                 "efficiency": 0.6,
@@ -17,7 +11,9 @@
                     0.3333333333333333
                 ]
             },
-            "adaptive_max_memory": 0,
+            "adaptive_max_memory": 0
+        },
+        "bsm_template": {
             "encoding_type": "single_heralded",
             "SingleHeraldedBSM": {
                 "detectors": [
@@ -37,7 +33,7 @@
             "type": "QuantumRouter",
             "seed": 0,
             "memo_size": 10,
-            "template": "adaptive_protocol",
+            "template": "router_template",
             "gate_fidelity": 0.99,
             "measurement_fidelity": 0.99
         },
@@ -46,7 +42,7 @@
             "type": "QuantumRouter",
             "seed": 1,
             "memo_size": 10,
-            "template": "adaptive_protocol",
+            "template": "router_template",
             "gate_fidelity": 0.99,
             "measurement_fidelity": 0.99
         },
@@ -54,7 +50,7 @@
             "name": "BSM_0_1",
             "type": "BSMNode",
             "seed": 0,
-            "template": "adaptive_protocol"
+            "template": "bsm_template"
         }
     ],
     "qchannels": [
@@ -99,14 +95,14 @@
         {
             "source": "router_0",
             "destination": "router_1",
-            "delay": 1000000000
+            "delay": 1000000000.0
         },
         {
             "source": "router_1",
             "destination": "router_0",
-            "delay": 1000000000
+            "delay": 1000000000.0
         }
     ],
     "stop_time": 10000000000000,
-    "formalism": "ket_vector"
+    "formalism": "bell_diagonal"
 }
